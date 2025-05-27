@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Despedida</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            background-color: #b2ebf2;
+            padding: 20px;
+            text-align: center;
+            color: #006064;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .despedida-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 320px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .despedida p {
+            font-size: 18px;
+            color: #006064;
+            margin-bottom: 20px;
+        }
+
+        .despedida a {
+            color: #00bcd4;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .despedida a:hover {
+            text-decoration: underline;
+        }
+
+        .emoji {
+            font-size: 24px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>TicketWorld</header>
+    <div class="despedida-container">
+        <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+        {% if user.is_authenticated %}
+            <div class="despedida">
+                <p>¡Hasta pronto, {{ user.username }}! Nos vemos en tu próxima visita. <span class="emoji">👋</span></p>
+            </div>
+        {% else %}
+            <div class="despedida">
+                <p>¡Gracias por visitarnos! Esperamos verte pronto. Si tienes una cuenta, <a href="{% url 'usuarios:login' %}">inicia sesión</a> o <a href="{% url 'usuarios:registro' %}">regístrate</a> para disfrutar de todas las ventajas.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

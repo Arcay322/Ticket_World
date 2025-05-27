@@ -1,0 +1,14 @@
+<h1>Eventos disponibles</h1>
+
+<ul>
+  {% for evento in eventos %}
+    <li>
+      <strong>{{ evento.titulo }}</strong> - {{ evento.fecha|date:"d M Y H:i" }} <br>
+      Lugar: {{ evento.lugar }}<br>
+      <p>{{ evento.descripcion }}</p>
+      <!-- Aquí luego puedes poner botón "Comprar" -->
+    </li>
+  {% empty %}
+    <li>No hay eventos disponibles.</li>
+  {% endfor %}
+</ul>

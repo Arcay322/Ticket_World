@@ -1,0 +1,27 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+  <section class="perfil-usuario">
+    <h1>Perfil de {{ usuario.username }}</h1>
+
+    <div class="datos-usuario">
+      <p><strong>Nombre completo:</strong> {{ usuario.first_name }} {{ usuario.last_name }}</p>
+      <p><strong>Email:</strong> {{ usuario.email }}</p>
+      <p><strong>Rol actual:</strong> {{ usuario.get_rol_display }}</p>
+    </div>
+
+    {% if usuario.rol == 'cliente' %}
+      <p>
+        <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-secondary">
+          Solicitar cambio a proveedor
+        </a>
+      </p>
+    {% endif %}
+
+    <p>
+      <a href="{% url 'usuarios:logout' %}" class="btn btn-danger">
+        Cerrar sesión
+      </a>
+    </p>
+  </section>
+{% endblock %}

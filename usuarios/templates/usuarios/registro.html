@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
+</head>
+<body>
+    <header>TicketWorld</header>
+    <div class="register-container">
+        <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+        <h2>Crear cuenta</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <label for="username">Usuario:</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+
+            <label for="email">Correo electrónico:</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+
+            <label for="password1">Contraseña:</label>
+            {{ form.password1 }}
+            {% for error in form.password1.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+
+            <label for="password2">Confirmar contraseña:</label>
+            {{ form.password2 }}
+            {% for error in form.password2.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+
+            <button type="submit">Registrarse</button>
+        </form>
+        <p><a href="{% url 'usuarios:login' %}">¿Ya tienes una cuenta? Inicia sesión</a></p>
+    </div>
+</body>
+</html>

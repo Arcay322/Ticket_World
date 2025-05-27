@@ -1,0 +1,16 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}Registro Exitoso{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
+{% endblock %}
+
+{% block content %}
+<header>TicketWorld</header>
+<div class="registro-exitoso-container">
+    <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+    <h2>¡Registro Exitoso!</h2>
+    <p>Revisa tu correo electrónico para activar tu cuenta.</p>
+</div>
+{% endblock %}

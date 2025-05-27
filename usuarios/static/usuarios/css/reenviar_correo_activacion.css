@@ -1,0 +1,71 @@
+.reenviar-correo-container {
+    background-color: #f9f9f9;
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 30px 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.reenviar-correo-container h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.reenviar-correo-container p {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+.reenviar-correo-container form input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.reenviar-correo-container form button.btn {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reenviar-correo-container form button.btn:hover {
+    background-color: #155fa0;
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.message.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}

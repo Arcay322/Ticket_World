@@ -1,0 +1,30 @@
+
+{% load static %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<header class="custom-header">TicketWorld</header>
+
+<div class="login-container">
+    <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+    <h2>Iniciar sesión</h2>
+
+    {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Usuario:</label>
+        <input type="text" name="username" required>
+
+        <label for="password">Contraseña:</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Ingresar</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}Activación fallida{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/activacion_fallida.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="activacion-fallida-container">
+    <h2>¡Oops! No se pudo activar tu cuenta</h2>
+    <p>El enlace de activación no es válido o ha expirado.<br>
+       Por favor, verifica el enlace o solicita un nuevo correo de activación.</p>
+    <a href="{% url 'usuarios:reenviar_correo_activacion' %}" class="btn">Reenviar correo de activación</a>
+    <a href="{% url 'usuarios:login' %}" class="btn btn-secondary">Ir a iniciar sesión</a>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #b2ebf2;
+    padding: 20px 0;
+    text-align: center;
+    color: #006064;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+
+
+form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button,
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* Layout general para que footer quede abajo */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Contenedor principal que crece para ocupar espacio */
+  .container {
+    flex: 1 0 auto;
+  }
+  
+  /* Footer fijo al fondo */
+  footer {
+    flex-shrink: 0;
+    background-color: #b2ebf2;
+    color: #006064;
+    text-align: center;
+    padding: 15px 0;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    width: 100%;
+    /* Si quieres que quede fijo en la pantalla: */
+    /* position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 10; */
+  }
+  

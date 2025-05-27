@@ -1,0 +1,14 @@
+<h1>Gestión de eventos</h1>
+
+<ul>
+  {% for evento in eventos %}
+    <li>
+        <strong>{{ evento.nombre }}</strong>       - {{ evento.fecha|date:"d M Y H:i" }} <br>
+      Lugar: {{ evento.lugar }}<br>
+      <p>{{ evento.descripcion }}</p>
+      <!-- Aquí pondremos luego botones para Editar/Eliminar -->
+    </li>
+  {% empty %}
+    <li>No tienes eventos para gestionar.</li>
+  {% endfor %}
+</ul>

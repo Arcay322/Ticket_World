@@ -1,0 +1,51 @@
+.activacion-fallida-container {
+    background-color: #fff3f3;
+    max-width: 600px;
+    width: 90%;
+    padding: 40px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.1);
+    text-align: center;
+    box-sizing: border-box;
+    margin: 80px auto;
+    border: 1.5px solid #f44336; /* rojo suave */
+}
+
+.activacion-fallida-container h2 {
+    color: #f44336;
+    margin-bottom: 20px;
+}
+
+.activacion-fallida-container p {
+    font-size: 16px;
+    color: #b71c1c;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.activacion-fallida-container .btn {
+    display: inline-block;
+    background-color: #f44336;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.activacion-fallida-container .btn:hover {
+    background-color: #d32f2f;
+}
+
+.activacion-fallida-container .btn-secondary {
+    background-color: #9e9e9e;
+}
+
+.activacion-fallida-container .btn-secondary:hover {
+    background-color: #757575;
+}
