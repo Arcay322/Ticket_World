@@ -1,103 +1,58 @@
+# tickets/models.py
+
 from django.db import models
+from django.conf import settings # <-- IMPORTANTE
 
 class Categoria(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-
-    class Meta:
-        managed = False
-        db_table = 'categorias'
-
+    nombre = models.CharField(max_length=255)
     def __str__(self):
         return self.nombre
-
 
 class Evento(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=200)
-    descripcion = models.TextField()
+    nombre = models.CharField(max_length=255)
+    descripcion = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField()
-    lugar = models.CharField(max_length=200)
-    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, db_column='id_categoria')
-
-    class Meta:
-        managed = False
-        db_table = 'eventos'
-
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name='eventos')
+    lugar = models.CharField(max_length=250, blank=True, null=True)
     def __str__(self):
         return self.nombre
-    
-
 
 class Boleto(models.Model):
-    id = models.AutoField(primary_key=True)
-    id_evento = models.ForeignKey(Evento, on_delete=models.CASCADE, db_column='id_evento')
-    tipo = models.CharField(max_length=50)  # VIP, General, Preferencial
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='boletos')
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    cantidad_disponible = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'boletos'
-
+    cantidad = models.PositiveIntegerField()
     def __str__(self):
-        return f"{self.tipo} - {self.id_evento.titulo}"
-
+        return f"{self.evento.nombre} - ${self.precio}"
 
 class MetodoPago(models.Model):
-    id = models.AutoField(primary_key=True)
-    metodo = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'metodos_pago'
-
+    nombre = models.CharField(max_length=100)
     def __str__(self):
-        return self.metodo
+        return self.nombre
 
+# LA CLASE 'Usuario' DEBE SER ELIMINADA DE ESTE ARCHIVO
 
 class Venta(models.Model):
-    id = models.AutoField(primary_key=True)
-    id_usuario = models.IntegerField()  # Aquí no mapeamos FK a usuarios de Django porque están en otra DB
-    fecha_compra = models.DateTimeField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    id_metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.CASCADE, db_column='id_metodo_pago')
-
-    class Meta:
-        managed = False
-        db_table = 'ventas'
-
+    # Usamos el modelo de usuario correcto de todo el proyecto
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ventas')
+    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT, related_name='ventas')
+    fecha_compra = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return f"Venta {self.id} - Usuario {self.id_usuario} - Total {self.total}"
-
+        return f"Venta #{self.pk} - {self.usuario.email} - {self.fecha_compra}"
 
 class DetalleVenta(models.Model):
-    id = models.AutoField(primary_key=True)
-    id_compra = models.ForeignKey(Venta, on_delete=models.CASCADE, db_column='id_compra')
-    id_boleto = models.ForeignKey(Boleto, on_delete=models.CASCADE, db_column='id_boleto')
-    cantidad = models.IntegerField()
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'detalle_venta'
-
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
+    boleto = models.ForeignKey(Boleto, on_delete=models.PROTECT, related_name='detalle_ventas')
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     def __str__(self):
-        return f"Detalle {self.id} - Venta {self.id_compra.id}"
-
+        return f"{self.cantidad} x {self.boleto} en venta {self.venta.pk}"
 
 class Opinion(models.Model):
-    id = models.AutoField(primary_key=True)
-    id_usuario = models.IntegerField()  # Id del usuario en la otra DB
-    id_evento = models.ForeignKey(Evento, on_delete=models.CASCADE, db_column='id_evento')
-    calificacion = models.IntegerField()
-    comentario = models.TextField()
-    fecha_opinion = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'opiniones'
-
+    # Usamos el modelo de usuario correcto de todo el proyecto
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='opiniones')
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='opiniones')
+    calificacion = models.IntegerField(blank=True, null=True)
+    comentario = models.TextField(blank=True, null=True)
+    fecha_opinion = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return f"Opinion {self.id} - Evento {self.id_evento.titulo} - Calificación {self.calificacion}"
+        return f"Opinion de {self.usuario.email} sobre {self.evento.nombre}"

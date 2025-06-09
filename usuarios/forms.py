@@ -42,3 +42,12 @@ class SolicitudProveedorForm(forms.ModelForm):
         if telefono and len(telefono) < 9:
             raise forms.ValidationError("El teléfono debe tener al menos 9 dígitos.")
         return telefono
+    
+    
+class PerfilForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'direccion', 'foto_perfil', 'descripcion']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 3}),
+        }

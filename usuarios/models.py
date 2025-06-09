@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from .managers import UsuarioManager
 
 class Usuario(AbstractUser):
     ROLES = (
@@ -9,8 +10,15 @@ class Usuario(AbstractUser):
     )
     rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
 
+    # Campos adicionales
+    telefono = models.CharField(max_length=20, blank=True)
+    direccion = models.TextField(blank=True)
+    foto_perfil = models.ImageField(upload_to='perfil/', blank=True, null=True)
+    descripcion = models.TextField(blank=True)
+
     def __str__(self):
         return self.username
+
 
 class SolicitudProveedor(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)

@@ -1,27 +1,35 @@
-{% extends 'usuarios/base.html' %}
+
+{% load static %}
 
 {% block content %}
-  <section class="perfil-usuario">
-    <h1>Perfil de {{ usuario.username }}</h1>
+<section class="perfil-usuario">
+  <h1>Mi Perfil</h1>
 
-    <div class="datos-usuario">
-      <p><strong>Nombre completo:</strong> {{ usuario.first_name }} {{ usuario.last_name }}</p>
-      <p><strong>Email:</strong> {{ usuario.email }}</p>
-      <p><strong>Rol actual:</strong> {{ usuario.get_rol_display }}</p>
-    </div>
-
-    {% if usuario.rol == 'cliente' %}
-      <p>
-        <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-secondary">
-          Solicitar cambio a proveedor
-        </a>
-      </p>
+  <div class="perfil-info">
+    {% if usuario.foto_perfil %}
+      <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
+    {% else %}
+      <img src="{% static 'img/avatar.png' %}" alt="Avatar" class="foto-perfil">
     {% endif %}
 
-    <p>
-      <a href="{% url 'usuarios:logout' %}" class="btn btn-danger">
-        Cerrar sesión
-      </a>
-    </p>
-  </section>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </form>
+  </div>
+
+  {% if usuario.rol == 'cliente' %}
+    <div class="acciones">
+      <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-secondary">Solicitar cambio a proveedor</a>
+    </div>
+  {% elif usuario.rol == 'proveedor' %}
+    <div class="acciones">
+     <a href="{% url 'tickets:crear_evento' %}" class="btn btn-success">Publicar nuevo evento</a>
+
+    </div>
+  {% endif %}
+
+  <p><a href="{% url 'usuarios:logout' %}" class="btn btn-danger">Cerrar sesión</a></p>
+</section>
 {% endblock %}

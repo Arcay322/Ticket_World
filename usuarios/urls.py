@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -17,5 +19,5 @@ urlpatterns = [
     path('admin/solicitudes/', views.lista_solicitudes, name='lista_solicitudes'),
     path('admin/solicitudes/aprobar/<int:solicitud_id>/', views.aprobar_solicitud, name='aprobar_solicitud'),
     path('admin/solicitudes/rechazar/<int:solicitud_id>/', views.rechazar_solicitud, name='rechazar_solicitud'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

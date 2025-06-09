@@ -456,3 +456,16 @@ footer, .hidden-footer {
 .btn-comprar:hover {
     background-color: #004d40;
 }
+.perfil-usuario {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.foto-perfil {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}

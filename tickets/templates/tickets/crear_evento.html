@@ -1,0 +1,9 @@
+<form method="post" novalidate>
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+
+  <button type="submit" class="btn btn-primary">Guardar Evento</button>
+  <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -19,7 +19,7 @@ from .forms import SolicitudProveedorForm
 from .models import SolicitudProveedor
 from django.contrib.auth.decorators import login_required, user_passes_test
 from usuarios.decorators import admin_required
-
+from .forms import PerfilForm
 
 def registro_view(request):
     if request.method == 'POST':
@@ -166,8 +166,17 @@ def solicitud_proveedor(request):
 
     return render(request, 'usuarios/solicitud_proveedor.html', {'form': form})
 
+@login_required
 def perfil_usuario(request):
-    return render(request, 'usuarios/perfil.html', {'usuario': request.user})
+    if request.method == 'POST':
+        form = PerfilForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('usuarios:perfil')
+    else:
+        form = PerfilForm(instance=request.user)
+    
+    return render(request, 'usuarios/perfil.html', {'form': form, 'usuario': request.user})
 
 # Decorador para verificar que el usuario es admin
 def admin_required(view_func):
