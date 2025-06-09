@@ -8,7 +8,7 @@
 
 - **Back-end**: Django (Python)
 - **Front-end**: HTML, CSS, JavaScript
-- **Base de Datos**: MySQL
+- **Base de Datos**: PostgreSQL
 - **Autenticación**: Sistema de registro y login con roles (cliente, proveedor, administrador)
 - **Control de versiones**: Git + GitHub
 
