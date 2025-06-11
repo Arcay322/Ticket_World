@@ -1,16 +1,20 @@
-{% extends "usuarios/base.html" %}
+{% extends "usuarios/base_minimal.html" %}
 {% load static %}
 
-{% block title %}Registro Exitoso{% endblock %}
+{% block title %}¡Registro Completado!{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
+    {# Vamos a crear un CSS nuevo solo para esta página #}
+    <link rel="stylesheet" href="{% static 'css/registro_exitoso.css' %}">
 {% endblock %}
 
 {% block content %}
-<header>TicketWorld</header>
-<div class="registro-exitoso-container">
-    <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+<div class="exito-container">
+    <img src="{% static 'img/logo.png' %}" alt="Logo Ticket World" class="logo-exito">
     <h2>¡Registro Exitoso!</h2>
-    <p>Revisa tu correo electrónico para activar tu cuenta.</p>
+    <p>Te hemos enviado un enlace de activación a tu correo electrónico.</p>
+    <p>Por favor, revisa tu bandeja de entrada para continuar.</p>
+    <p>Si no ves el correo, revisa tu carpeta de spam o correo no deseado.</p>
+    <p>¡Gracias por unirte a Ticket World!</p>
 </div>
 {% endblock %}

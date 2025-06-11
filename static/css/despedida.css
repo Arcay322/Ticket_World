@@ -1,0 +1,66 @@
+/* static/css/despedida.css */
+
+.despedida-container {
+    max-width: 550px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 3rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.despedida-container .emoji {
+    font-size: 4rem; /* Un emoji grande y amigable */
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.despedida-container h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.despedida-container p {
+    font-size: 1.1rem;
+    color: #777;
+    margin-bottom: 2.5rem;
+}
+
+.despedida-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* Espacio entre los botones */
+    flex-wrap: wrap; /* Para que se vea bien en móviles */
+}
+
+.despedida-actions .btn {
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-home {
+    background-color: #e0f7fa;
+    color: #00796b;
+    border-color: #00acc1;
+}
+
+.btn-home:hover {
+    background-color: #b2ebf2;
+}
+
+.btn-login-again {
+    background-color: #00acc1;
+    color: white;
+}
+
+.btn-login-again:hover {
+    background-color: #00838f;
+}

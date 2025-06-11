@@ -1,0 +1,39 @@
+/* static/usuarios/css/formulario_proveedor.css */
+
+.form-container-proveedor {
+    /* Hereda de .page-container */
+    text-align: center;
+}
+
+.form-container-proveedor h1 {
+    color: #006064;
+    margin-bottom: 10px;
+}
+
+.form-container-proveedor p {
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.form-container-proveedor form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.form-container-proveedor button[type="submit"] {
+    background-color: #00acc1;
+}
+
+.form-container-proveedor button[type="submit"]:hover {
+    background-color: #00838f;
+}
+
+.form-container-proveedor .volver-link {
+    margin-top: 20px;
+    display: inline-block;
+    color: #00796b;
+    text-decoration: none;
+    font-weight: bold;
+}

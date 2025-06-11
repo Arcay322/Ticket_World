@@ -1,0 +1,68 @@
+/* static/css/reenviar_activacion.css */
+
+.reenviar-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px; /* Un poco más estrecho que el login */
+}
+
+.reenviar-container h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.reenviar-container .instrucciones {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.reenviar-container .form-field {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.reenviar-container .form-field label {
+    display: none; /* Ocultamos la etiqueta "Correo Electrónico:" porque el placeholder ya lo indica */
+}
+
+.reenviar-container .form-field input {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.reenviar-container button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #00acc1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reenviar-container button:hover {
+    background-color: #00838f;
+}
+
+.reenviar-container .login-link-footer {
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.reenviar-container .login-link-footer a {
+    color: #00796b;
+    text-decoration: none;
+}

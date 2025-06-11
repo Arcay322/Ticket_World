@@ -1,14 +1,16 @@
+# usuarios/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import UsuarioManager
 
 class Usuario(AbstractUser):
-    ROLES = (
+    ROL_CHOICES = (
+        ('usuario', 'Usuario'),   # <-- AÑADIMOS EL NUEVO ROL
         ('cliente', 'Cliente'),
         ('proveedor', 'Proveedor'),
         ('admin', 'Administrador'),
     )
-    rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
+    rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='usuario')
 
     # Campos adicionales
     telefono = models.CharField(max_length=20, blank=True)

@@ -1,48 +1,43 @@
+{% extends "usuarios/base_minimal.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro</title>
-    <link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
-</head>
-<body>
-    <header>TicketWorld</header>
-    <div class="register-container">
-        <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
-        <h2>Crear cuenta</h2>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
+{% block title %}Registro{% endblock %}
 
-            <label for="username">Usuario:</label>
-            {{ form.username }}
-            {% for error in form.username.errors %}
-                <p class="error-message">{{ error }}</p>
-            {% endfor %}
+{% block extra_css %}
+    {# RUTA CORREGIDA: Apunta a 'css/registro.css' directamente #}
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+{% endblock %}
 
-            <label for="email">Correo electrónico:</label>
-            {{ form.email }}
-            {% for error in form.email.errors %}
-                <p class="error-message">{{ error }}</p>
-            {% endfor %}
+{% block content %}
+<div class="register-container">
+    <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
+    <h2>Crear cuenta</h2>
 
-            <label for="password1">Contraseña:</label>
-            {{ form.password1 }}
-            {% for error in form.password1.errors %}
-                <p class="error-message">{{ error }}</p>
-            {% endfor %}
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-            <label for="password2">Confirmar contraseña:</label>
-            {{ form.password2 }}
-            {% for error in form.password2.errors %}
-                <p class="error-message">{{ error }}</p>
-            {% endfor %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
 
-            <button type="submit">Registrarse</button>
-        </form>
-        <p><a href="{% url 'usuarios:login' %}">¿Ya tienes una cuenta? Inicia sesión</a></p>
-    </div>
-</body>
-</html>
+        <button type="submit">Registrarse</button>
+    </form>
+    <p class="login-link">
+        <a href="{% url 'usuarios:login' %}">¿Ya tienes una cuenta? Inicia sesión</a>
+    </p>
+</div>
+{% endblock %}

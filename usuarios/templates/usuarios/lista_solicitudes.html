@@ -1,105 +1,66 @@
-
+{% extends 'usuarios/base.html' %}
 {% load static %}
 
+{% block title %}Solicitudes de Proveedores Pendientes{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Solicitudes de Proveedor</h2>
+<div class="admin-panel-container">
+    <h1 class="panel-title">Gestión de Solicitudes de Proveedores</h1>
+    <p class="panel-subtitle">Revisa y aprueba las solicitudes de usuarios que desean convertirse en proveedores.</p>
 
-<style>
-.solicitudes-container {
-    border: 2px solid #b2ebf2;
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #e0f7fa;
-}
+    {# Los mensajes de Django se mostrarán automáticamente por base.html #}
 
-.card {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    background-color: #ffffff;
-}
-.card:hover {
-    background-color: #f9f9f9;
-}
-.card-header {
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.card-details {
-    display: none;
-    margin-top: 10px;
-}
-.card-actions {
-    margin-top: 10px;
-}
-.card-actions button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-success {
-    background-color: #4CAF50;
-}
-.btn-success:hover {
-    background-color: #45a049;
-}
-.btn-danger {
-    background-color: #f44336;
-}
-.btn-danger:hover {
-    background-color: #d32f2f;
-}
-</style>
-
-<div class="solicitudes-container">
     {% if solicitudes %}
-        {% for solicitud in solicitudes %}
-        <div class="card" onclick="toggleCard('{{ forloop.counter0 }}')">
-            <div class="card-header">
-                <span>{{ solicitud.user.username }} - {{ solicitud.nombre_empresa }}</span>
-                <span>{{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</span>
-            </div>
-
-            <div id="card-details-{{ forloop.counter0 }}" class="card-details">
-                <p><strong>Nombres:</strong> {{ solicitud.nombres }}</p>
-                <p><strong>Apellidos:</strong> {{ solicitud.apellidos }}</p>
-                <p><strong>Teléfono:</strong> {{ solicitud.telefono }}</p>
-                <p><strong>Email:</strong> {{ solicitud.user.email }}</p>
-                <p><strong>Descripción:</strong> {{ solicitud.descripcion }}</p>
-
-                <div class="card-actions">
-                    <form method="post" action="{% url 'usuarios:aprobar_solicitud' solicitud.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-success">Aprobar</button>
-                    </form>
-                    <form method="post" action="{% url 'usuarios:rechazar_solicitud' solicitud.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-danger">Rechazar</button>
-                    </form>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class="solicitudes-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombres</th>
+                        <th>Apellidos</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Empresa</th>
+                        <th>Descripción</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for solicitud in solicitudes %}
+                    <tr>
+                        <td>{{ solicitud.user.username }}</td>
+                        <td>{{ solicitud.nombres }}</td>
+                        <td>{{ solicitud.apellidos }}</td>
+                        <td>{{ solicitud.email }}</td>
+                        <td>{{ solicitud.telefono }}</td>
+                        <td>{{ solicitud.nombre_empresa }}</td>
+                        <td>{{ solicitud.descripcion|truncatechars:100 }}</td> {# Limita la descripción para que la tabla sea legible #}
+                        <td>{{ solicitud.fecha_solicitud|date:"d M Y H:i" }}</td>
+                        <td class="actions-cell">
+                            <form method="post" action="{% url 'usuarios:aprobar_solicitud' solicitud.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-approve">Aprobar</button>
+                            </form>
+                            <form method="post" action="{% url 'usuarios:rechazar_solicitud' solicitud.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-reject">Rechazar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        {% endfor %}
     {% else %}
-        <p>No hay solicitudes pendientes.</p>
+        <div class="no-records-message">
+            <p>🎉 ¡No hay solicitudes de proveedor pendientes en este momento! 🎉</p>
+            <p>Todo está al día.</p>
+        </div>
     {% endif %}
 </div>
-
-<script>
-function toggleCard(index) {
-    const detail = document.getElementById(`card-details-${index}`);
-    detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
-}
-</script>
-
 {% endblock %}

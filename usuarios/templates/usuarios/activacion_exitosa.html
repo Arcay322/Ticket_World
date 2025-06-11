@@ -1,17 +1,19 @@
-{% extends "usuarios/base.html" %}
+{% extends "usuarios/base_minimal.html" %}
 {% load static %}
 
-{% block title %}Activación exitosa{% endblock %}
+{% block title %}Activación Exitosa{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/activacion_exitosa.css' %}">
+    <link rel="stylesheet" href="{% static 'css/activacion_exitosa.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="activacion-exitosa-container">
+<div class="exito-container">
     <h2>¡Cuenta activada con éxito!</h2>
     <p>Tu cuenta en <strong>Ticket World</strong> ha sido activada correctamente.<br>
        Ya puedes iniciar sesión y comenzar a disfrutar de nuestros eventos.</p>
-       <a href="{% url 'usuarios:login' %}" class="btn">Iniciar sesión</a>
-</p>
+    
+    {# === LA LÍNEA CORREGIDA ESTÁ AQUÍ === #}
+    <a href="{% url 'usuarios:login' %}" class="btn-continuar">Iniciar Sesión</a>
 </div>
 {% endblock %}

@@ -1,0 +1,51 @@
+/* static/css/registro_exitoso.css */
+
+.exito-container {
+    background-color: #ffffff;
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 550px; /* Un buen tamaño para un mensaje de confirmación */
+    border-top: 5px solid #4CAF50; /* Una línea verde para indicar éxito */
+}
+
+.exito-container .logo-exito {
+    /* Le damos un tamaño controlado al logo */
+    width: 130px;
+    margin-bottom: 25px;
+}
+
+.exito-container h2 {
+    /* Estilo para el título de éxito */
+    color: #4CAF50; /* Color verde */
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.exito-container p {
+    /* Estilo para los párrafos de texto */
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.exito-container .btn-login-exito {
+    /* Estilo para el botón */
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 30px;
+    background-color: #00acc1;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.exito-container .btn-login-exito:hover {
+    background-color: #00838f;
+}

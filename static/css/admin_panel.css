@@ -1,0 +1,363 @@
+/* --- Estilos para el Panel de Administración de Solicitudes --- */
+
+.admin-panel-container {
+    padding: 30px 20px;
+    max-width: 1200px; /* Ancho máximo para el contenido del panel */
+    margin: 30px auto; /* Centrar el panel */
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra más profunda */
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.panel-title {
+    font-size: 2.5em;
+    color: #2c3e50; /* Un azul oscuro para títulos */
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.panel-subtitle {
+    font-size: 1.1em;
+    color: #6c757d; /* Gris para subtítulos */
+    text-align: center;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* Estilos de la tabla responsiva */
+.table-responsive {
+    overflow-x: auto; /* Permite el desplazamiento horizontal en pantallas pequeñas */
+    -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.solicitudes-table {
+    width: 100%;
+    border-collapse: separate; /* Para que border-radius funcione en celdas */
+    border-spacing: 0;
+    min-width: 800px; /* Ancho mínimo para la tabla para evitar que se comprima demasiado */
+}
+
+.solicitudes-table thead th {
+    background-color: #34495e; /* Un azul oscuro para el encabezado de la tabla */
+    color: #ffffff;
+    padding: 15px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.solicitudes-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.solicitudes-table tbody tr:last-child {
+    border-bottom: none; /* No hay borde en la última fila */
+}
+
+.solicitudes-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Raya las filas para mayor legibilidad */
+}
+
+.solicitudes-table tbody tr:hover {
+    background-color: #eaf1f7; /* Resaltar fila al pasar el ratón */
+}
+
+.solicitudes-table tbody td {
+    padding: 15px 20px;
+    vertical-align: middle;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Estilos específicos para la columna de acciones */
+.solicitudes-table .actions-cell {
+    white-space: nowrap; /* Evitar que los botones se envuelvan */
+    text-align: center;
+}
+
+.solicitudes-table .actions-cell form {
+    display: inline-block; /* Pone los formularios en línea */
+    margin: 0 5px; /* Espacio entre formularios */
+}
+
+/* Estilos de botones */
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    font-size: 0.85em;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    border: none;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-approve {
+    background-color: #28a745; /* Verde para aprobar */
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+}
+
+.btn-approve:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.6);
+}
+
+.btn-reject {
+    background-color: #dc3545; /* Rojo para rechazar */
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+}
+
+.btn-reject:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.6);
+}
+
+/* Mensaje cuando no hay solicitudes */
+.no-records-message {
+    text-align: center;
+    padding: 50px;
+    background-color: #f0f8ff; /* Un azul muy claro */
+    border: 1px solid #d0e8f8;
+    border-radius: 10px;
+    margin-top: 40px;
+    font-size: 1.2em;
+    color: #4a6c89;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.no-records-message p {
+    margin-bottom: 10px;
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+    .admin-panel-container {
+        margin: 20px 10px;
+        padding: 20px 15px;
+    }
+
+    .panel-title {
+        font-size: 2em;
+    }
+
+    .panel-subtitle {
+        font-size: 1em;
+        margin-bottom: 25px;
+    }
+
+    .solicitudes-table thead {
+        display: none; /* Ocultar el encabezado de la tabla en móviles */
+    }
+
+    .solicitudes-table, .solicitudes-table tbody, .solicitudes-table tr, .solicitudes-table td {
+        display: block; /* Convertir las filas y celdas en bloques */
+        width: 100%;
+    }
+
+    .solicitudes-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 10px;
+    }
+
+    .solicitudes-table td {
+        text-align: right;
+        padding-left: 50%; /* Espacio para la etiqueta */
+        position: relative;
+        font-size: 0.95em;
+        padding: 10px 15px;
+    }
+
+    .solicitudes-table td::before {
+        content: attr(data-label); /* Mostrar la etiqueta de la columna */
+        position: absolute;
+        left: 15px;
+        width: calc(50% - 30px);
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #34495e;
+    }
+
+    .solicitudes-table .actions-cell {
+        text-align: left;
+        padding-left: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 10px; /* Espacio entre botones */
+    }
+     .solicitudes-table .actions-cell form {
+        margin: 0; /* Eliminar margen extra si ya hay gap */
+        width: calc(50% - 5px); /* Ocupa la mitad del ancho */
+     }
+     .solicitudes-table .actions-cell .btn {
+        width: 100%; /* Botones de acción ocupan todo el ancho disponible */
+     }
+
+    /* Etiquetas para cada celda en vista móvil */
+    .solicitudes-table tbody tr td:nth-of-type(1)::before { content: "Usuario"; }
+    .solicitudes-table tbody tr td:nth-of-type(2)::before { content: "Nombres"; }
+    .solicitudes-table tbody tr td:nth-of-type(3)::before { content: "Apellidos"; }
+    .solicitudes-table tbody tr td:nth-of-type(4)::before { content: "Email"; }
+    .solicitudes-table tbody tr td:nth-of-type(5)::before { content: "Teléfono"; }
+    .solicitudes-table tbody tr td:nth-of-type(6)::before { content: "Empresa"; }
+    .solicitudes-table tbody tr td:nth-of-type(7)::before { content: "Descripción"; }
+    .solicitudes-table tbody tr td:nth-of-type(8)::before { content: "Fecha Solicitud"; }
+    .solicitudes-table tbody tr td:nth-of-type(9)::before { content: "Acciones"; }
+
+    .no-records-message {
+        font-size: 1.1em;
+        padding: 30px 15px;
+    }
+}
+
+/* Hover effect for panel container */
+.admin-panel-container:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+/* --- Estilos específicos para los estados de evento en la tabla --- */
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block; /* Para que padding y border-radius se apliquen correctamente */
+    min-width: 80px; /* Ancho mínimo para consistencia */
+    text-align: center;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block; /* Para que padding y border-radius se apliquen correctamente */
+    min-width: 80px; /* Ancho mínimo para consistencia */
+    text-align: center;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+}
+
+.dashboard-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    color: #34495e; /* Color similar al encabezado de la tabla */
+}
+
+.card-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.card-number {
+    font-size: 2.8em;
+    font-weight: 700;
+    color: #007bff; /* Un azul primario */
+    margin-bottom: 20px;
+}
+
+.card-link {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.card-link:hover {
+    background-color: #0056b3;
+}
+
+/* Colores específicos para contadores */
+.card-number.pending {
+    color: #ffc107; /* Amarillo para pendientes */
+}
+.card-number.danger {
+    color: #dc3545; /* Rojo para errores/urgencias (si aplicara) */
+}
+.card-number.success {
+    color: #28a745; /* Verde para éxitos */
+}
+.card-number.info {
+    color: #17a2b8; /* Azul para info */
+}
+
+/* Diseño para el resumen de usuarios */
+.user-summary-grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    text-align: left;
+    background-color: #f0f8ff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.user-summary-item h3 {
+    font-size: 1.1em;
+    color: #4a6c89;
+    margin-bottom: 5px;
+}
+
+.user-summary-item p {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #34495e;
+}
+
+@media (max-width: 600px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .user-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,268 @@
+/* static/css/base.css */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-header {
+    background-color: #ffffff;
+    padding: 0 2.5rem; /* Quitamos el padding vertical */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 90px; /* Altura fija del header */
+}
+
+.main-header .logo {
+    /* Hacemos el logo un tamaño apropiado para el header */
+    height: 150px; /* Ajustado para caber bien en un header de 90px */
+    width: auto;
+    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsionarse */
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+}
+
+.main-nav a:hover {
+    color: #00acc1;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-actions .btn {
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-login {
+    background-color: #e0f7fa;
+    color: #00796b;
+    border-color: #00acc1;
+}
+
+.btn-login:hover {
+    background-color: #b2ebf2;
+}
+
+.btn-register {
+    background-color: #00acc1;
+    color: white;
+}
+
+.btn-register:hover {
+    background-color: #00838f;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+.user-info a {
+    text-decoration: none;
+    color: #00796b;
+}
+
+.user-info .user-role {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.user-info .btn-logout {
+    font-size: 0.9rem;
+    color: #f44336;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+.main-content {
+    flex-grow: 1;
+}
+
+.main-footer {
+    background-color: #333;
+    color: #f4f4f4;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Espacio entre el logo y el botón 'Vender' */
+}
+
+/* Estilos para el botón 'Vender' */
+.btn-vender {
+    padding: 0.6rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #2ed8b6, #00acc1);
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-vender:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5);
+}
+
+/* Estilos para los mensajes de Django */
+.messages-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+.messages-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-width: 700px;
+    width: 100%;
+    position: relative;
+    z-index: 1000;
+}
+
+.messages-list .message-item {
+    padding: 18px 25px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.05em;
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateY(-50px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.messages-list .message-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.messages-list .message-item.hide {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+}
+
+.messages-list .success {
+    background-color: rgba(40, 167, 69, 0.85);
+    color: #ffffff;
+    border: 1px solid rgba(33, 136, 56, 0.85);
+}
+.messages-list .success::before {
+    content: "✓";
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.messages-list .error {
+    background-color: rgba(220, 53, 69, 0.85);
+    color: #ffffff;
+    border: 1px solid rgba(200, 35, 51, 0.85);
+}
+.messages-list .error::before {
+    content: "✕";
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.messages-list .info {
+    background-color: rgba(23, 162, 184, 0.85);
+    color: #ffffff;
+    border: 1px solid rgba(19, 132, 150, 0.85);
+}
+.messages-list .info::before {
+    content: "ⓘ";
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.messages-list .warning {
+    background-color: rgba(255, 193, 7, 0.85);
+    color: #343a40;
+    border: 1px solid rgba(224, 168, 0, 0.85);
+}
+.messages-list .warning::before {
+    content: "⚠️";
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+/* Estilo para el botón del panel admin */
+.btn-admin-dashboard {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+.btn-admin-dashboard:hover {
+    background-color: #217dbb;
+}
+
+/* Estilo para el botón de crear evento */
+.btn-create-event {
+    background-color: #f7941d; /* Un naranja vibrante */
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+.btn-create-event:hover {
+    background-color: #e0871a;
+}

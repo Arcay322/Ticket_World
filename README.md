@@ -51,6 +51,7 @@ Bash
 
 git clone https://github.com/Arcay322/Ticket_World.git
 cd Ticket_World
+
 2. Crear y Activar el Entorno Virtual
 Es fundamental el uso de un entorno virtual para aislar las dependencias del proyecto de tu instalación global de Python.
 
@@ -69,6 +70,7 @@ source venv/bin/activate
 
 
 Tu prompt de la terminal debería mostrar (venv) al principio, indicando que el entorno virtual está activo.
+
 3. Instalar las Dependencias
 Con el entorno virtual activado, instala todas las librerías de Python requeridas por el proyecto. Estas están listadas en el archivo requirements.txt:
 

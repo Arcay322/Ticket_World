@@ -1,17 +1,24 @@
-{% extends "usuarios/base.html" %}
+{% extends "usuarios/base_minimal.html" %}
 {% load static %}
 
-{% block title %}Activación fallida{% endblock %}
+{% block title %}Activación Fallida{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/activacion_fallida.css' %}">
+    <link rel="stylesheet" href="{% static 'css/activacion_fallida.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="activacion-fallida-container">
-    <h2>¡Oops! No se pudo activar tu cuenta</h2>
-    <p>El enlace de activación no es válido o ha expirado.<br>
-       Por favor, verifica el enlace o solicita un nuevo correo de activación.</p>
-    <a href="{% url 'usuarios:reenviar_correo_activacion' %}" class="btn">Reenviar correo de activación</a>
-    <a href="{% url 'usuarios:login' %}" class="btn btn-secondary">Ir a iniciar sesión</a>
+<div class="fallo-container">
+    <h2>¡Oops! Ocurrió un error</h2>
+    <p>El enlace de activación no es válido o ya ha expirado.<br>
+       Por favor, verifica el enlace o intenta registrarte de nuevo.</p>
+       
+    {# === ENLACE AÑADIDO AQUÍ === #}
+    <p style="margin-top: 25px; font-size:15px; color: #555;">
+        ¿Necesitas un nuevo enlace? 
+        <a href="{% url 'usuarios:reenviar_activacion' %}" style="color: #00796b; font-weight: bold;">Solicita uno nuevo aquí</a>.
+    </p>
+
+    <a href="{% url 'usuarios:login' %}" class="btn-continuar">Ir a Iniciar Sesión</a>
 </div>
 {% endblock %}

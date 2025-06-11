@@ -1,29 +1,32 @@
+{% extends "usuarios/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Solicitud Proveedor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}Solicitud para ser Proveedor{% endblock %}
 
-    <!-- Enlace al CSS externo -->
-    <link rel="stylesheet" href="{% static 'usuarios/css/formulario_proveedor.css' %}">
-</head>
-<body>
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/solicitud_proveedor.css' %}">
+{% endblock %}
 
-<div class="form-container">
-    <h1>Unete a nosotros </h1>
-    <p>Rellena el formulario para enviar tu solicitud. Será revisada por el equipo.</p>
+{% block content %}
+<div class="form-page-wrapper">
+    <div class="form-container">
+        <div class="form-header">
+            <h2>Conviértete en Proveedor</h2>
+            <p>Completa tus datos para que nuestro equipo pueda revisar y aprobar tu solicitud.</p>
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Enviar Solicitud</button>
-    </form>
+        <form method="post">
+            {% csrf_token %}
 
-    <a href="{% url 'usuarios:perfil' %}" class="volver-link">← Volver al perfil</a>
+            {# form.as_p renderizará cada campo en un párrafo, lo cual estilizaremos con CSS #}
+            {{ form.as_p }}
+
+            <button type="submit" class="btn-submit">Enviar Solicitud</button>
+        </form>
+
+        <div class="back-link-container">
+            <a href="{% url 'usuarios:perfil' %}">← Volver al perfil</a>
+        </div>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

@@ -57,8 +57,14 @@ ROOT_URLCONF = 'ticket_world.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [
+            # Añadimos la ruta a tu carpeta 'templates' principal
+            # Asegúrate de que BASE_DIR apunte a la raíz de tu proyecto 'Ticket_World'
+            os.path.join(BASE_DIR, 'usuarios', 'templates'), # <-- ¡CAMBIO AQUÍ!
+            # Si tienes una carpeta 'templates' directamente en la raíz de tu proyecto,
+            # también podrías añadir: os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True, # Esto sigue siendo útil para otras plantillas de tus apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -92,7 +98,7 @@ DATABASES = {
 # Le decimos a Django que use tu modelo personalizado de Usuario
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-LOGIN_URL = 'login'
+LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = '/inicio/'
 LOGOUT_REDIRECT_URL = 'login'
 
@@ -111,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNACIONALIZACIÓN
 # -------------------------------------------------------------------
 LANGUAGE_CODE = 'es'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Lima'
 USE_I18N = True
 USE_TZ = True
 
@@ -121,13 +127,12 @@ USE_TZ = True
 # -------------------------------------------------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static'), # <-- ¡CORREGIDO!
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # <-- ¡CORREGIDO!
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # <-- ¡CORREGIDO!
 
 # -------------------------------------------------------------------
 # OTRAS CONFIGURACIONES

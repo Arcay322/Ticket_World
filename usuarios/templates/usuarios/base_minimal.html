@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ticket World{% endblock %}</title>
+
+    {# ESTA LÍNEA ES LA MÁS IMPORTANTE: CARGA EL DISEÑO GENERAL #}
+    <link rel="stylesheet" href="{% static 'css/base_minimal.css' %}">
+
+    {# Este bloque carga el CSS específico de cada página (como login.css) #}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="minimal-header">
+        TicketWorld
+    </header>
+
+    <main class="main-content">
+        {# Contenedor para los mensajes de Django #}
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {# Aquí se inserta el contenido específico como el formulario #}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

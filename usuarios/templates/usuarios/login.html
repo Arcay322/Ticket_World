@@ -1,30 +1,47 @@
-
+{% extends "usuarios/base_minimal.html" %}
 {% load static %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
 {% block content %}
-<header class="custom-header">TicketWorld</header>
-
 <div class="login-container">
     <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
     <h2>Iniciar sesión</h2>
 
-    {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
+    {# El bloque de mensajes de la plantilla base mostrará nuestros errores personalizados y estilizados #}
 
     <form method="post">
         {% csrf_token %}
-        <label for="username">Usuario:</label>
-        <input type="text" name="username" required>
 
-        <label for="password">Contraseña:</label>
-        <input type="password" name="password" required>
+        {# Renderizamos cada campo por separado para tener control total #}
+        {# y evitar el error genérico del formulario. #}
+
+        <div class="form-field">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+
+        <div class="form-field">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
 
         <button type="submit">Ingresar</button>
     </form>
+    
+    <p class="register-link">
+        <a href="{% url 'usuarios:registro' %}">¿No tienes una cuenta? Regístrate</a>
+    </p>
+
+    {# Enlace para reenviar el correo de activación #}
+    <p class="register-link" style="font-size: 12px; margin-top: 15px;">
+        <a href="{% url 'usuarios:reenviar_activacion' %}">Reenviar correo de activación</a>
+    </p>
 </div>
 {% endblock %}

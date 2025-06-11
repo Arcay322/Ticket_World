@@ -51,3 +51,9 @@ class PerfilForm(forms.ModelForm):
         widgets = {
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
+
+class ReenviarActivacionForm(forms.Form):
+    email = forms.EmailField(
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Introduce tu email'})
+    )

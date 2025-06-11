@@ -1,14 +1,70 @@
-<h1>Eventos disponibles</h1>
+{% extends 'usuarios/base.html' %} {# ¡Importante! Usamos la ruta consistente con tu base.html #}
+{% load static %}
 
-<ul>
-  {% for evento in eventos %}
-    <li>
-      <strong>{{ evento.titulo }}</strong> - {{ evento.fecha|date:"d M Y H:i" }} <br>
-      Lugar: {{ evento.lugar }}<br>
-      <p>{{ evento.descripcion }}</p>
-      <!-- Aquí luego puedes poner botón "Comprar" -->
-    </li>
-  {% empty %}
-    <li>No hay eventos disponibles.</li>
-  {% endfor %}
-</ul>
+{% block title %}{{ panel_title }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-panel-container">
+    <h1 class="panel-title">{{ panel_title }}</h1>
+    <p class="panel-subtitle">{{ panel_subtitle }}</p>
+
+    {# Los mensajes de Django se mostrarán automáticamente por base.html #}
+
+    {% if eventos %}
+        <div class="table-responsive">
+            <table class="solicitudes-table"> {# Reutilizamos la misma clase de tabla para el estilo #}
+                <thead>
+                    <tr>
+                        <th>Nombre Evento</th>
+                        <th>Descripción</th>
+                        <th>Fecha y Hora</th>
+                        <th>Categoría</th>
+                        <th>Lugar</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for evento in eventos %}
+                    <tr>
+                        <td>{{ evento.nombre }}</td>
+                        <td>{{ evento.descripcion|truncatechars:100 }}</td>
+                        <td>{{ evento.fecha|date:"d M Y H:i" }}</td>
+                        <td>{{ evento.categoria.nombre }}</td>
+                        <td>{{ evento.lugar }}</td>
+                        <td>
+                            {% if evento.aprobado %}
+                                <span class="status-approved">Aprobado</span>
+                            {% else %}
+                                <span class="status-pending">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions-cell">
+                            <form method="post" action="{% url 'tickets:aprobar_evento' evento.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-approve">Aprobar</button>
+                            </form>
+                            <form method="post" action="{% url 'tickets:rechazar_evento' evento.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-reject">Rechazar</button>
+                            </form>
+                            {# Opcional: Botón para editar el evento antes de aprobar #}
+                            {# <a href="{% url 'tickets:editar_evento' evento.id %}" class="btn btn-edit">Editar</a> #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-records-message">
+            <p>🎉 ¡No hay eventos pendientes de aprobación en este momento! 🎉</p>
+            <p>Puedes ir a revisar las <a href="{% url 'usuarios:lista_solicitudes' %}" style="color: #007bff; text-decoration: underline;">solicitudes de proveedores</a>.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

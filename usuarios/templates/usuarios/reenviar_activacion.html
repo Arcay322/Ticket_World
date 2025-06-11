@@ -1,0 +1,34 @@
+{% extends "usuarios/base_minimal.html" %}
+{% load static %}
+
+{% block title %}Reenviar Activación{% endblock %}
+
+{% block extra_css %}
+    {# Enlazamos a su propia hoja de estilos para un diseño único #}
+    <link rel="stylesheet" href="{% static 'css/reenviar_activacion.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reenviar-container">
+    <h2>Reenviar Correo de Activación</h2>
+    <p class="instrucciones">
+        ¿No recibiste el correo o el enlace expiró? Introduce tu email y te enviaremos uno nuevo.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-field">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+
+        <button type="submit">Enviar Correo</button>
+    </form>
+    
+    <p class="login-link-footer">
+        <a href="{% url 'usuarios:login' %}">Volver a Iniciar Sesión</a>
+    </p>
+</div>
+{% endblock %}
