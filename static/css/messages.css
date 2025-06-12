@@ -1,0 +1,51 @@
+/* Estilos dedicados para los mensajes de Django */
+.messages-container {
+    position: fixed; /* Fijo en la parte superior de la pantalla */
+    top: 110px; /* Un poco por debajo del header */
+    right: 20px;
+    width: 100%;
+    max-width: 400px; /* Ancho máximo de la alerta */
+    z-index: 2000; /* Asegura que esté por encima de todo */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.messages-container .message-item {
+    padding: 18px 25px;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    
+    /* Estado inicial (oculto) para la animación */
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Estado final (visible) que activará el JavaScript */
+.messages-container .message-item.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Clases de color basadas en las etiquetas de Django */
+.messages-container .success { background-color: #28a745; color: #ffffff; }
+.messages-container .error { background-color: #dc3545; color: #ffffff; }
+.messages-container .info { background-color: #17a2b8; color: #ffffff; }
+.messages-container .warning { background-color: #ffc107; color: #212529; }
+
+.messages-container .message-item::before {
+    margin-right: 15px;
+    font-size: 1.4em;
+    line-height: 1;
+}
+.messages-container .success::before { content: "✓"; }
+.messages-container .error::before { content: "✕"; }
+.messages-container .info::before { content: "ⓘ"; }
+.messages-container .warning::before { content: "⚠️"; }

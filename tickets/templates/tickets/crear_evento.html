@@ -1,7 +1,8 @@
 {% extends 'usuarios/base.html' %}
 {% load static %}
 
-{% block title %}Crear Nuevo Evento{% endblock %}
+{# El título de la página ahora es dinámico #}
+{% block title %}{{ panel_title|default:"Crear Evento" }}{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/event_forms.css' %}">
@@ -9,49 +10,26 @@
 
 {% block content %}
 <div class="form-container">
-    <h1 class="panel-title">Crear Nuevo Evento</h1>
-    <p class="panel-subtitle">Completa los detalles de tu evento y añade al menos un tipo de boleto. Será revisado por un administrador antes de su publicación.</p>
+    {# El título y subtítulo ahora vienen de la vista #}
+    <h1 class="panel-title">{{ panel_title }}</h1>
+    <p class="panel-subtitle">{{ panel_subtitle }}</p>
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
-        {% if form.non_field_errors %}
-            <div class="form-errors">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
-        {% endif %}
-
+        {# ... (el resto del formulario no cambia) ... #}
+        {% if form.non_field_errors %} <div class="form-errors">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
         <h2 class="form-section-title">Detalles del Evento</h2>
-        {% for field in form %}
-            <div class="form-field-group">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
-                <div class="form-errors">{{ field.errors }}</div>
-            </div>
-        {% endfor %}
-
+        {% for field in form %} <div class="form-field-group"> {{ field.label_tag }} {{ field }} {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %} <div class="form-errors">{{ field.errors }}</div> </div> {% endfor %}
         <h2 class="form-section-title">Tipos de Boletos</h2>
-        
-        {% if formset.non_form_errors %}
-            <div class="form-errors">{% for error in formset.non_form_errors %}<p>{{ error }}</p>{% endfor %}</div>
-        {% endif %}
-        
+        {% if formset.non_form_errors %} <div class="form-errors">{% for error in formset.non_form_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
         {{ formset.management_form }}
-        
-        <div id="boleto-form-list">
-            {% for form in formset %}
-                {% include 'tickets/_boleto_form.html' with form=form %}
-            {% endfor %}
-        </div>
-
-        {# === ID CORREGIDO AQUÍ === #}
-        {# La plantilla oculta que usará el JavaScript para crear nuevos formularios #}
-        <div id="empty-form-template" style="display: none;">
-            {% include 'tickets/_boleto_form.html' with form=formset.empty_form %}
-        </div>
-
+        <div id="boleto-form-list"> {% for form in formset %} {% include 'tickets/_boleto_form.html' with form=form %} {% endfor %} </div>
+        <div id="empty-form-template" style="display: none;"> {% include 'tickets/_boleto_form.html' with form=formset.empty_form %} </div>
         <button type="button" id="add-boleto-button" class="add-boleto-button">Añadir Otro Tipo de Boleto</button>
         
-        <button type="submit" class="btn-submit">Crear Evento</button>
+        {# El texto del botón ahora es dinámico. Por defecto será 'Crear Evento' #}
+        <button type="submit" class="btn-submit">{{ button_text|default:"Crear Evento" }}</button>
     </form>
 </div>
 {% endblock %}
@@ -60,13 +38,12 @@
 {% block extra_js %}
 <script src="{% static 'js/event_form_dynamic.js' %}"></script>
 <script>
-    // Este script llama a la función en el archivo .js y le pasa los datos de Django
     document.addEventListener('DOMContentLoaded', function() {
         initDynamicFormset(
             "{{ formset.prefix }}",
             "#add-boleto-button",
             "#boleto-form-list",
-            "#empty-form-template" // Este ID ahora coincide con el del div de arriba
+            "#empty-form-template"
         );
     });
 </script>

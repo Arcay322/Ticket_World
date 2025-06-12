@@ -157,3 +157,11 @@
     background-color: #e9ecef; /* Un gris suave */
     cursor: not-allowed;
 }
+.precio-automatico {
+    padding: 0.8rem 1rem;
+    background-color: #e9ecef; /* Mismo color que un campo readonly */
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #6c757d; /* Un gris para indicar que no es editable */
+    margin-top: 0;
+}

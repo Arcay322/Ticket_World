@@ -9,27 +9,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="main-layout">
+
+    {% if messages %}
+        <ul class="messages-container">
+            {% for message in messages %}
+                <li class="message-item {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <header class="main-header">
-        <div class="header-left">
+        <div class="header-group-left">
             <a href="{% url 'usuarios:inicio' %}">
                 <img src="{% static 'img/logo.png' %}" alt="Logo TicketWorld" class="logo" />
             </a>
-            {% if user.rol != 'proveedor' and user.rol != 'admin' %}
-                <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-vender">Vender</a>
-            {% endif %}
         </div>
 
-        <div class="header-right">
-            <nav class="main-nav">
-                 <a href="#">Eventos</a>
-            </nav>
-
+        <div class="header-group-right">
+            {% if not user.is_authenticated or user.rol == 'cliente' or user.rol == 'usuario' %}
+                <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-vender">Vender</a>
+            {% endif %}
             <a href="{% url 'tickets:ver_carrito' %}" class="header-cart-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 <span>Carrito</span>
@@ -37,43 +42,39 @@
             
             <div class="user-actions">
                 {% if user.is_authenticated %}
-                    <div class="user-menu">
-                        <span class="user-greeting">Hola, <strong>{{ user.username }}</strong></span>
-                        
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url 'usuarios:perfil' %}">Mi Perfil</a></li>
-                            
-                            {% if user.rol == 'proveedor' or user.rol == 'admin' %}
-                                <li><a href="{% url 'tickets:mis_eventos' %}">Mis Eventos</a></li>
-                                <li><a href="{% url 'tickets:crear_evento' %}">Crear Evento</a></li>
-                            {% endif %}
-                            
-                            {% if user.rol == 'admin' %}
-                                <li><a href="#">Panel Admin</a></li>
-                            {% endif %}
-        
-                            <li class="divider"></li>
-                            <li><a href="{% url 'usuarios:logout' %}" class="logout-link">Salir</a></li>
-                        </ul>
-                    </div>
+                <div class="user-menu">
+                    <span class="user-greeting">Hola, <strong>{{ user.username }}</strong></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'usuarios:perfil' %}">Mi Perfil</a></li>
+                        {% if user.rol == 'proveedor' or user.rol == 'admin' %}
+                        <li><a href="{% url 'tickets:mis_eventos' %}">Mis Eventos</a></li>
+                        <li><a href="{% url 'tickets:crear_evento' %}">Crear Evento</a></li>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <li><a href="/admin/">Panel Django</a></li>
+                        {% endif %}
+                        <li class="divider"></li>
+                        <li><a href="{% url 'usuarios:logout' %}" class="logout-link">Salir</a></li>
+                    </ul>
+                </div>
                 {% else %}
+                <div class="auth-buttons">
                     <a href="{% url 'usuarios:login' %}" class="btn btn-login">Iniciar Sesión</a>
                     <a href="{% url 'usuarios:registro' %}" class="btn btn-register">Registro</a>
+                </div>
                 {% endif %}
             </div>
         </div>
     </header>
 
     <main class="main-content">
-        {# ... (código de los mensajes) ... #}
         {% block content %}{% endblock %}
     </main>
 
     <footer class="main-footer">
-        {# ... #}
+        <p>&copy; {% now "Y" %} Ticket World. Todos los derechos reservados.</p>
     </footer>
 
-    {# ... (orden de scripts corregido) ... #}
     <script src="{% static 'js/messages.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>

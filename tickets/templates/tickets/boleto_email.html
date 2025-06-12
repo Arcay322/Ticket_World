@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tus Boletos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Poppins', Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; color: #333;">
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center">
+                <table width="650" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    
+                    <tr>
+                        <td align="center" style="background-color: #00acc1; padding: 30px 20px;">
+                            <img src="https://i.imgur.com/t34uA14.png" alt="Ticket World Logo" width="180">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 30px 40px;">
+                            <p style="font-size: 18px; line-height: 1.6; font-weight: 700; color: #333;">
+                                ¡Hola, {{ venta.usuario.username }}! Tu aventura comienza.
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Gracias por tu compra en Ticket World. Presenta estos boletos en tu teléfono para ingresar al evento.
+                            </p>
+                             <p style="text-align: center; font-size: 14px; color: #888; margin-top: 25px;">Orden de Compra: #{{ venta.id }}</p>
+                        </td>
+                    </tr>
+
+                    {# Ahora iteramos sobre la lista de boletos individuales que preparamos en la vista #}
+                    {% for item in boletos_individuales %}
+                        <tr>
+                            <td style="padding: 0 40px 30px 40px;">
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #e0e0e0; border-radius: 10px; background-color: #fdfdfd;">
+                                    <tr>
+                                        <td width="65%" style="padding: 25px; vertical-align: top; border-right: 2px dashed #e0e0e0;">
+                                            <p style="font-size: 12px; color: #00acc1; margin: 0; font-weight: 700;">{{ item.detalle.boleto.evento.categoria.nombre|upper }}</p>
+                                            <h2 style="font-size: 22px; color: #212529; margin: 5px 0 15px 0; font-weight: 700;">{{ item.detalle.boleto.evento.nombre }}</h2>
+                                            
+                                            <p style="margin: 15px 0 5px 0; font-size: 14px; color: #555;"><strong>Boleto:</strong> {{ item.detalle.boleto.display_name }}</p>
+                                            <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Asiento/Entrada:</strong> #{{ item.numero }} de {{ item.detalle.cantidad }}</p>
+                                            <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;">
+                                            <p style="margin: 5px 0; font-size: 14px; color: #555;">🗓️ {{ item.detalle.boleto.evento.fecha|date:"l, d \d\e F, Y - H:i" }}h</p>
+                                            <p style="margin: 5px 0; font-size: 14px; color: #555;">📍 {{ item.detalle.boleto.evento.lugar }}</p>
+                                        </td>
+                                        <td width="35%" align="center" style="padding: 25px; vertical-align: top;">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=Venta{{venta.id}}-Boleto{{item.detalle.boleto.id}}-Asiento{{item.numero}}" alt="Código QR">
+                                            <p style="margin: 10px 0 0 0; font-size: 12px; color: #888;">Asistente:</p>
+                                            <p style="margin: 2px 0 0 0; font-size: 14px; font-weight: 600;">{{ venta.usuario.get_full_name|default:venta.usuario.username }}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td align="center" style="padding: 30px; font-size: 12px; color: #888888; border-top: 1px solid #eeeeee;">
+                            <p style="margin:0;">Gracias por confiar en Ticket World. ¡Disfruta del evento!</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

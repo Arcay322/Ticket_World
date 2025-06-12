@@ -5,32 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Ticket World{% endblock %}</title>
-
-    {# ESTA LÍNEA ES LA MÁS IMPORTANTE: CARGA EL DISEÑO GENERAL #}
-    <link rel="stylesheet" href="{% static 'css/base_minimal.css' %}">
-
-    {# Este bloque carga el CSS específico de cada página (como login.css) #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <header class="minimal-header">
-        TicketWorld
-    </header>
+<body class="minimal-layout">
+    {% if messages %}
+        <ul class="messages-container">
+            {% for message in messages %}
+                <li class="message-item {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
+    <header class="minimal-header">TicketWorld</header>
+    
     <main class="main-content">
-        {# Contenedor para los mensajes de Django #}
-        {% if messages %}
-            <div class="messages-container">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {# Aquí se inserta el contenido específico como el formulario #}
         {% block content %}{% endblock %}
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/messages.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

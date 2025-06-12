@@ -85,3 +85,6 @@
     color: #777;
     font-style: italic;
 }
+.col-numerica {
+    text-align: right;
+}

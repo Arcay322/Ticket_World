@@ -76,3 +76,21 @@
     </div>
 </div>
 {% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Buscamos todos los inputs de cantidad en esta página
+    const inputsCantidad = document.querySelectorAll('.form-boletos input[type="number"]');
+
+    inputsCantidad.forEach(input => {
+        // Añadimos un "escuchador" que se activa cuando el usuario deja el campo
+        input.addEventListener('blur', function() {
+            // Si el campo está vacío, lo ponemos en 0
+            if (this.value === '') {
+                this.value = 0;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

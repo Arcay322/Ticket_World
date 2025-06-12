@@ -24,5 +24,6 @@ urlpatterns = [
     path('eliminar-del-carrito/<int:boleto_id>/', views.eliminar_del_carrito_view, name='eliminar_del_carrito'),
     path('actualizar-carrito/', views.actualizar_carrito_view, name='actualizar_carrito'),
     path('mis-eventos/', views.mis_eventos_view, name='mis_eventos'),
+    path('evento/<int:evento_id>/editar/', views.editar_evento_view, name='editar_evento'),
 ]
 

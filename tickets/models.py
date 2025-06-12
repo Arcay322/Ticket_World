@@ -3,6 +3,8 @@
 from django.db import models
 from django.conf import settings 
 from django.utils import timezone
+from django.db.models import Sum, F
+from decimal import Decimal
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=255, unique=True, verbose_name="Nombre de la Categoría")
@@ -19,13 +21,8 @@ class Categoria(models.Model):
         return self.nombre
 
 class Evento(models.Model):
-    creado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        related_name='eventos_creados',
-        null=True, blank=True,
-        verbose_name="Creado por"
-    )
+    # ... (todos tus campos existentes se quedan igual)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='eventos_creados', verbose_name="Creado por")
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Evento")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción Detallada")
     fecha = models.DateTimeField(verbose_name="Fecha y Hora del Evento")
@@ -33,12 +30,9 @@ class Evento(models.Model):
     lugar = models.CharField(max_length=250, blank=True, null=True, verbose_name="Lugar del Evento")
     direccion = models.CharField(max_length=500, blank=True, null=True, verbose_name="Dirección Completa")
     imagen_portada = models.ImageField(upload_to='eventos/', blank=True, null=True, verbose_name="Imagen de Portada")
-    aprobado = models.BooleanField(default=False, verbose_name="Aprobado por Admin",
-                                  help_text="Indica si el evento ha sido revisado y aprobado por un administrador.")
-    esta_activo = models.BooleanField(default=True, verbose_name="Activo y Visible",
-                                      help_text="Controla si el evento está visible en el sitio (aunque esté aprobado).")
-    esta_agotado = models.BooleanField(default=False, verbose_name="Boletos Agotados",
-                                       help_text="Se marca automáticamente si no quedan boletos disponibles.")
+    aprobado = models.BooleanField(default=False, verbose_name="Aprobado por Admin", help_text="Indica si el evento ha sido revisado y aprobado por un administrador.")
+    esta_activo = models.BooleanField(default=True, verbose_name="Activo y Visible", help_text="Controla si el evento está visible en el sitio (aunque esté aprobado).")
+    esta_agotado = models.BooleanField(default=False, verbose_name="Boletos Agotados", help_text="Se marca automáticamente si no quedan boletos disponibles.")
     creado_en = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     actualizado_en = models.DateTimeField(auto_now=True, verbose_name="Última Actualización")
 
@@ -46,13 +40,7 @@ class Evento(models.Model):
         verbose_name = "Evento"
         verbose_name_plural = "Eventos"
         ordering = ['fecha']
-        
-        # === CAMBIO 1: REGLA PARA EVITAR EVENTOS DUPLICADOS ===
-        # Le dice a la base de datos que no permita dos entradas
-        # con el mismo nombre Y la misma fecha.
-        constraints = [
-            models.UniqueConstraint(fields=['nombre', 'fecha'], name='evento_unico_por_nombre_y_fecha')
-        ]
+        constraints = [ models.UniqueConstraint(fields=['nombre', 'fecha'], name='evento_unico_por_nombre_y_fecha') ]
 
     def __str__(self):
         return f"{self.nombre} ({self.categoria.nombre})"
@@ -60,7 +48,22 @@ class Evento(models.Model):
     @property
     def es_futuro(self):
         return self.fecha > timezone.now()
-        
+
+    # === PROPIEDAD 1: CALCULAR TOTAL DE BOLETOS VENDIDOS ===
+    @property
+    def total_boletos_vendidos(self):
+        # Suma el campo 'cantidad_vendida' de todos los boletos asociados a este evento.
+        total = self.boletos.aggregate(total=Sum('cantidad_vendida'))['total']
+        return total or 0 # Devuelve el total, o 0 si no hay ninguno.
+
+    # === PROPIEDAD 2: CALCULAR INGRESOS TOTALES ===
+    @property
+    def ingresos_generados(self):
+        # Busca en los detalles de venta, multiplica cantidad por precio y suma todo.
+        total = self.boletos.aggregate(
+            total=Sum(F('detalle_ventas__cantidad') * F('detalle_ventas__precio_unitario'))
+        )['total']
+        return total or Decimal('0.00')
 class Boleto(models.Model):
     TIPO_BOLETO_CHOICES = [
         ('general', 'General'),

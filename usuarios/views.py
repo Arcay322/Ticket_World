@@ -23,6 +23,8 @@ from tickets.models import Categoria, Evento,Boleto, Venta, DetalleVenta, Metodo
 
 # Decorador personalizado
 from .decorators import admin_required
+from django.db.models import Q 
+from django.core.paginator import Paginator
 
 # Modelo de Usuario personalizado
 Usuario = get_user_model()
@@ -189,35 +191,48 @@ def registro_exitoso(request):
 # -------------------------------------------------------------------
 def inicio(request):
     """
-    Muestra la página de inicio con una lista de categorías y eventos.
-    Ahora solo muestra eventos aprobados y futuros.
+    Muestra la página de inicio. Ahora con lógica de Paginación.
     """
-    # --- TEMPORAL: LÍNEAS DE DEPURACIÓN EN VISTA INICIO ---
-    current_datetime = timezone.now()
-    print(f"\n--- DEBUG EN VISTA 'inicio' ---")
-    print(f"Hora actual (timezone.now()): {current_datetime}")
-
-    # Filtramos eventos: aprobados, con fecha mayor o igual a la actual
-    eventos_filtrados = Evento.objects.filter(
-        aprobado=True,
-        fecha__gte=current_datetime
-    ).order_by('fecha')
-
-    print(f"Eventos recuperados para la página de inicio ({len(eventos_filtrados)} encontrados):")
-    for evento in eventos_filtrados:
-        print(f"  - ID: {evento.id}, Nombre: '{evento.nombre}', Aprobado: {evento.aprobado}, Fecha: {evento.fecha}, Es Futuro: {evento.fecha > current_datetime}")
-    print(f"--- FIN DEBUG VISTA 'inicio' ---\n")
-    # --- FIN DE LÍNEAS DE DEPURACIÓN ---
-
+    eventos_list = Evento.objects.filter(aprobado=True, fecha__gte=timezone.now()).order_by('fecha')
     categorias = Categoria.objects.all()
+    categoria_filtrada = None
+
+    # --- Lógica de Filtrado y Búsqueda (sin cambios) ---
+    categoria_id = request.GET.get('categoria')
+    query = request.GET.get('q')
+    
+    if categoria_id:
+        eventos_list = eventos_list.filter(categoria__id=categoria_id)
+        categoria_filtrada = get_object_or_404(Categoria, id=categoria_id)
+    
+    if query:
+        eventos_list = eventos_list.filter(
+            Q(nombre__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(lugar__icontains=query) |
+            Q(categoria__nombre__icontains=query) |
+            Q(creado_por__username__icontains=query)
+        )
+
+    # === LÓGICA DE PAGINACIÓN AÑADIDA ===
+    # 1. Creamos el objeto Paginator, diciéndole que muestre 8 eventos por página.
+    paginator = Paginator(eventos_list, 8) 
+    
+    # 2. Obtenemos el número de página de la URL (ej: /?page=2)
+    page_number = request.GET.get('page')
+    
+    # 3. Obtenemos el objeto 'Page' para esa página. Contiene los eventos de esa página.
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'categorias': categorias,
-        'eventos': eventos_filtrados, # Pasamos la variable con los eventos filtrados
+        # Ya no pasamos 'eventos', pasamos el objeto de la página 'page_obj'
+        'page_obj': page_obj, 
+        'categoria_filtrada': categoria_filtrada,
+        'search_query': query,
     }
     
     return render(request, 'usuarios/inicio.html', context)
-
 # --- Función de prueba para el decorador user_passes_test ---
 def is_eligible_for_supplier_form(user):
     """

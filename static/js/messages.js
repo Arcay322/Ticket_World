@@ -1,26 +1,22 @@
+// static/js/messages.js
 document.addEventListener('DOMContentLoaded', function() {
-    // Seleccionar todos los elementos de mensaje
-    const messageItems = document.querySelectorAll('.messages-list .message-item');
+    const messageItems = document.querySelectorAll('.messages-container .message-item');
 
-    messageItems.forEach((item, index) => {
-        // Pequeño retraso para la animación de entrada secuencial
+    messageItems.forEach((message, index) => {
+        // Hacemos que cada mensaje aparezca con un pequeño retraso para un efecto escalonado
         setTimeout(() => {
-            item.classList.add('show'); // Añadir clase para deslizar hacia abajo
+            message.classList.add('show');
+        }, 100 * index);
 
-            // Establecer un temporizador para que el mensaje desaparezca
-            const displayDuration = 4000; // 4 segundos visible
-            const fadeOutDuration = 500; // 0.5 segundos para la transición de salida
-
+        // Hacemos que el mensaje desaparezca después de 5 segundos
+        setTimeout(() => {
+            message.classList.remove('show');
+            // Opcional: eliminar el elemento del DOM después de la animación
             setTimeout(() => {
-                item.classList.remove('show'); // Quitar la clase 'show'
-                item.classList.add('hide'); // Añadir clase para la animación de desaparición
-
-                // Eliminar el mensaje del DOM después de que la animación de salida termine
-                setTimeout(() => {
-                    item.remove();
-                }, fadeOutDuration);
-
-            }, displayDuration + (index * 200)); // Añadir un pequeño desfase para mensajes múltiples
-        }, 100 + (index * 100)); // Pequeño retraso inicial para cada mensaje
+                if (message.parentElement) {
+                    message.parentElement.removeChild(message);
+                }
+            }, 600); // 600ms > 500ms de la transición en el CSS
+        }, 5000 + (100 * index));
     });
 });
