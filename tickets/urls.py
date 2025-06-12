@@ -16,5 +16,13 @@ urlpatterns = [
     path('admin/eventos/aprobar/<int:evento_id>/', views.aprobar_evento, name='aprobar_evento'),
     path('admin/eventos/rechazar/<int:evento_id>/', views.rechazar_evento, name='rechazar_evento'),
     path('crear/', views.crear_evento, name='crear_evento'),
+    path('evento/<int:evento_id>/', views.detalle_evento_view, name='detalle_evento'),
+    path('agregar-al-carrito/<int:evento_id>/', views.agregar_al_carrito_view, name='agregar_al_carrito'),
+    path('carrito/', views.ver_carrito_view, name='ver_carrito'),
+    path('checkout/procesar/', views.checkout_procesar_view, name='checkout_procesar'),
+    path('compra-exitosa/', views.compra_exitosa_view, name='compra_exitosa'),
+    path('eliminar-del-carrito/<int:boleto_id>/', views.eliminar_del_carrito_view, name='eliminar_del_carrito'),
+    path('actualizar-carrito/', views.actualizar_carrito_view, name='actualizar_carrito'),
+    path('mis-eventos/', views.mis_eventos_view, name='mis_eventos'),
 ]
 

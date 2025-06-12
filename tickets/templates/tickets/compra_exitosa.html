@@ -1,0 +1,25 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}¡Gracias por tu compra!{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/compra_exitosa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="exito-container">
+    <div class="icono-exito">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    </div>
+    <h1>¡Gracias por tu compra!</h1>
+    <p>Tu orden ha sido procesada exitosamente. Hemos enviado un correo con los detalles y tus boletos electrónicos.</p>
+    <div class="acciones-exito">
+    <a href="{% url 'usuarios:inicio' %}" class="btn-home">Volver al Inicio</a>
+    
+    {# === CAMBIA EL HREF DE ESTE ENLACE === #}
+    <a href="{% url 'usuarios:perfil' %}" class="btn-mis-boletos">Ver mis Boletos</a>
+</div>
+    <p class="nota">Si tienes alguna pregunta, no dudes en contactarnos.</p>
+</div>
+{% endblock %}

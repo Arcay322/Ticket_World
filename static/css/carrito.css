@@ -1,0 +1,67 @@
+/* static/css/carrito.css */
+
+.page-content { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+
+.carrito-container { display: flex; flex-wrap: wrap; gap: 2rem; }
+.lista-items { flex: 2; min-width: 350px; }
+
+.item-carrito {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--color-superficie, #fff);
+    border-radius: var(--borde-radio, 12px);
+    box-shadow: var(--sombra-suave);
+    margin-bottom: 1.5rem;
+}
+
+.item-imagen img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
+.item-detalles { flex-grow: 1; }
+.item-detalles h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+.item-detalles p { margin: 0; color: var(--color-texto-secundario); font-size: 1rem; }
+
+/* === Estilo mejorado para el control de cantidad === */
+.cantidad-control {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.cantidad-control label { font-size: 0.9em; color: #555; }
+.cantidad-control .input-cantidad {
+    width: 70px;
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.item-precio { text-align: right; }
+.item-precio span { font-size: 1.3rem; font-weight: 700; display: block; margin-bottom: 0.5rem; }
+.item-precio a.eliminar-link { font-size: 0.9rem; color: var(--color-error, #dc3545); text-decoration: none; }
+.item-precio a.eliminar-link:hover { text-decoration: underline; font-weight: 700; }
+
+/* === Estilo mejorado para el texto de "pocos boletos" === */
+.pocos-boletos-texto {
+    display: block;
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--color-acento, #ff9800);
+    margin-top: 8px;
+}
+.agotado-texto { font-weight: 700; color: var(--color-error, #dc3545); }
+
+/* --- Resumen del Carrito --- */
+.resumen-carrito { flex: 1; min-width: 300px; background: var(--color-superficie, #fff); border-radius: var(--borde-radio, 12px); padding: 1.5rem; box-shadow: var(--sombra-suave); height: fit-content; position: sticky; top: 2rem; }
+.resumen-carrito h3 { margin: 0 0 1.5rem 0; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+.resumen-linea { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.1rem; }
+.total-precio { font-weight: 700; font-size: 1.75rem; }
+.btn-proceder-pago { display: block; width: 100%; text-align: center; padding: 1rem; background: var(--color-acento, #ff9800); color: white; text-decoration: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; transition: background-color 0.2s ease; margin-top: 1.5rem; }
+.btn-proceder-pago:hover { background: var(--color-acento-oscuro, #e68900); }
+.link-seguir-comprando { display: block; text-align: center; margin-top: 1rem; color: var(--color-primario, #00acc1); text-decoration: none; }
+
+/* Carrito Vacío */
+.carrito-vacio { text-align: center; padding: 4rem; background: var(--color-superficie, #fff); border-radius: var(--borde-radio, 12px); }
+.carrito-vacio p { font-size: 1.2rem; color: var(--color-texto-secundario); margin-bottom: 2rem; }

@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Ticket World{% endblock %}</title>
 
-    {# Fuente profesional 'Poppins' desde Google Fonts #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -20,9 +20,6 @@
             <a href="{% url 'usuarios:inicio' %}">
                 <img src="{% static 'img/logo.png' %}" alt="Logo TicketWorld" class="logo" />
             </a>
-
-            {# Botón "Vender" añadido junto al logo #}
-            {# Solo se muestra si el usuario no es proveedor o admin #}
             {% if user.rol != 'proveedor' and user.rol != 'admin' %}
                 <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-vender">Vender</a>
             {% endif %}
@@ -30,25 +27,34 @@
 
         <div class="header-right">
             <nav class="main-nav">
-                   <a href="#">Eventos</a>
+                 <a href="#">Eventos</a>
             </nav>
 
+            <a href="{% url 'tickets:ver_carrito' %}" class="header-cart-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Carrito</span>
+            </a>
+            
             <div class="user-actions">
                 {% if user.is_authenticated %}
-                    {# Botón Panel Admin (Solo para Administradores) #}
-                    {% if user.rol == 'admin' %}
-                        <a href="{% url 'usuarios:admin_dashboard' %}" class="btn btn-admin-dashboard">Panel Admin</a>
-                    {% endif %}
-
-                    {# ESTE ES EL BLOQUE DEL BOTÓN "CREAR EVENTO" #}
-                    {% if user.rol == 'proveedor' or user.rol == 'admin' %}
-                        <a href="{% url 'tickets:crear_evento' %}" class="btn btn-create-event">Crear Evento</a>
-                    {% endif %}
-
-                    <div class="user-info">
-                        <span class="user-role">({{ user.get_rol_display }})</span>
-                        Hola, <a href="{% url 'usuarios:perfil' %}"><strong>{{ user.username }}</strong></a>
-                        <a href="{% url 'usuarios:logout' %}" class="btn-logout">Salir</a>
+                    <div class="user-menu">
+                        <span class="user-greeting">Hola, <strong>{{ user.username }}</strong></span>
+                        
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'usuarios:perfil' %}">Mi Perfil</a></li>
+                            
+                            {% if user.rol == 'proveedor' or user.rol == 'admin' %}
+                                <li><a href="{% url 'tickets:mis_eventos' %}">Mis Eventos</a></li>
+                                <li><a href="{% url 'tickets:crear_evento' %}">Crear Evento</a></li>
+                            {% endif %}
+                            
+                            {% if user.rol == 'admin' %}
+                                <li><a href="#">Panel Admin</a></li>
+                            {% endif %}
+        
+                            <li class="divider"></li>
+                            <li><a href="{% url 'usuarios:logout' %}" class="logout-link">Salir</a></li>
+                        </ul>
                     </div>
                 {% else %}
                     <a href="{% url 'usuarios:login' %}" class="btn btn-login">Iniciar Sesión</a>
@@ -59,31 +65,16 @@
     </header>
 
     <main class="main-content">
-        {# Bloque para mostrar mensajes de Django #}
-        <div class="messages-container">
-            {% if messages %}
-                <ul class="messages-list">
-                    {% for message in messages %}
-                        <li class="message-item {{ message.tags }}">
-                            {{ message }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-
-        {# El contenido de cada página se insertará aquí #}
+        {# ... (código de los mensajes) ... #}
         {% block content %}{% endblock %}
     </main>
 
     <footer class="main-footer">
-        <p>&copy; {% now "Y" %} Ticket World. Todos los derechos reservados.</p>
+        {# ... #}
     </footer>
 
-    {% block extra_js %}{% endblock %}
-
-    {# Enlazamos el nuevo archivo JavaScript para los mensajes #}
+    {# ... (orden de scripts corregido) ... #}
     <script src="{% static 'js/messages.js' %}"></script>
-    {# El estilo para .btn-create-event debe estar en static/css/base.css #}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

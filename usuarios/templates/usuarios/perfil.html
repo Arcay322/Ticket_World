@@ -1,39 +1,59 @@
 {% extends "usuarios/base.html" %}
 {% load static %}
 
-{% block title %}Mi Perfil - {{ user.username }}{% endblock %}
+{% block title %}Mi Perfil{% endblock %}
 
 {% block extra_css %}
-    {# Aquí podrías enlazar un CSS específico para el perfil si lo tuvieras #}
-    {# <link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}"> #}
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="perfil-usuario-container">
-    <h1>Mi Perfil</h1>
+<div class="page-content">
+    <h1 class="section-title">Mi Perfil</h1>
 
-    <div class="perfil-info">
-        {% if usuario.foto_perfil %}
-            <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
-        {% else %}
-            <img src="{% static 'img/avatar.png' %}" alt="Avatar por defecto" class="foto-perfil">
-        {% endif %}
+    <div class="perfil-layout">
+        
+        <div class="columna-formulario">
+            <div class="tarjeta-perfil">
+                <h3>Editar mis Datos</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn-guardar">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
 
-        <form method="POST" enctype="multipart/form-data" class="perfil-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        </form>
+        <div class="columna-historial">
+            <h3>Mi Historial de Compras</h3>
+            
+            {% if ventas %}
+                <div class="lista-ventas">
+                    {% for venta in ventas %}
+                        <div class="venta-item">
+                            <div class="venta-header">
+                                <span>Compra #{{ venta.id }}</span>
+                                <span class="fecha-venta">{{ venta.fecha_compra|date:"d M Y, H:i" }}h</span>
+                            </div>
+                            <div class="venta-detalles">
+                                <ul>
+                                    {% for detalle in venta.detalles.all %}
+                                        <li>{{ detalle.cantidad }} x {{ detalle.boleto.nombre_boleto }} ({{ detalle.boleto.evento.nombre }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="venta-footer">
+                                <span>Total:</span>
+                                <strong>${{ venta.total_venta|stringformat:".2f" }}</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-message">Aún no has realizado ninguna compra.</p>
+            {% endif %}
+
+        </div>
     </div>
-
-    <div class="acciones">
-        {% if usuario.rol == 'cliente' %}
-            <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-secondary">Quiero ser proveedor</a>
-        {% elif usuario.rol == 'proveedor' %}
-            {# Este enlace dará error hasta que descomentes la URL y la vista 'crear_evento' #}
-            {# <a href="{% url 'tickets:crear_evento' %}" class="btn btn-success">Publicar nuevo evento</a> #}
-            <p>¡Ya puedes publicar eventos desde el panel de gestión!</p>
-        {% endif %}
-    </div>
-</section>
+</div>
 {% endblock %}

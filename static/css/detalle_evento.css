@@ -1,0 +1,178 @@
+/* static/css/detalle_evento.css */
+
+.evento-header {
+    width: 100%;
+    height: 400px;
+}
+
+.imagen-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.evento-body {
+    display: flex;
+    flex-wrap: wrap; /* Para que se ajuste en pantallas pequeñas */
+    gap: 2rem;
+    max-width: 1200px;
+    margin: -80px auto 4rem auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.columna-info {
+    flex: 2;
+    min-width: 300px; /* Ancho mínimo para la columna */
+    background-color: var(--color-superficie, #fff);
+    padding: 2.5rem;
+    border-radius: var(--borde-radio, 12px);
+    box-shadow: var(--sombra-media, 0 8px 25px rgba(0,0,0,0.08));
+}
+
+.columna-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.columna-info .categoria-evento {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--color-primario, #00acc1);
+    margin-bottom: 1.5rem;
+}
+
+.columna-info h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.columna-info p {
+    line-height: 1.8;
+    color: #555;
+}
+
+.columna-accion {
+    flex: 1;
+    min-width: 320px;
+}
+
+.tarjeta-accion {
+    background-color: var(--color-superficie, #fff);
+    padding: 1.5rem;
+    border-radius: var(--borde-radio, 12px);
+    box-shadow: var(--sombra-media, 0 8px 25px rgba(0,0,0,0.08));
+    position: sticky;
+    top: 2rem;
+}
+
+.tarjeta-accion h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.tarjeta-accion .detalle-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--color-texto-secundario, #6c757d);
+}
+
+.tarjeta-accion .detalle-item svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.boletos-titulo {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.tipo-boleto {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.precio { font-weight: 700; }
+
+.btn-comprar-grande {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    background: var(--color-acento, #ff9800);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-comprar-grande:hover {
+    background: var(--color-acento-oscuro, #e68900);
+}
+.form-boletos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tipo-boleto {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.25rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-boleto {
+    display: flex;
+    flex-direction: column;
+}
+
+.nombre-boleto {
+    font-weight: 500;
+}
+
+.precio-boleto {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario, #6c757d);
+}
+
+.cantidad-boleto input {
+    width: 60px;
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+.tipo-boleto.agotado {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+/* Estilo para el texto "Agotado" */
+.agotado-texto {
+    font-weight: 700;
+    color: var(--color-error, #dc3545);
+    font-size: 1rem;
+}
+.pocos-boletos-texto {
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--color-acento, #ff9800); /* Usamos el color de acento naranja */
+    margin-top: 4px;
+}

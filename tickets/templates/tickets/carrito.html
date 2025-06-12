@@ -1,0 +1,76 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}Tu Carrito de Compras{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/carrito.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <h1 class="section-title">Tu Carrito de Compras</h1>
+
+    {% if items_del_carrito %}
+        <div class="carrito-container">
+            <div class="lista-items">
+                {% for item in items_del_carrito %}
+                    <div class="item-carrito" id="item-{{ item.boleto.id }}">
+                        <div class="item-imagen">
+                            <img src="{{ item.evento.imagen_portada.url }}" alt="{{ item.evento.nombre }}">
+                        </div>
+                        <div class="item-detalles">
+                            <h2>{{ item.evento.nombre }}</h2>
+                            <p>{{ item.boleto.display_name }}</p>
+                            
+                            <div class="cantidad-control">
+                                {% if item.boleto.esta_agotado %}
+                                    <span class="agotado-texto">Agotado</span>
+                                {% else %}
+                                    <label for="cantidad-{{ item.boleto.id }}">Cantidad:</label>
+                                    <input type="number" 
+                                           class="input-cantidad"
+                                           id="cantidad-{{ item.boleto.id }}"
+                                           data-boleto-id="{{ item.boleto.id }}"
+                                           value="{{ item.cantidad }}" 
+                                           min="1"
+                                           {# === CÁLCULO CORREGIDO Y SIMPLIFICADO === #}
+                                           {# El máximo es simplemente la cantidad que queda disponible #}
+                                           max="{{ item.boleto.cantidad_restante }}">
+                                           
+                                    {% if item.boleto.cantidad_restante <= 10 %}
+                                        <span class="pocos-boletos-texto">¡Solo quedan {{ item.boleto.cantidad_restante }}!</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="item-precio">
+                            <span id="subtotal-{{ item.boleto.id }}">${{ item.subtotal|stringformat:".2f" }}</span>
+                            <a class="eliminar-link" href="{% url 'tickets:eliminar_del_carrito' item.boleto.id %}">Eliminar</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="resumen-carrito">
+                <h3>Resumen de la Compra</h3>
+                <div class="resumen-linea">
+                    <span>Total</span>
+                    <span class="total-precio" id="total-general">${{ total_carrito|stringformat:".2f" }}</span>
+                </div>
+                <a href="{% url 'tickets:checkout_procesar' %}" class="btn-proceder-pago">Proceder al Pago</a>
+                <a href="{% url 'usuarios:inicio' %}" class="link-seguir-comprando">o Seguir Comprando</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="carrito-vacio">
+            <p>Tu carrito de compras está vacío.</p>
+            <a href="{% url 'usuarios:inicio' %}" class="btn-vender">Ver Eventos</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/carrito.js' %}"></script>
+{% endblock %}

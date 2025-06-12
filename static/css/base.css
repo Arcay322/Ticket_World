@@ -1,4 +1,26 @@
-/* static/css/base.css */
+/* static/css/base.css (Versión Final y Completa) */
+
+/* Paleta de colores centralizada */
+:root {
+    --color-primario: #00acc1;
+    --color-primario-oscuro: #00838f;
+    --color-acento: #ff9800;
+    --color-acento-oscuro: #e68900;
+    --color-fondo: #f4f6f9;
+    --color-superficie: #ffffff;
+    --color-texto-principal: #212529;
+    --color-texto-secundario: #6c757d;
+    --fuente-principal: 'Poppins', sans-serif;
+    --sombra-suave: 0 4px 6px rgba(0, 0, 0, 0.04);
+    --sombra-media: 0 8px 25px rgba(0, 0, 0, 0.08);
+    --borde-radio: 12px;
+    --color-error: #dc3545; /* Un rojo estándar para errores */
+
+    --fuente-principal: 'Poppins', sans-serif;
+    --sombra-suave: 0 4px 6px rgba(0, 0, 0, 0.04);
+    --sombra-media: 0 8px 25px rgba(0, 0, 0, 0.08);
+    --borde-radio: 12px;
+}
 
 * {
     box-sizing: border-box;
@@ -7,30 +29,36 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f4f6f9;
-    color: #333;
+    font-family: var(--fuente-principal);
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
+/* --- Header --- */
 .main-header {
-    background-color: #ffffff;
-    padding: 0 2.5rem; /* Quitamos el padding vertical */
+    background-color: var(--color-superficie);
+    padding: 0 2.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 90px; /* Altura fija del header */
+    height: 90px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .main-header .logo {
-    /* Hacemos el logo un tamaño apropiado para el header */
-    height: 150px; /* Ajustado para caber bien en un header de 90px */
+    height: 180px;
     width: auto;
-    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsionarse */
+    object-fit: contain;
 }
 
 .header-right {
@@ -41,14 +69,14 @@ body {
 
 .main-nav a {
     text-decoration: none;
-    color: #333;
+    color: var(--color-texto-principal);
     font-weight: 500;
     font-size: 1rem;
     transition: color 0.2s ease;
 }
 
 .main-nav a:hover {
-    color: #00acc1;
+    color: var(--color-primario);
 }
 
 .user-actions {
@@ -57,7 +85,8 @@ body {
     gap: 1rem;
 }
 
-.user-actions .btn {
+/* --- Botones --- */
+.user-actions .btn, .btn-vender {
     text-decoration: none;
     padding: 0.5rem 1.25rem;
     border-radius: 20px;
@@ -70,7 +99,7 @@ body {
 .btn-login {
     background-color: #e0f7fa;
     color: #00796b;
-    border-color: #00acc1;
+    border-color: var(--color-primario);
 }
 
 .btn-login:hover {
@@ -78,38 +107,54 @@ body {
 }
 
 .btn-register {
-    background-color: #00acc1;
+    background-color: var(--color-primario);
     color: white;
 }
 
 .btn-register:hover {
-    background-color: #00838f;
+    background-color: var(--color-primario-oscuro);
 }
 
+.btn-vender {
+    padding: 0.6rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #2ed8b6, #00acc1);
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
+    transition: all 0.3s ease;
+
+    /* === LÍNEAS AÑADIDAS PARA CENTRAR EL TEXTO === */
+    display: inline-flex; /* Lo tratamos como un bloque flexible */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center;   /* Centra el contenido verticalmente */
+    text-align: center;      /* Un seguro extra para el centrado */
+}
+
+.btn-vender:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5);
+}
+
+/* --- Información de Usuario --- */
 .user-info {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--color-texto-principal);
 }
 .user-info a {
     text-decoration: none;
     color: #00796b;
 }
+.user-info .user-role { font-size: 0.8rem; color: var(--color-texto-secundario); }
+.user-info .btn-logout { font-size: 0.9rem; color: #f44336; text-decoration: none; margin-left: 1rem; }
 
-.user-info .user-role {
-    font-size: 0.8rem;
-    color: #777;
-}
-
-.user-info .btn-logout {
-    font-size: 0.9rem;
-    color: #f44336;
-    text-decoration: none;
-    margin-left: 1rem;
-}
-
+/* --- Contenido Principal y Footer --- */
 .main-content {
     flex-grow: 1;
 }
@@ -123,30 +168,8 @@ body {
     flex-shrink: 0;
 }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem; /* Espacio entre el logo y el botón 'Vender' */
-}
 
-/* Estilos para el botón 'Vender' */
-.btn-vender {
-    padding: 0.6rem 1.75rem;
-    font-size: 1rem;
-    font-weight: 700;
-    color: white;
-    background: linear-gradient(45deg, #2ed8b6, #00acc1);
-    border: none;
-    border-radius: 50px;
-    text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
-    transition: all 0.3s ease;
-}
-
-.btn-vender:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5);
-}
+/* === ESTILOS PERSONALIZADOS RESTAURADOS === */
 
 /* Estilos para los mensajes de Django */
 .messages-container {
@@ -156,6 +179,8 @@ body {
     width: 100%;
     padding: 0 15px;
     box-sizing: border-box;
+    position: absolute; /* Para que flote sobre el contenido */
+    z-index: 1000;
 }
 
 .messages-list {
@@ -164,8 +189,6 @@ body {
     margin: 0;
     max-width: 700px;
     width: 100%;
-    position: relative;
-    z-index: 1000;
 }
 
 .messages-list .message-item {
@@ -177,92 +200,112 @@ body {
     display: flex;
     align-items: center;
     line-height: 1.4;
-    opacity: 0;
-    transform: translateY(-50px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.messages-list .message-item.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.messages-list .message-item.hide {
-    opacity: 0;
-    transition: opacity 0.8s ease-out;
-}
-
 .messages-list .success {
-    background-color: rgba(40, 167, 69, 0.85);
+    background-color: rgba(40, 167, 69, 0.9);
     color: #ffffff;
-    border: 1px solid rgba(33, 136, 56, 0.85);
+    border: 1px solid rgba(33, 136, 56, 0.9);
 }
-.messages-list .success::before {
-    content: "✓";
-    margin-right: 10px;
-    font-size: 1.2em;
-}
+.messages-list .success::before { content: "✓"; margin-right: 10px; font-size: 1.2em; }
 
 .messages-list .error {
-    background-color: rgba(220, 53, 69, 0.85);
+    background-color: rgba(220, 53, 69, 0.9);
     color: #ffffff;
-    border: 1px solid rgba(200, 35, 51, 0.85);
+    border: 1px solid rgba(200, 35, 51, 0.9);
 }
-.messages-list .error::before {
-    content: "✕";
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-.messages-list .info {
-    background-color: rgba(23, 162, 184, 0.85);
-    color: #ffffff;
-    border: 1px solid rgba(19, 132, 150, 0.85);
-}
-.messages-list .info::before {
-    content: "ⓘ";
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-.messages-list .warning {
-    background-color: rgba(255, 193, 7, 0.85);
-    color: #343a40;
-    border: 1px solid rgba(224, 168, 0, 0.85);
-}
-.messages-list .warning::before {
-    content: "⚠️";
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-/* Estilo para el botón del panel admin */
-.btn-admin-dashboard {
-    background-color: #3498db;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 500;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
-}
-.btn-admin-dashboard:hover {
-    background-color: #217dbb;
-}
+.messages-list .error::before { content: "✕"; margin-right: 10px; font-size: 1.2em; }
 
 /* Estilo para el botón de crear evento */
 .btn-create-event {
-    background-color: #f7941d; /* Un naranja vibrante */
+    background-color: var(--color-acento);
     color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
+    padding: 0.6rem 1.5rem;
+    border-radius: 20px;
     text-decoration: none;
     font-weight: 500;
-    margin-right: 10px;
     transition: background-color 0.3s ease;
 }
 .btn-create-event:hover {
-    background-color: #e0871a;
+    background-color: var(--color-acento-oscuro);
+}
+.header-cart-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--color-texto-principal);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: background-color 0.2s ease;
+}
+
+.header-cart-link:hover {
+    background-color: #f0f0f0;
+}
+.user-menu {
+    position: relative; /* Clave para que el menú desplegable se posicione correctamente */
+    cursor: pointer;
+}
+
+/* El texto "Hola, Usuario" */
+.user-menu .user-greeting {
+    font-weight: 500;
+    padding: 0.5rem 0; /* Asegura que sea fácil hacer hover */
+}
+
+/* El menú desplegable (oculto por defecto) */
+.dropdown-menu {
+    position: absolute;
+    top: 120%; /* Un poco por debajo del texto del usuario */
+    right: 0;
+    background-color: var(--color-superficie, #fff);
+    border-radius: var(--borde-radio, 12px);
+    box-shadow: var(--sombra-media, 0 8px 25px rgba(0,0,0,0.1));
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    width: 220px; /* Ancho del menú */
+    z-index: 1000;
+    
+    /* Animación de entrada */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease-in-out;
+}
+
+/* El menú se muestra cuando pasamos el ratón por encima del contenedor .user-menu */
+.user-menu:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Estilo de cada elemento del menú */
+.dropdown-menu li a {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--color-texto-principal, #333);
+    font-size: 0.95rem;
+}
+
+.dropdown-menu li a:hover {
+    background-color: #f4f6f9; /* Un fondo sutil al pasar el ratón */
+}
+
+/* Estilo para el enlace de "Salir" */
+.dropdown-menu .logout-link {
+    color: #f44336; /* Color rojo para la acción de salir */
+    font-weight: 500;
+}
+
+/* Un separador visual */
+.dropdown-menu .divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 0.5rem 0;
 }

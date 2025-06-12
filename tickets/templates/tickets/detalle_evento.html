@@ -1,0 +1,78 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}{{ evento.nombre }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/detalle_evento.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="evento-detalle-container">
+    {# ... (la sección del header del evento con la imagen no cambia) ... #}
+    <div class="evento-header">
+        <div class="imagen-banner">
+            {% if evento.imagen_portada %}
+                <img src="{{ evento.imagen_portada.url }}" alt="Portada de {{ evento.nombre }}">
+            {% else %}
+                <img src="https://placehold.co/1200x400/00838f/FFF?text=Ticket+World" alt="Evento sin imagen">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="evento-body">
+        <div class="columna-info">
+            <h1>{{ evento.nombre }}</h1>
+            <p class="categoria-evento">{{ evento.categoria.nombre }}</p>
+            <hr>
+            <h2>Descripción del Evento</h2>
+            <p>{{ evento.descripcion|linebreaksbr }}</p>
+        </div>
+
+        <div class="columna-accion">
+            <div class="tarjeta-accion">
+                <h3>Detalles</h3>
+                {# ... (los detalles de fecha y lugar no cambian) ... #}
+                <p class="detalle-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> 
+                    <span>{{ evento.fecha|date:"l, d \d\e F \d\e\l Y" }} - {{ evento.fecha|time:"H:i" }}h</span>
+                </p>
+                <p class="detalle-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> 
+                    <span>{{ evento.lugar }}</span>
+                </p>
+
+                <h3 class="boletos-titulo">Boletos</h3>
+                <form class="form-boletos" method="post" action="{% url 'tickets:agregar_al_carrito' evento.id %}">
+                    {% csrf_token %}
+                    {% for boleto in evento.boletos.all %}
+                        <div class="tipo-boleto {% if boleto.esta_agotado %}agotado{% endif %}">
+                            <div class="info-boleto">
+                                <span class="nombre-boleto">{{ boleto.display_name }}</span>
+                                <span class="precio-boleto">${{ boleto.precio|stringformat:".2f" }}</span>
+                                {# === LÓGICA AÑADIDA PARA POCO STOCK === #}
+                                {% if not boleto.esta_agotado and boleto.cantidad_restante <= 10 %}
+                                    <span class="pocos-boletos-texto">¡Solo quedan {{ boleto.cantidad_restante }}!</span>
+                                {% endif %}
+                            </div>
+                            <div class="cantidad-boleto">
+                                {% if boleto.esta_agotado %}
+                                    <span class="agotado-texto">Agotado</span>
+                                {% else %}
+                                    <input type="number" name="boleto_{{ boleto.id }}" value="0" min="0" max="{{ boleto.cantidad_restante }}" aria-label="Cantidad para {{ boleto.display_name }}">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No hay tipos de boletos disponibles para este evento.</p>
+                    {% endfor %}
+
+                    {% if evento.boletos.all %}
+                        <button type="submit" class="btn-comprar-grande">Añadir al Carrito</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

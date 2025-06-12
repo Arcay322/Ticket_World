@@ -147,3 +147,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '998661114a@gmail.com'
 EMAIL_HOST_PASSWORD = 'stjgvletuhhnmuro'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CONADIS_DISCOUNT_PERCENTAGE = 20    # Porcentaje de descuento para personas con discapacidad

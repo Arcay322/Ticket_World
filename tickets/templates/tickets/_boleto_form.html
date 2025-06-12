@@ -1,0 +1,25 @@
+{# tickets/templates/tickets/_boleto_form.html #}
+
+<div class="boleto-form-wrapper">
+    {# El botón 'X' ahora siempre es visible #}
+    <button type="button" class="delete-boleto-button">&times;</button>
+    
+    {# Renderizamos los campos ocultos del formulario (como el ID) #}
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    
+    {# Renderizamos los campos visibles #}
+    {% for field in form.visible_fields %}
+        <div class="form-field-group">
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+                <p class="form-errors">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    {# El campo DELETE para que Django sepa qué borrar en el backend #}
+    {% if formset.can_delete %}
+        <div style="display:none;">{{ form.DELETE }}</div>
+    {% endif %}
+</div>

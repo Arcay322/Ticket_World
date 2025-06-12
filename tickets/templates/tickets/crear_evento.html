@@ -1,28 +1,22 @@
-{% extends 'usuarios/base.html' %} {# Ruta consistente #}
+{% extends 'usuarios/base.html' %}
 {% load static %}
 
-{% block title %}{{ panel_title }}{% endblock %}
+{% block title %}Crear Nuevo Evento{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
     <link rel="stylesheet" href="{% static 'css/event_forms.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <h1 class="panel-title">{{ panel_title }}</h1>
-    <p class="panel-subtitle">{{ panel_subtitle }}</p>
+    <h1 class="panel-title">Crear Nuevo Evento</h1>
+    <p class="panel-subtitle">Completa los detalles de tu evento y añade al menos un tipo de boleto. Será revisado por un administrador antes de su publicación.</p>
 
-    <form method="post" enctype="multipart/form-data"> {# IMPORTANTE: para subir archivos #}
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
-        {# Errores no de campo del formulario principal #}
         {% if form.non_field_errors %}
-            <ul class="form-errors">
-                {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+            <div class="form-errors">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
         {% endif %}
 
         <h2 class="form-section-title">Detalles del Evento</h2>
@@ -30,73 +24,50 @@
             <div class="form-field-group">
                 {{ field.label_tag }}
                 {{ field }}
-                {% if field.help_text %}
-                    <small class="text-muted">{{ field.help_text }}</small>
-                {% endif %}
-                {% for error in field.errors %}
-                    <p class="form-errors">{{ error }}</p>
-                {% endfor %}
+                {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+                <div class="form-errors">{{ field.errors }}</div>
             </div>
         {% endfor %}
 
         <h2 class="form-section-title">Tipos de Boletos</h2>
-        {# Errores no de campo del formset #}
+        
         {% if formset.non_form_errors %}
-            <ul class="form-errors">
-                {% for error in formset.non_form_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+            <div class="form-errors">{% for error in formset.non_form_errors %}<p>{{ error }}</p>{% endfor %}</div>
         {% endif %}
         
-        {{ formset.management_form }} {# IMPORTANTE: renderiza los campos de gestión del formset #}
+        {{ formset.management_form }}
         
         <div id="boleto-form-list">
             {% for form in formset %}
-                <div class="boleto-form-wrapper">
-                    <button type="button" class="delete-boleto-button" {% if formset.can_delete %}data-form-id="{{ forloop.counter0 }}"{% endif %}>&times;</button>
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    {% for field in form.visible_fields %}
-                        <div class="form-field-group">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {% for error in field.errors %}
-                                <p class="form-errors">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                    {# Si el formset permite eliminar, el campo DELETE se renderiza aquí #}
-                    {% if formset.can_delete %}
-                        <div class="form-field-group" style="display:none;">
-                            {{ form.DELETE }}
-                            {{ form.DELETE.label_tag }}
-                        </div>
-                    {% endif %}
-                </div>
+                {% include 'tickets/_boleto_form.html' with form=form %}
             {% endfor %}
         </div>
 
-        <button type="button" id="add-boleto-button" class="add-boleto-button">Añadir Otro Tipo de Boleto</button>
+        {# === ID CORREGIDO AQUÍ === #}
+        {# La plantilla oculta que usará el JavaScript para crear nuevos formularios #}
+        <div id="empty-form-template" style="display: none;">
+            {% include 'tickets/_boleto_form.html' with form=formset.empty_form %}
+        </div>
 
+        <button type="button" id="add-boleto-button" class="add-boleto-button">Añadir Otro Tipo de Boleto</button>
+        
         <button type="submit" class="btn-submit">Crear Evento</button>
     </form>
 </div>
-
 {% endblock %}
 
-{% block extra_js %}
-{# Enlazamos el nuevo archivo JavaScript para la funcionalidad dinámica del formulario #}
-<script src="{% static 'js/event_form_dynamic.js' %}"></script>
-{# Los valores del formset se pasan como atributos de datos para que el JS los lea #}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formsetManagementPrefix = "{{ formset.management_form.prefix }}";
-        const formsetInitialTotalForms = parseInt("{{ formset.total_form_count }}");
-        const formsetInitialMinForms = parseInt("{{ formset.min_num }}");
 
-        initDynamicFormset(formsetManagementPrefix, formsetInitialTotalForms, formsetInitialMinForms);
+{% block extra_js %}
+<script src="{% static 'js/event_form_dynamic.js' %}"></script>
+<script>
+    // Este script llama a la función en el archivo .js y le pasa los datos de Django
+    document.addEventListener('DOMContentLoaded', function() {
+        initDynamicFormset(
+            "{{ formset.prefix }}",
+            "#add-boleto-button",
+            "#boleto-form-list",
+            "#empty-form-template" // Este ID ahora coincide con el del div de arriba
+        );
     });
 </script>
 {% endblock %}

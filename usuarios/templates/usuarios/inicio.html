@@ -28,18 +28,12 @@
         {% if categorias %}
             <div class="category-grid">
                 {% for categoria in categorias %}
-                    {# Las tarjetas de categoría con íconos geométricos #}
-                    <a href="{% url 'tickets:lista_eventos' %}?categoria={{ categoria.id }}" class="category-card">
+                    <a href="#" class="category-card">
                         <div class="category-icon">
-                            {# Puedes reemplazar estos SVG/Emojis con íconos reales de una librería si los integras #}
                             {% if categoria.nombre == 'Música' %}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-music"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
                             {% elif categoria.nombre == 'Deportes' %}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            {% elif categoria.nombre == 'Teatro' %}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mask"><path d="M12 2a10 10 0 0 0-7.38 16.74A10 10 0 0 0 12 22a10 10 0 0 0 7.38-3.26A10 10 0 0 0 12 2zm0 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"></path></svg>
-                            {% elif categoria.nombre == 'Festival' %}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-award"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 22 12 22 15 15.5 16 10"></polyline></svg>
                             {% else %}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                             {% endif %}
@@ -49,49 +43,35 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p>No hay categorías disponibles.</p>
+            <p class="empty-message">No hay categorías disponibles en este momento.</p>
         {% endif %}
     </div>
 
     <h2 class="section-title">Próximos Eventos</h2>
     <div class="events-wrapper">
-        {% if eventos %}
-            {% for evento in eventos %}
-                <a href="#" class="event-card-link"> {# Este enlace cubrirá toda la tarjeta #}
-                    <div class="event-card">
-                        <div class="event-header-badges">
-                            <span class="star-badge">★</span> {# Icono de estrella #}
-                            <div class="date-time-badge">
-                                <span class="month-day">{{ evento.fecha|date:"d M"|upper }}</span> {# Día y Mes (ej. 11 JUN) #}
-                                <span class="time-hour">{{ evento.fecha|time:"H:i A" }}</span> {# Hora (ej. 8:00 PM) #}
-                            </div>
-                        </div>
-                        <div class="event-image-container">
-                            {% if evento.imagen_portada %}
-                                <img src="{{ evento.imagen_portada.url }}" alt="{{ evento.nombre }}">
-                            {% else %}
-                                <img src="https://placehold.co/400x200/e0e0e0/555555?text=Sin+Imagen" alt="Sin imagen disponible">
-                            {% endif %}
-                        </div>
-                        <div class="event-card-content">
-                            <h3>{{ evento.nombre }}</h3>
-                            <p class="event-date-location">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                {{ evento.fecha|date:"l d M, Y" }}
-                            </p>
-                        </div>
-                        <div class="event-card-actions">
-                            {# Aquí podrías enlazar a una página de compra directa o a los detalles para comprar #}
-                            <span class="btn-comprar">Comprar</span>
-                        </div>
-                    </div>
-                </a>
-            {% endfor %}
-        {% else %}
-            <div class="no-events-message">
-                <p>No hay eventos próximos disponibles. ¡Vuelve pronto!</p>
+        {% for evento in eventos %}
+            <div class="event-card">
+                 {# === ENLACE CORREGIDO === #}
+                 <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-image-link">
+                    {% if evento.imagen_portada %}
+                        <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}">
+                    {% else %}
+                        <img src="{% static 'img/placeholder_evento.jpg' %}" alt="Evento sin imagen">
+                    {% endif %}
+                 </a>
+                 <div class="card-content">
+                     <h3 class="card-title">{{ evento.nombre }}</h3>
+                     <p class="card-date">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                         <span>{{ evento.fecha|date:"D, d M - H:i" }}h</span>
+                     </p>
+                     {# === ENLACE CORREGIDO === #}
+                     <a href="{% url 'tickets:detalle_evento' evento.id %}" class="btn-vender">Comprar</a>
+                 </div>
             </div>
-        {% endif %}
+        {% empty %}
+            <p class="empty-message">No hay eventos próximos disponibles. ¡Vuelve pronto!</p>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}

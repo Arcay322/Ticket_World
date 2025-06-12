@@ -19,7 +19,7 @@ from .forms import RegistroForm, LoginForm, PerfilForm, SolicitudProveedorForm, 
 from .models import SolicitudProveedor,Usuario
 
 # Modelos de la otra app para la página de inicio
-from tickets.models import Categoria, Evento
+from tickets.models import Categoria, Evento,Boleto, Venta, DetalleVenta, MetodoPago
 
 # Decorador personalizado
 from .decorators import admin_required
@@ -217,7 +217,7 @@ def inicio(request):
     }
     
     return render(request, 'usuarios/inicio.html', context)
-    
+
 # --- Función de prueba para el decorador user_passes_test ---
 def is_eligible_for_supplier_form(user):
     """
@@ -296,6 +296,7 @@ def solicitud_proveedor(request):
 
 @login_required
 def perfil_usuario(request):
+    # Lógica del formulario para actualizar el perfil (se mantiene igual)
     if request.method == 'POST':
         form = PerfilForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
@@ -304,9 +305,19 @@ def perfil_usuario(request):
             return redirect('usuarios:perfil')
     else:
         form = PerfilForm(instance=request.user)
-
-    return render(request, 'usuarios/perfil.html', {'form': form, 'usuario': request.user})
-
+    
+    # === LÓGICA AÑADIDA ===
+    # Buscamos todas las ventas del usuario actual, ordenadas por la más reciente primero.
+    ventas_usuario = Venta.objects.filter(usuario=request.user).order_by('-fecha_compra')
+    
+    # Añadimos tanto el formulario como las ventas al contexto
+    context = {
+        'form': form,
+        'usuario': request.user,
+        'ventas': ventas_usuario
+    }
+    
+    return render(request, 'usuarios/perfil.html', context)
 
 # --- Vistas de Administración ---
 

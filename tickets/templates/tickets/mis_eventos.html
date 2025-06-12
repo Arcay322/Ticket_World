@@ -1,0 +1,56 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}Mis Eventos Creados{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/mis_eventos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <h1 class="section-title">Mis Eventos</h1>
+    <p class="section-subtitle">Aquí puedes ver el estado de todos los eventos que has creado.</p>
+
+    <div class="tabla-container">
+        <table class="tabla-eventos">
+            <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Fecha del Evento</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for evento in eventos %}
+                    <tr>
+                        <td><strong>{{ evento.nombre }}</strong></td>
+                        <td>{{ evento.fecha|date:"d M Y, H:i" }}h</td>
+                        <td>{{ evento.categoria.nombre }}</td>
+                        <td>
+                            {% if evento.aprobado %}
+                                <span class="status-badge status-aprobado">Aprobado</span>
+                            {% else %}
+                                <span class="status-badge status-pendiente">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="#" class="btn-accion btn-editar">Editar</a>
+                            {# A futuro, este botón podría llevar a una página con estadísticas #}
+                            <a href="#" class="btn-accion btn-ver">Ver</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="no-events-row">
+                            Aún no has creado ningún evento. ¡<a href="{% url 'tickets:crear_evento' %}">Crea tu primer evento aquí</a>!
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
