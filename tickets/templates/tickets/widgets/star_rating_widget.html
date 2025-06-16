@@ -1,0 +1,27 @@
+{# tickets/templates/tickets/widgets/star_rating_widget.html #}
+
+{# El div exterior que Django genera para el campo, con su ID (ej. id="id_calificacion") #}
+<div id="{{ widget.attrs.id }}"> 
+    {# --- ¡CORRECCIÓN CLAVE EN ESTOS BUCLES! --- #}
+    {# Primero, iteramos sobre los grupos de opciones. Cada "group" es una tupla. #}
+    {% for group_name, options_list, group_index in widget.optgroups %} 
+        {# Segundo, iteramos sobre la lista real de opciones dentro de cada grupo. #}
+        {% for option in options_list %} 
+            <div class="star-rating-option">
+                {# Renderizamos el input radio manualmente. #}
+                <input type="radio" 
+                       name="{{ option.name }}" 
+                       value="{{ option.value }}" 
+                       id="{{ option.id }}" 
+                       {% if option.attrs.required %}required{% endif %}
+                       {% if option.selected %}checked{% endif %}
+                       data-value="{{ option.value }}"> {# Añadimos el valor como data-value para JS #}
+                
+                {# La etiqueta que será la estrella visible. #}
+                <label for="{{ option.id }}" data-value="{{ option.value }}">
+                    <span class="star-icon">★</span> {# Carácter Unicode de estrella #}
+                </label>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>

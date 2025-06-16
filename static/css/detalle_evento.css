@@ -1,34 +1,66 @@
-/* static/css/detalle_evento.css */
+/* static/css/detalle_evento.css (Ajustes para posicionamiento y detalles de opinión) */
 
-.evento-header {
+/* --- Contenedor Global con la Imagen de Fondo (Específico de esta página) --- */
+.evento-fondo-global {
     width: 100%;
-    height: 400px;
+    min-height: calc(100vh - 90px - 60px); /* Ajusta a tu altura deseada */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+    padding-top: 90px; /* Para empujar el contenido debajo del header */
+    padding-bottom: 60px;
 }
 
-.imagen-banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+/* Contenedor del contenido principal del evento (info, acción, opiniones) */
+.evento-detalle-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    padding: 0 2rem;
 }
 
+/* --- Sección Principal del Evento (Descripción y Boletos) --- */
 .evento-body {
     display: flex;
-    flex-wrap: wrap; /* Para que se ajuste en pantallas pequeñas */
+    flex-wrap: wrap;
     gap: 2rem;
-    max-width: 1200px;
-    margin: -80px auto 4rem auto;
-    padding: 0 2rem;
+    /* ELIMINA O AJUSTA ESTA LÍNEA CLAVE */
+    /* margin-top: -100px; */ /* Si lo que quieres es que todo el contenido baje, este es el culpable. */
+
+    /* Si quieres que baje y que el efecto de superposición sobre la imagen de fondo
+       (la del estadio, si hay) desaparezca, simplemente pon: */
+    margin-top: 2rem; /* O cualquier valor positivo para un margen normal */
+
+    /* Si quieres que siga superponiéndose a la imagen de fondo, pero que todo el bloque
+       baje más desde el header, podemos aumentar el padding-top del contenedor principal
+       que envuelve todo el 'body' del evento, o darle un margin-top al propio 'body' */
+    
+    /* Opción recomendada para empujar todo el contenido hacia abajo, manteniendo el layout general */
+    /* Calcula: 90px (altura header) + 20px (margen deseado) = 110px.
+       Tu .evento-fondo-global ya tiene padding-top: 90px.
+       Podemos añadir un margin-top al evento-body para que se separe aún más. */
+    margin-top: 20px; /* Margen debajo del header, si la imagen de fondo no te importa que se vea */
+
+    /* Si insistes en la superposición de la imagen y que el texto quede muy arriba,
+       pero que baje el contenido, entonces necesitas jugar con el padding-top
+       del propio .evento-body. */
+    /* padding-top: 110px; */ /* Esto empujaría el contenido *dentro* del body hacia abajo */
+
+    padding: 0;
     position: relative;
     z-index: 10;
 }
 
+
 .columna-info {
     flex: 2;
-    min-width: 300px; /* Ancho mínimo para la columna */
-    background-color: var(--color-superficie, #fff);
+    min-width: 300px;
+    background-color: var(--color-superficie);
     padding: 2.5rem;
-    border-radius: var(--borde-radio, 12px);
-    box-shadow: var(--sombra-media, 0 8px 25px rgba(0,0,0,0.08));
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
 }
 
 .columna-info h1 {
@@ -36,13 +68,49 @@
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0.25rem;
+    color: var(--color-texto-principal);
 }
+
+/* Estilos para el botón de favorito en la página de detalle */
+.columna-info h1 .btn-favorito {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    vertical-align: middle;
+    outline: none;
+    transition: transform 0.2s ease;
+}
+
+.columna-info h1 .btn-favorito:hover {
+    transform: scale(1.1);
+}
+
+/* Ajustes para el SVG del corazón */
+.columna-info h1 .btn-favorito svg {
+    fill: none;
+    stroke: gray;
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+/* Estado de favorito (corazón relleno) para el botón de detalle */
+.columna-info h1 .btn-favorito svg.favorited {
+    fill: red;
+    stroke: red;
+}
+
 
 .columna-info .categoria-evento {
     font-size: 1.1rem;
     font-weight: 500;
-    color: var(--color-primario, #00acc1);
+    color: var(--color-primario);
     margin-bottom: 1.5rem;
+}
+
+.columna-info hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 1.5rem 0;
 }
 
 .columna-info h2 {
@@ -51,44 +119,51 @@
     margin-bottom: 1rem;
     border-bottom: 2px solid #eee;
     padding-bottom: 0.5rem;
+    color: var(--color-texto-principal);
 }
 
 .columna-info p {
     line-height: 1.8;
-    color: #555;
+    color: var(--color-texto-principal);
 }
 
+/* Columna de Acción (Detalles y Compra de Boletos) */
 .columna-accion {
     flex: 1;
     min-width: 320px;
+    padding-top: 0px; /* Valor ajustado para compensar el header y un margen, manteniendo la superposición del evento-body */
 }
 
 .tarjeta-accion {
-    background-color: var(--color-superficie, #fff);
+    background-color: var(--color-superficie);
     padding: 1.5rem;
-    border-radius: var(--borde-radio, 12px);
-    box-shadow: var(--sombra-media, 0 8px 25px rgba(0,0,0,0.08));
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
     position: sticky;
-    top: 2rem;
+    top: 110px; /* Se pegará a 110px del top del viewport */
+    z-index: 5; /* Para que esté por encima de otros elementos */
 }
 
 .tarjeta-accion h3 {
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
+    color: var(--color-texto-principal);
 }
 
 .tarjeta-accion .detalle-item {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-start; /* Alinea los ítems de detalles al inicio (útil si hay texto largo) */
     gap: 0.75rem;
     margin-bottom: 1rem;
-    color: var(--color-texto-secundario, #6c757d);
+    color: var(--color-texto-secundario);
+    font-size: 1.05rem; /* Ajuste opcional para los detalles */
 }
 
 .tarjeta-accion .detalle-item svg {
     flex-shrink: 0;
     margin-top: 3px;
+    color: var(--color-primario);
 }
 
 .boletos-titulo {
@@ -97,32 +172,6 @@
     padding-top: 1.5rem;
 }
 
-.tipo-boleto {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.precio { font-weight: 700; }
-
-.btn-comprar-grande {
-    width: 100%;
-    padding: 1rem;
-    margin-top: 1.5rem;
-    background: var(--color-acento, #ff9800);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.btn-comprar-grande:hover {
-    background: var(--color-acento-oscuro, #e68900);
-}
 .form-boletos {
     display: flex;
     flex-direction: column;
@@ -144,11 +193,12 @@
 
 .nombre-boleto {
     font-weight: 500;
+    color: var(--color-texto-principal);
 }
 
 .precio-boleto {
     font-size: 0.9rem;
-    color: var(--color-texto-secundario, #6c757d);
+    color: var(--color-texto-secundario);
 }
 
 .cantidad-boleto input {
@@ -158,21 +208,339 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
+    color: var(--color-texto-principal);
+    background-color: var(--color-fondo);
 }
+
 .tipo-boleto.agotado {
     opacity: 0.6;
     background-color: #f8f9fa;
 }
 
-/* Estilo para el texto "Agotado" */
 .agotado-texto {
     font-weight: 700;
-    color: var(--color-error, #dc3545);
+    color: var(--color-error);
     font-size: 1rem;
 }
 .pocos-boletos-texto {
     font-size: 0.8em;
     font-weight: 700;
-    color: var(--color-acento, #ff9800); /* Usamos el color de acento naranja */
+    color: var(--color-acento);
     margin-top: 4px;
+}
+
+.btn-comprar-grande {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    background: var(--color-acento);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+}
+
+.btn-comprar-grande:hover {
+    background: var(--color-acento-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 152, 0, 0.5);
+}
+
+
+/* --- Sección de Opiniones y Calificaciones (Continuación) --- */
+.opiniones-section-wrapper {
+    background-color: var(--color-fondo);
+    padding: 4rem 0;
+    margin-top: 2rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+}
+
+.opiniones-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.opiniones-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: var(--color-texto-principal);
+}
+
+/* Mensajes de información y error (dentro de sección opiniones) */
+.info-message {
+    background-color: #e0f7fa;
+    color: #00796b;
+    border: 1px solid #b2ebf2;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.empty-message {
+    text-align: center;
+    font-style: italic;
+    color: var(--color-texto-secundario);
+    padding: 2rem;
+    background-color: var(--color-fondo);
+    border-radius: var(--borde-radio);
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Resumen de calificaciones */
+.resumen-opiniones {
+    background-color: var(--color-superficie);
+    padding: 2rem;
+    border-radius: var(--borde-radio);
+    margin-bottom: 2.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.calificacion-promedio .numero-promedio {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.calificacion-promedio .total-opiniones {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+}
+
+/* Estilos para las estrellas mostradas (promedio y por opiniÃ³n) */
+.estrellas-promedio, .opinion-calificacion {
+    color: var(--color-acento);
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+}
+.opinion-calificacion {
+    justify-content: flex-start;
+    margin-left: -2px;
+}
+
+/* Lista de opiniones individuales */
+.lista-opiniones {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.opinion-card {
+    background-color: var(--color-superficie);
+    padding: 1.5rem;
+    border-radius: var(--borde-radio);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    transition: transform 0.2s ease;
+}
+.opinion-card:hover {
+    transform: translateY(-3px);
+}
+
+.opinion-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    font-size: 0.95rem;
+    gap: 0.5rem;
+}
+
+.opinion-header a {
+    color: var(--color-primario);
+    text-decoration: none;
+}
+.opinion-header a:hover {
+    text-decoration: underline;
+}
+
+.opinion-perfil-comentario {
+    font-size: 0.95em;
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+}
+
+/* --- ESTILOS PARA EL FORMULARIO DE OPINIÃ“N (Estrellas reales con widget personalizado) --- */
+.formulario-opinion-card {
+    background-color: var(--color-superficie);
+    padding: 2.5rem;
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
+    margin-bottom: 3rem;
+    border: 1px solid #eee;
+}
+
+.formulario-opinion-card h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-opinion {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Estilos para el pÃ¡rrafo que envuelve la etiqueta principal de calificaciÃ³n (si aplica) */
+.form-opinion p {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos para la etiqueta principal del campo (ej. "Tu CalificaciÃ³n (1-5 estrellas):") */
+.form-opinion label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    margin-bottom: 0.5rem;
+}
+
+/* Contenedor general para las opciones de calificaciÃ³n por estrellas */
+/* Asumimos que el widget genera un div contenedor principal para las opciones de rating (ej. <div id="id_calificacion">) */
+.form-opinion #id_calificacion {
+    display: flex; /* Para que las estrellas estÃ©n en lÃ­nea */
+    gap: 0.75rem; /* Espacio entre estrellas */
+    justify-content: flex-start; /* Alinea a la izquierda */
+    flex-wrap: wrap; /* Permite que se envuelvan */
+    margin-top: 0.5rem; /* Espacio con la etiqueta superior */
+}
+
+/* Estilos para cada 'div' individual que envuelve una opciÃ³n de estrella (generado por el widget) */
+/* La clase 'star-rating-option' deberÃ­a ser aÃ±adida por tu widget en star_rating_widget.html */
+.form-opinion #id_calificacion > div.star-rating-option {
+    position: relative; /* Necesario para posicionar el input radio */
+    display: flex; /* Para alinear el radio oculto y la estrella visible */
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Asegurar que no haya padding extra */
+    margin: 0; /* Asegurar que no haya margen extra */
+}
+
+/* Estilos para el INPUT RADIO (ocultar) */
+.form-opinion #id_calificacion input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Estilos para la LABEL asociada a cada INPUT RADIO (el botÃ³n visual) */
+/* El color y tamaÃ±o de la estrella ahora se aplica al span.star-icon dentro de esta label */
+.form-opinion #id_calificacion label {
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+    padding: 0 3px; /* PequeÃ±o padding alrededor de la estrella */
+    line-height: 1; /* Para que la estrella no tenga espacio extra vertical */
+}
+
+/* Estilos para el SPAN que contiene el carÃ¡cter de estrella */
+.form-opinion #id_calificacion label .star-icon {
+    font-size: 2.2rem; /* TamaÃ±o de la estrella */
+    color: #ccc; /* Color por defecto (gris) */
+    display: inline-block; /* Asegurar que sea un bloque en lÃ­nea para el tamaÃ±o */
+}
+
+/* Efecto al pasar el ratÃ³n (hover) y al seleccionar (checked) */
+/* Ahora, el hover/checked afecta el color del span.star-icon directamente */
+.form-opinion #id_calificacion label:hover .star-icon,
+.form-opinion #id_calificacion input[type="radio"]:checked + label .star-icon {
+    color: gold !important; /* Usamos !important para depuraciÃ³n de especificidad */
+}
+
+
+/* Estilos para el campo de comentario (textarea) */
+.form-opinion textarea {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--color-texto-principal);
+    background-color: var(--color-fondo);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-opinion textarea:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.2);
+    outline: none;
+}
+
+/* Estilo para el botÃ³n de enviar opiniÃ³n */
+.btn-submit-opinion {
+    width: auto;
+    padding: 1rem 2.5rem;
+    margin-top: 1rem;
+    background: var(--color-acento);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    align-self: flex-start;
+}
+
+.btn-submit-opinion:hover {
+    background: var(--color-acento-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 152, 0, 0.5);
+}
+
+/* --- Responsive Adjustments (ContinuaciÃ³n) --- */
+
+@media (max-width: 768px) {
+    .formulario-opinion-card {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .formulario-opinion-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    .form-opinion {
+        gap: 1rem;
+    }
+    /* Estilos responsive para la etiqueta principal y el contenedor de radios */
+    .form-opinion p:first-of-type label {
+        font-size: 0.95rem;
+    }
+    .form-opinion #id_calificacion label .star-icon { /* Ajuste de tamaÃ±o para estrellas en mÃ³vil */
+        font-size: 1.8rem;
+    }
+    .btn-submit-opinion {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
 }

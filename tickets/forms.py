@@ -1,9 +1,12 @@
 # tickets/forms.py
-
 from django import forms
-from django.forms import inlineformset_factory, BaseInlineFormSet
-from .models import Evento, Categoria, Boleto
-from django.utils import timezone
+from django.utils import timezone # Asegúrate de importar timezone
+# Asegúrate de que los modelos Opinion y otros estén importados
+from .models import Evento, Boleto, Opinion, Venta, DetalleVenta, Categoria # Asegúrate de importar todos los modelos necesarios
+from django.forms import inlineformset_factory
+from decimal import Decimal # Importar Decimal si es necesario para lógica CONADIS
+from django.forms.models import BaseInlineFormSet
+# Asegúrate de que los modelos Categoria y Lugar estén importados
 
 class EventoForm(forms.ModelForm):
     class Meta:
@@ -122,3 +125,42 @@ BoletoFormSetEdit = inlineformset_factory(
     Evento, Boleto, form=BoletoForm, formset=BaseBoletoFormSet,
     extra=0, min_num=1, can_delete=True, validate_min=True # Mantenemos el mínimo de 1 boleto por evento
 )
+class StarRatingWidget(forms.RadioSelect):
+    # Asegúrate de que esta ruta sea correcta según la configuración de tus TEMPLATES
+    template_name = 'tickets/widgets/star_rating_widget.html'
+
+    # REMUEVE o COMENTA COMPLETAMENTE el método create_option.
+    # No lo necesitamos porque la plantilla star_rating_widget.html
+    # ya renderiza el input y la etiqueta de la estrella directamente.
+    # Si lo dejas, podría interferir con la renderización de la estrella.
+    # def create_option(self, name, value, label, selected, index, attrs, *args, **kwargs):
+    #     attrs['data-value'] = value
+    #     return super().create_option(name, value, value, selected, index, attrs, *args, **kwargs)
+
+# === Tu formulario de opinión existente ===
+class OpinionForm(forms.ModelForm):
+    # Asegúrate de que el campo de calificación tenga 5 opciones
+    CALIFICACION_CHOICES = [
+        (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')
+    ]
+    
+    calificacion = forms.ChoiceField(
+        label="Tu Calificación (1-5 estrellas)",
+        choices=CALIFICACION_CHOICES,
+        # ¡CORRECCIÓN CLAVE AQUÍ! Usa tu widget personalizado
+        widget=StarRatingWidget()
+    )
+
+    comentario = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Comparte tu experiencia...'}),
+        required=False,
+        label="Tu Comentario"
+    )
+
+    class Meta:
+        model = Opinion
+        fields = ['calificacion', 'comentario']
+        # Ya no es necesario 'widgets' para 'comentario' si lo defines directamente arriba.
+        # labels = {
+        #     'comentario': 'Tu Comentario',
+        # }

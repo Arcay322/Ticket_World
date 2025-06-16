@@ -17,7 +17,13 @@
                 {% for item in items_del_carrito %}
                     <div class="item-carrito" id="item-{{ item.boleto.id }}">
                         <div class="item-imagen">
-                            <img src="{{ item.evento.imagen_portada.url }}" alt="{{ item.evento.nombre }}">
+                            {# Check if an image exists, otherwise display a placeholder #}
+                            {% if item.evento.imagen_portada %}
+                                <img src="{{ item.evento.imagen_portada.url }}" alt="Imagen de {{ item.evento.nombre }}">
+                            {% else %}
+                                {# Ensure you have a 'no_image.png' or similar in your static/images/ folder #}
+                                <img src="{% static 'images/no_image.png' %}" alt="Imagen no disponible para {{ item.evento.nombre }}">
+                            {% endif %}
                         </div>
                         <div class="item-detalles">
                             <h2>{{ item.evento.nombre }}</h2>
@@ -25,7 +31,7 @@
                             
                             <div class="cantidad-control">
                                 {% if item.boleto.esta_agotado %}
-                                    <span class="agotado-texto">Agotado</span>
+                                    <span class="agotado-texto" aria-live="polite">Agotado</span> {# Added aria-live for accessibility #}
                                 {% else %}
                                     <label for="cantidad-{{ item.boleto.id }}">Cantidad:</label>
                                     <input type="number" 
@@ -34,12 +40,11 @@
                                            data-boleto-id="{{ item.boleto.id }}"
                                            value="{{ item.cantidad }}" 
                                            min="1"
-                                           {# === CÁLCULO CORREGIDO Y SIMPLIFICADO === #}
-                                           {# El máximo es simplemente la cantidad que queda disponible #}
-                                           max="{{ item.boleto.cantidad_restante }}">
-                                           
-                                    {% if item.boleto.cantidad_restante <= 10 %}
-                                        <span class="pocos-boletos-texto">¡Solo quedan {{ item.boleto.cantidad_restante }}!</span>
+                                           max="{{ item.boleto.cantidad_restante }}"
+                                           aria-label="Cantidad de boletos para {{ item.boleto.display_name }}"> {# Added aria-label #}
+                                            
+                                    {% if item.boleto.cantidad_restante <= 10 and item.boleto.cantidad_restante > 0 %} {# Ensure it's not zero #}
+                                        <span class="pocos-boletos-texto" aria-live="polite">¡Solo quedan {{ item.boleto.cantidad_restante }}!</span>
                                     {% endif %}
                                 {% endif %}
                             </div>

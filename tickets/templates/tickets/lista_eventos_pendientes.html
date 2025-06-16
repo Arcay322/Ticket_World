@@ -1,0 +1,70 @@
+{# tickets/lista_eventos_pendientes.html #}
+{% extends 'usuarios/base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}{{ panel_title }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Para el diseño de la tabla de admin #}
+{% endblock %}
+
+{% block content %}
+<div class="admin-panel-container">
+    <h1 class="panel-title">{{ panel_title }}</h1>
+    <p class="panel-subtitle">{{ panel_subtitle }}</p>
+
+    {# Mensajes de Django (success, error, info, warning) #}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if eventos %} {# 'eventos' es la lista de eventos_pendientes pasada desde la vista #}
+        <div class="table-responsive">
+            <table class="solicitudes-table"> {# Reutiliza la clase de tabla de solicitudes #}
+                <thead>
+                    <tr>
+                        <th>Nombre Evento</th>
+                        <th>Creado Por</th>
+                        <th>Fecha Evento</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for evento in eventos %}
+                    <tr>
+                        <td data-label="Nombre Evento">{{ evento.nombre }}</td>
+                        <td data-label="Creado Por">{{ evento.creado_por.username }}</td>
+                        <td data-label="Fecha Evento">{{ evento.fecha|date:"d M Y - H:i" }}</td>
+                        <td data-label="Categoría">{{ evento.categoria.nombre }}</td>
+                        <td data-label="Estado">
+                            <span class="status-pending">Pendiente</span> {# Siempre será pendiente aquí #}
+                        </td>
+                        <td data-label="Acciones" class="actions-cell">
+                            <form method="post" action="{% url 'tickets:aprobar_evento' evento.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-approve">Aprobar</button>
+                            </form>
+                            <form method="post" action="{% url 'tickets:rechazar_evento' evento.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-reject">Rechazar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-records-message">
+            <p>No se encontraron eventos pendientes de aprobación en este momento.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

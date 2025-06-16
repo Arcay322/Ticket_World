@@ -1,22 +1,59 @@
 // static/js/messages.js
+
+/**
+ * Muestra un mensaje flash dinámico en la pantalla.
+ * @param {string} message - El texto del mensaje a mostrar.
+ * @param {string} type - El tipo de mensaje ('success', 'error', 'info', 'warning').
+ */
+function showFlashMessage(message, type = 'success') {
+    let container = document.querySelector('.messages-container');
+    if (!container) {
+        container = document.createElement('ul');
+        container.className = 'messages-container';
+        document.body.appendChild(container);
+    }
+
+    const messageItem = document.createElement('li');
+    messageItem.className = `message-item ${type}`;
+    messageItem.textContent = message;
+    container.appendChild(messageItem);
+
+    setTimeout(() => {
+        messageItem.classList.add('show');
+    }, 50);
+
+    const displayDuration = 5000;
+    const fadeOutDuration = 500;
+
+    setTimeout(() => {
+        messageItem.classList.remove('show');
+        setTimeout(() => {
+            messageItem.remove();
+        }, fadeOutDuration);
+    }, displayDuration);
+}
+
+
+// Lógica para manejar los mensajes que ya vienen renderizados por Django
 document.addEventListener('DOMContentLoaded', function() {
-    const messageItems = document.querySelectorAll('.messages-container .message-item');
-
-    messageItems.forEach((message, index) => {
-        // Hacemos que cada mensaje aparezca con un pequeño retraso para un efecto escalonado
-        setTimeout(() => {
-            message.classList.add('show');
-        }, 100 * index);
-
-        // Hacemos que el mensaje desaparezca después de 5 segundos
-        setTimeout(() => {
-            message.classList.remove('show');
-            // Opcional: eliminar el elemento del DOM después de la animación
+    if (window.djangoMessagesProcessed) return;
+    window.djangoMessagesProcessed = true;
+    
+    const initialMessages = document.querySelectorAll('.messages-container .message-item');
+    
+    if (initialMessages.length > 0) {
+        initialMessages.forEach((messageItem, index) => {
             setTimeout(() => {
-                if (message.parentElement) {
-                    message.parentElement.removeChild(message);
-                }
-            }, 600); // 600ms > 500ms de la transición en el CSS
-        }, 5000 + (100 * index));
-    });
+                messageItem.classList.add('show');
+                const displayDuration = 5000;
+                const fadeOutDuration = 500;
+                setTimeout(() => {
+                    messageItem.classList.remove('show');
+                    setTimeout(() => {
+                        messageItem.remove();
+                    }, fadeOutDuration);
+                }, displayDuration + (index * 200));
+            }, 100 + (index * 150));
+        });
+    }
 });

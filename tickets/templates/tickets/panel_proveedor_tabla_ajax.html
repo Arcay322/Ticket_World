@@ -1,0 +1,34 @@
+{# tickets/templates/tickets/panel_proveedor_tabla_ajax.html (CORREGIDO) #}
+
+{# Añadimos el contenedor y el título para que siempre estén en la respuesta AJAX #}
+<div class="tabla-container" style="margin-top: 2.5rem;">
+    <h3>Gestionar Mis Eventos</h3>
+    {% include 'tickets/mis_eventos_tabla_snippet.html' with eventos=eventos_activos %}
+</div>
+
+{# También incluimos la paginación para que se actualice #}
+{% if eventos_activos.has_other_pages %}
+<nav class="pagination-container" aria-label="Navegación de páginas de eventos">
+    <ul class="pagination">
+        {% if eventos_activos.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ eventos_activos.previous_page_number }}">Anterior</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        {% for num in eventos_activos.paginator.page_range %}
+            {% if eventos_activos.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if eventos_activos.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ eventos_activos.next_page_number }}">Siguiente</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

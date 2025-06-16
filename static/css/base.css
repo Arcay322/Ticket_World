@@ -1,32 +1,98 @@
-/* static/css/base.css (Versión Final con TU diseño de botones y alineación corregida) */
+/* static/css/base.css (Final y Consolidado) */
 
+/* --- Variables CSS (Custom Properties) --- */
 :root {
-    --color-primario: #00acc1;
-    --color-primario-oscuro: #00838f;
-    --color-acento: #ff9800;
-    --color-acento-oscuro: #e68900;
-    --color-fondo: #f4f6f9;
-    --color-superficie: #ffffff;
-    --color-texto-principal: #212529;
-    --color-texto-secundario: #6c757d;
-    --fuente-principal: 'Poppins', sans-serif;
-    --sombra-media: 0 8px 25px rgba(0, 0, 0, 0.08);
-    --borde-radio: 12px;
-    --color-error: #dc3545;
-    --color-success: #28a745;
-    --color-info: #17a2b8;
+    --color-primario: #00acc1; /* Turquesa/Cian principal */
+    --color-primario-oscuro: #00838f; /* Turquesa/Cian más oscuro */
+    --color-acento: #ff9800; /* Naranja de acento */
+    --color-acento-oscuro: #e68900; /* Naranja de acento más oscuro */
+    --color-fondo: #f4f6f9; /* Color de fondo general claro */
+    --color-superficie: #ffffff; /* Color de fondo para tarjetas, modales, etc. */
+    --color-texto-principal: #212529; /* Color de texto oscuro para el contenido principal */
+    --color-texto-secundario: #6c757d; /* Color de texto gris para descripciones, etc. */
+    --fuente-principal: 'Poppins', sans-serif; /* Fuente principal de la UI */
+
+    --sombra-media: 0 8px 25px rgba(0, 0, 0, 0.08); /* Sombra estándar para elementos */
+    --sombra-suave: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra más sutil */
+    --sombra-elevada: 0 12px 35px rgba(0,0,0,0.18); /* Sombra para estados de hover/foco */
+
+    --borde-radio: 12px; /* Radio de borde global para elementos con esquinas redondeadas */
+
+    --color-error: #dc3545; /* Rojo para mensajes de error */
+    --color-success: #28a745; /* Verde para mensajes de éxito */
+    --color-info: #17a2b8; /* Azul claro para mensajes informativos */
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--fuente-principal); background-color: var(--color-fondo); color: var(--color-texto-principal); }
 
-/* --- ESTRUCTURAS DE LAYOUT --- */
-.main-layout { display: flex; flex-direction: column; min-height: 100vh; }
-.main-content { flex-grow: 1; }
-.main-footer { background-color: #333; color: #f4f4f4; text-align: center; padding: 20px; width: 100%; }
-body.minimal-layout { display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; padding-top: 70px; }
-body.minimal-layout .main-content { width: 100%; flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+/* --- Reset Básico y Estilos Generales --- */
+* {
+    box-sizing: border-box; /* Incluye padding y borde en el ancho/alto total */
+    margin: 0; /* Elimina márgenes por defecto */
+    padding: 0; /* Elimina paddings por defecto */
+}
 
-/* === HEADER CORREGIDO Y FINAL === */
+html {
+    scroll-behavior: smooth; /* Comportamiento de scroll suave para enlaces ancla */
+    height: 100%; /* Asegura que HTML ocupe el 100% de la altura */
+}
+
+body {
+    font-family: var(--fuente-principal);
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
+    line-height: 1.6; /* Altura de línea para mejor legibilidad */
+    min-height: 100vh; /* Asegura que el body ocupe al menos el 100% de la altura de la ventana */
+    display: flex;
+    flex-direction: column; /* Apila header, main y footer verticalmente */
+}
+
+/* --- Estructuras de Layout Globales --- */
+.main-layout { /* Este selector ya no es necesario en body, ya que el body ya es flex column */
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* min-height: 100vh; */
+}
+
+.main-content {
+    flex-grow: 1; /* Esto hace que el contenido principal ocupe todo el espacio sobrante, empujando el footer hacia abajo */
+}
+
+.main-footer {
+    background-color: #333;
+    color: #f4f4f4;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    flex-shrink: 0; /* Evita que el footer se encoja si hay mucho contenido en main-content */
+    position: static; /* Asegura que esté en el flujo normal */
+}
+
+/* Layout específico para páginas "minimalistas" (login, registro, despedida) */
+body.minimal-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 70px;
+}
+
+body.minimal-layout .main-content {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor general de contenido de página (útil para centrar y limitar ancho) */
+.page-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+
+/* === HEADER PRINCIPAL (main-header) === */
 .main-header {
     background-color: var(--color-superficie);
     padding: 0 2.5rem;
@@ -35,73 +101,519 @@ body.minimal-layout .main-content { width: 100%; flex-grow: 1; display: flex; ju
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 90px;
+    height: 100px;
+    position: fixed; /* Header fijo en la parte superior */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
-/* No changes needed here, as the flex container for groups already aligns items */
-.header-group-left, .header-group-right {
+/* Añadir padding al body para que el contenido no quede debajo del header fijo */
+body {
+    padding-top: 100px; /* Ajustar según la altura de tu .main-header */
+}
+
+
+.header-group-left,
+.header-group-right {
     display: flex;
-    align-items: center; /* This is key for vertical alignment */
-    gap: 1.5rem; /* Maintain consistent spacing between items */
+    align-items: center;
+    gap: 1.5rem;
 }
+
 .main-header .logo {
     height: 180px;
     width: auto;
     object-fit: contain;
 }
 
-/* --- TUS ESTILOS DE BOTONES RESTAURADOS --- */
-.auth-buttons { display: flex; gap: 0.75rem; }
-.user-actions { display: flex; align-items: center; gap: 1rem; }
-.btn-login, .btn-register {
-    text-decoration: none; padding: 0.5rem 1.25rem; border-radius: 20px;
-    font-weight: 500; font-size: 0.9rem; border: 1px solid transparent;
-    transition: all 0.3s ease; white-space: nowrap;
+/* --- ESTILOS DE BOTONES GLOBALES --- */
+.nav-link {
+    text-decoration: none;
+    color: var(--color-texto-principal);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
-.btn-login { background-color: #e0f7fa; color: #00796b; border-color: var(--color-primario); }
-.btn-login:hover { background-color: #b2ebf2; }
-.btn-register { background-color: var(--color-primario); color: white; }
-.btn-register:hover { background-color: var(--color-primario-oscuro); }
 
-/* Adjusted .btn-vender padding and font-size to better align with others */
-.btn-vender {
-    padding: 0.5rem 1.25rem; /* Adjusted to match btn-login/register height more closely */
-    font-size: 0.9rem;       /* Adjusted to match btn-login/register font size */
-    font-weight: 700; color: white;
-    background: linear-gradient(45deg, #2ed8b6, #00acc1);
-    border: none; border-radius: 50px; text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
-    transition: all 0.3s ease; display: inline-flex; justify-content: center;
-    align-items: center; text-align: center;
+.nav-link:hover {
+    background-color: #f0f0f0;
+    color: var(--color-primario);
 }
-.btn-vender:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5); }
+
+.btn-eventos-pasados {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(45deg, var(--color-primario), #2ed8b6);
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-eventos-pasados:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5);
+    background: linear-gradient(45deg, var(--color-primario-oscuro), #00b38f);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-login,
+.btn-register {
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-login {
+    background-color: #e0f7fa;
+    color: #00796b;
+    border-color: var(--color-primario);
+}
+
+.btn-login:hover {
+    background-color: #b2ebf2;
+}
+
+.btn-register {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.btn-register:hover {
+    background-color: var(--color-primario-oscuro);
+}
+
+.btn-vender {
+    padding: 0.6rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #2ed8b6, #00acc1);
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-vender:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 172, 193, 0.5);
+}
+
 .btn-create-event {
-    background-color: var(--color-acento); color: white; padding: 0.6rem 1.5rem;
-    border-radius: 20px; text-decoration: none; font-weight: 500;
+    background-color: var(--color-acento);
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
     transition: background-color 0.3s ease;
 }
-.btn-create-event:hover { background-color: var(--color-acento-oscuro); }
 
-/* --- RESTO DE ESTILOS BASE (CARRITO, MENÚ, MENSAJES, ETC.) --- */
-.header-cart-link { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--color-texto-secundario); font-weight: 500; padding: 0.5rem 1rem; border-radius: 20px; transition: background-color 0.2s ease; }
-.header-cart-link:hover { background-color: #f0f0f0; }
-.user-menu { position: relative; cursor: pointer; }
-.user-menu .user-greeting { font-weight: 500; padding: 0.5rem 0; }
-.dropdown-menu { position: absolute; top: 120%; right: 0; background-color: var(--color-superficie); border-radius: var(--borde-radio); box-shadow: var(--sombra-media); list-style: none; padding: 0.5rem 0; margin: 0; width: 220px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease-in-out; }
-.user-menu:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-.dropdown-menu li a { display: block; padding: 0.75rem 1.5rem; text-decoration: none; color: var(--color-texto-principal); font-size: 0.95rem; }
-.dropdown-menu li a:hover { background-color: var(--color-fondo); }
-.dropdown-menu .logout-link { color: #f44336; font-weight: 500; }
-.dropdown-menu .divider { height: 1px; background-color: #eee; margin: 0.5rem 0; }
-.minimal-header { position: absolute; top: 0; left: 0; width: 100%; background-color: #b2ebf2; padding: 20px; text-align: center; color: #006064; font-size: 24px; font-weight: bold; }
-.messages-container { position: fixed; top: 100px; right: 20px; width: 100%; max-width: 400px; z-index: 2000; list-style-type: none; padding: 0; margin: 0; }
-.messages-container .message-item { padding: 18px 25px; margin-bottom: 12px; border-radius: 8px; font-weight: 500; font-size: 1.05em; display: flex; align-items: center; line-height: 1.4; box-shadow: 0 4px 10px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
-.messages-container .message-item.show { opacity: 1; transform: translateX(0); }
-.messages-container .success { background-color: var(--color-success); color: #ffffff; }
-.messages-container .error { background-color: var(--color-error); color: #ffffff; }
-.messages-container .info { background-color: var(--color-info); color: #ffffff; }
-.messages-container .warning { background-color: var(--color-acento); color: var(--color-texto-principal); }
-.messages-container .message-item::before { margin-right: 10px; font-size: 1.2em; }
-.messages-container .success::before { content: "✓"; }
-.messages-container .error::before { content: "✕"; }
-.messages-container .info::before { content: "ⓘ"; }
-.messages-container .warning::before { content: "⚠️"; }
+.btn-create-event:hover {
+    background-color: var(--color-acento-oscuro);
+}
+
+
+/* --- ESTILOS DE COMPONENTES DE HEADER (CARRITO, MENÚ DE USUARIO) --- */
+.header-cart-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--color-texto-secundario);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: background-color 0.2s ease;
+}
+
+.header-cart-link:hover {
+    background-color: #f0f0f0;
+}
+
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-menu .user-greeting {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.user-menu .user-greeting:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    min-width: 180px;
+    z-index: 1000;
+}
+
+.user-menu:hover .dropdown-menu,
+.user-menu.active .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu li a {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--color-texto-principal);
+    font-size: 0.95rem;
+}
+
+.dropdown-menu li a:hover {
+    background-color: var(--color-fondo);
+}
+
+.dropdown-menu .logout-link {
+    color: #f44336;
+    font-weight: 500;
+}
+
+.dropdown-menu .divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 0.5rem 0;
+}
+
+.minimal-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #b2ebf2;
+    padding: 20px;
+    text-align: center;
+    color: #006064;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+/* --- ESTILOS PARA MENSAJES DE LA APLICACIÓN (Django Messages / AJAX) --- */
+.messages-container {
+    position: fixed;
+    top: 100px; /* Ajustado para estar debajo del header fijo */
+    right: 20px;
+    width: 100%;
+    max-width: 400px;
+    z-index: 2000;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box; /* Para que el padding no cause desbordamiento */
+}
+
+.messages-container .message-item {
+    padding: 18px 25px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.05em;
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.messages-container .message-item.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.messages-container .success {
+    background-color: var(--color-success);
+    color: #ffffff;
+}
+
+.messages-container .error {
+    background-color: var(--color-error);
+    color: #ffffff;
+}
+
+.messages-container .info {
+    background-color: var(--color-info);
+    color: #ffffff;
+}
+
+.messages-container .warning {
+    background-color: var(--color-acento);
+    color: var(--color-texto-principal);
+}
+
+.messages-container .message-item::before {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.messages-container .success::before {
+    content: "✓";
+}
+
+.messages-container .error::before {
+    content: "✕";
+}
+
+.messages-container .info::before {
+    content: "ⓘ";
+}
+
+.messages-container .warning::before {
+    content: "⚠️";
+}
+
+
+/* --- PAGINACIÓN GLOBAL --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-suave);
+    overflow: hidden;
+}
+
+.page-item {
+    border-right: 1px solid #eee;
+}
+
+.page-item:last-child {
+    border-right: none;
+}
+
+.page-link {
+    display: block;
+    padding: 0.8rem 1.2rem;
+    text-decoration: none;
+    color: var(--color-texto-principal);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.page-link:hover {
+    background-color: var(--color-fondo);
+    color: var(--color-primario);
+}
+
+.page-item.active .page-link {
+    background-color: var(--color-primario);
+    color: white;
+    cursor: default;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.page-item.active .page-link:hover {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: var(--color-texto-secundario);
+    cursor: not-allowed;
+    background-color: var(--color-superficie);
+    opacity: 0.6;
+}
+
+.page-item.disabled .page-link:hover {
+    background-color: var(--color-superficie);
+    color: var(--color-texto-secundario);
+}
+
+
+/* --- ESTILOS PARA EL BADGE Y EL ÍCONO DE NOTIFICACIONES (AJUSTADO PARA MEJOR POSICIÓN Y COLOR) --- */
+.notification-bell-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    margin-left: 10px;
+    color: var(--color-texto-principal);
+    text-decoration: none;
+    line-height: 1;
+}
+
+.notification-bell-icon:hover {
+    color: var(--color-primario);
+}
+
+.notification-bell-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+}
+
+.notification-badge {
+    background-color: #ff4d4f;
+    color: white;
+    font-size: 0.7em;
+    font-weight: 700;
+    padding: 0.1em 0.4em;
+    border-radius: 50%;
+    min-width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: -4px; /* Ajuste fino para la posición */
+    right: -4px; /* Ajuste fino para la posición */
+    box-shadow: 0 1px 4px rgba(255, 77, 79, 0.4);
+    z-index: 10;
+    line-height: 1;
+    text-decoration: none;
+    border: none;
+}
+
+/* --- Responsive Adjustments (General) --- */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* Ajustar padding del body para mobile header */
+    }
+    .main-header {
+        height: 70px;
+        padding: 0 1rem;
+    }
+    .main-header .logo {
+        height: 150px;
+    }
+    .header-group-left, .header-group-right {
+        gap: 0.8rem;
+    }
+    .btn-eventos-pasados, .btn-vender, .btn-create-event {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    .auth-buttons {
+        gap: 0.5rem;
+    }
+    .btn-login, .btn-register {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    .header-cart-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    .user-greeting {
+        font-size: 0.9rem;
+    }
+    .messages-container {
+        top: 80px; /* Ajustado para estar debajo del header fijo en móvil */
+        right: 10px;
+        max-width: calc(100% - 20px);
+    }
+    .messages-container .message-item {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    .page-content {
+        margin: 1.5rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Ajustes responsive para paginación */
+    .pagination-container {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+    .pagination {
+        border-radius: 8px;
+        width: 100%;
+        justify-content: space-around;
+    }
+    .page-item {
+        flex-grow: 1;
+        text-align: center;
+        border-right: 1px solid #eee;
+    }
+    .page-link {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9em;
+    }
+
+    /* Ajustes responsive para el badge de notificación en móvil */
+    .notification-bell-icon {
+        margin-left: 5px;
+        padding: 3px;
+    }
+    .notification-bell-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    .notification-badge {
+        font-size: 0.6em;
+        min-width: 1.3em;
+        height: 1.3em;
+        top: -5px;
+        right: -5px;
+    }
+    .user-actions {
+        gap: 0.5rem;
+    }
+}

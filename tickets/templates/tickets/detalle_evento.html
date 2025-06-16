@@ -1,5 +1,8 @@
-{% extends "usuarios/base.html" %}
+{# tickets/detalle_evento.html - COMPLETO Y CORREGIDO #}
+
+{% extends "usuarios/base.html" %} {# Asumiendo que extiende de tu base.html #}
 {% load static %}
+{% load tz %}
 
 {% block title %}{{ evento.nombre }}{% endblock %}
 
@@ -7,90 +10,217 @@
     <link rel="stylesheet" href="{% static 'css/detalle_evento.css' %}">
 {% endblock %}
 
+
 {% block content %}
-<div class="evento-detalle-container">
-    {# ... (la sección del header del evento con la imagen no cambia) ... #}
-    <div class="evento-header">
-        <div class="imagen-banner">
-            {% if evento.imagen_portada %}
-                <img src="{{ evento.imagen_portada.url }}" alt="Portada de {{ evento.nombre }}">
-            {% else %}
-                <img src="https://placehold.co/1200x400/00838f/FFF?text=Ticket+World" alt="Evento sin imagen">
-            {% endif %}
-        </div>
-    </div>
+<div class="evento-fondo-global" style="background-image: url('{% if evento.imagen_portada and evento.imagen_portada.url %}{{ evento.imagen_portada.url }}{% else %}https://placehold.co/1920x1080/00838f/FFF?text=Evento+Sin+Imagen+Fondo{% endif %}');">
 
-    <div class="evento-body">
-        <div class="columna-info">
-            <h1>{{ evento.nombre }}</h1>
-            <p class="categoria-evento">{{ evento.categoria.nombre }}</p>
-            <hr>
-            <h2>Descripción del Evento</h2>
-            <p>{{ evento.descripcion|linebreaksbr }}</p>
+    <div class="evento-detalle-container">
+
+        <div class="evento-header">
+            {# Puedes usar evento-header para un título si lo quieres sobre la imagen de fondo #}
         </div>
 
-        <div class="columna-accion">
-            <div class="tarjeta-accion">
-                <h3>Detalles</h3>
-                {# ... (los detalles de fecha y lugar no cambian) ... #}
-                <p class="detalle-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> 
-                    <span>{{ evento.fecha|date:"l, d \d\e F \d\e\l Y" }} - {{ evento.fecha|time:"H:i" }}h</span>
-                </p>
-                <p class="detalle-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> 
-                    <span>{{ evento.lugar }}</span>
-                </p>
-
-                <h3 class="boletos-titulo">Boletos</h3>
-                <form class="form-boletos" method="post" action="{% url 'tickets:agregar_al_carrito' evento.id %}">
-                    {% csrf_token %}
-                    {% for boleto in evento.boletos.all %}
-                        <div class="tipo-boleto {% if boleto.esta_agotado %}agotado{% endif %}">
-                            <div class="info-boleto">
-                                <span class="nombre-boleto">{{ boleto.display_name }}</span>
-                                <span class="precio-boleto">${{ boleto.precio|stringformat:".2f" }}</span>
-                                {# === LÓGICA AÑADIDA PARA POCO STOCK === #}
-                                {% if not boleto.esta_agotado and boleto.cantidad_restante <= 10 %}
-                                    <span class="pocos-boletos-texto">¡Solo quedan {{ boleto.cantidad_restante }}!</span>
-                                {% endif %}
-                            </div>
-                            <div class="cantidad-boleto">
-                                {% if boleto.esta_agotado %}
-                                    <span class="agotado-texto">Agotado</span>
-                                {% else %}
-                                    <input type="number" name="boleto_{{ boleto.id }}" value="0" min="0" max="{{ boleto.cantidad_restante }}" aria-label="Cantidad para {{ boleto.display_name }}">
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% empty %}
-                        <p>No hay tipos de boletos disponibles para este evento.</p>
-                    {% endfor %}
-
-                    {% if evento.boletos.all %}
-                        <button type="submit" class="btn-comprar-grande">Añadir al Carrito</button>
+        <div class="evento-body">
+            {# Columna de Información del Evento #}
+            <div class="columna-info">
+                <h1>
+                    {{ evento.nombre }}
+                    {# --- BOTÓN DE FAVORITO EN DETALLE --- #}
+                    {% if request.user.is_authenticated %}
+                        <button class="btn-favorito" data-evento-id="{{ evento.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="{% if is_favorited %}red{% else %}none{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
                     {% endif %}
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Buscamos todos los inputs de cantidad en esta página
-    const inputsCantidad = document.querySelectorAll('.form-boletos input[type="number"]');
+                    {# ------------------------------------ #}
+                </h1>
+                <p class="categoria-evento">{{ evento.categoria.nombre }}</p>
+                <hr>
+                <h2>Descripción del Evento</h2>
+                <p>{{ evento.descripcion|linebreaksbr }}</p>
+                <hr>
+                <h2>Información Adicional</h2>
+                <p class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>{{ evento.lugar }}</span></p>
+                <p class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <span>{{ evento.fecha|date:"l, d \d\e F \d\e\l Y" }} - {{ evento.fecha|time:"H:i" }}h</span></p>
+            </div>{# Cierre de columna-info #}
 
-    inputsCantidad.forEach(input => {
-        // Añadimos un "escuchador" que se activa cuando el usuario deja el campo
-        input.addEventListener('blur', function() {
-            // Si el campo está vacío, lo ponemos en 0
-            if (this.value === '') {
-                this.value = 0;
-            }
-        });
-    });
-});
-</script>
-{% endblock %}
+            {# Columna de Acción (Detalles y Compra de Boletos) #}
+            <div class="columna-accion">
+                <div class="tarjeta-accion">
+                    <h3>Detalles de Compra</h3>
+                    {# Aquí se mantienen los detalles de fecha y lugar, puedes usar los mismos que en columna-info o mantener el estilo que tenías #}
+                    <div class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <span>Fecha: {{ evento.fecha|date:"D, d M - H:i" }}h</span></div>
+                    <div class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>Lugar: {{ evento.lugar }}</span></div>
+
+                    <h3 class="boletos-titulo">Boletos</h3>
+                    <form class="form-boletos" method="post" action="{% url 'tickets:agregar_al_carrito' evento.id %}">
+                        {% csrf_token %}
+                        {% comment %} Los boletos se mostrarán aquí si evento.boletos.all tiene data {% endcomment %}
+                        {% for boleto in evento.boletos.all %}
+                            <div class="tipo-boleto {% if boleto.esta_agotado %}agotado{% endif %}">
+                                <div class="info-boleto">
+                                    <span class="nombre-boleto">{{ boleto.display_name }}</span>
+                                    <span class="precio-boleto">${{ boleto.precio|stringformat:".2f" }}</span>
+                                    {% if not boleto.esta_agotado and boleto.cantidad_restante <= 10 %}
+                                        <span class="pocos-boletos-texto">¡Solo quedan {{ boleto.cantidad_restante }}!</span>
+                                    {% endif %}
+                                </div>
+                                <div class="cantidad-boleto">
+                                    {% if boleto.esta_agotado %}
+                                        <span class="agotado-texto">Agotado</span>
+                                    {% else %}
+                                        <input type="number" name="boleto_{{ boleto.id }}" value="0" min="0" max="{{ boleto.cantidad_restante }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="info-message">No hay tipos de boletos disponibles para este evento en este momento.</p>
+                        {% endfor %}
+                        {# Solo muestra el botón si hay al menos un tipo de boleto disponible #}
+                        {% if evento.boletos.all %}
+                            <button type="submit" class="btn-comprar-grande">Añadir al Carrito</button>
+                        {% endif %}
+                    </form>
+                </div>{# Cierre de tarjeta-accion #}
+            </div>{# Cierre de columna-accion #}
+        </div>{# Cierre de evento-body #}
+
+        {# SECCIÓN DE OPINIONES Y FORMULARIO #}
+        <div class="opiniones-section-wrapper">
+            <div class="opiniones-section">
+                <h2>Opiniones de los Asistentes</h2>
+
+                {# Mensajes condicionales que explican por qué no se puede opinar #}
+                {% comment %}
+                Asumo que las variables evento_pasado, ha_comprado, usuario_ya_opino, puede_dejar_opinion
+                son booleanas que tu vista de Django ya está pasando correctamente al contexto.
+                {% endcomment %}
+                {% if not request.user.is_authenticated %}
+                    <p class="info-message">Inicia sesión para dejar tu opinión sobre este evento.</p>
+                {% elif not evento_pasado %}
+                    <p class="info-message">Las opiniones y el formulario para dejar una opinión estarán disponibles una vez que el evento haya terminado.</p>
+                {% elif not ha_comprado %}
+                    <p class="info-message">Solo los usuarios que hayan comprado boletos para este evento pueden dejar una opinión.</p>
+                {% elif usuario_ya_opino %}
+                    <p class="info-message">Ya has dejado una opinión para este evento. ¡Gracias!</p>
+                {% endif %}
+
+                {# Formulario para dejar opinión - Solo se muestra si puede_dejar_opinion es True #}
+                {% if puede_dejar_opinion %}
+                    <div class="formulario-opinion-card">
+                        <h3>Deja tu Opinión</h3>
+                        <form method="post" class="form-opinion">
+                            {% csrf_token %}
+                            {# IMPORTANTE: opinion_form.as_p usará el widget StarRatingWidget personalizado #}
+                            {# Puedes usar loop para controlar el renderizado de cada campo si es necesario #}
+                            {% for field in opinion_form %}
+                                {% if field.name == 'calificacion' %}
+                                    <p>
+                                        <label for="{{ field.id_for_label }}">Tu Calificación (1-5 estrellas):</label>
+                                        <div id="id_calificacion">
+                                            {# Este div id="id_calificacion" es donde tu StarRatingWidget genera las estrellas #}
+                                            {{ field }} 
+                                        </div>
+                                    </p>
+                                {% elif field.name == 'comentario' %}
+                                    <p>
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                    </p>
+                                {% else %}
+                                    <p>
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                    </p>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in field.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                            {% if opinion_form.non_field_errors %}
+                                <ul class="errorlist">
+                                    {% for error in opinion_form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            <button type="submit" class="btn-submit-opinion">Enviar Opinión</button>
+                        </form>
+                    </div>
+                {% else %}
+                    {# Este mensaje se muestra solo si no se muestra el formulario de opinión Y no se mostró un info-message arriba #}
+                    {# Si se mostró un info-message, este no aparecerá #}
+                    {% if not request.user.is_authenticated or not evento_pasado or not ha_comprado or usuario_ya_opino %}
+                        {# No mostrar este empty-message si ya se mostró un info-message #}
+                    {% else %}
+                        <p class="empty-message">Sé el primero en dejar una opinión para este evento.</p>
+                    {% endif %}
+                {% endif %}
+
+                {# Lista de opiniones existentes #}
+                {% if opiniones %}
+                    <div class="resumen-opiniones">
+                        <div class="calificacion-promedio">
+                            <span class="numero-promedio">
+                                {% if avg_calificacion %}
+                                    {{ avg_calificacion|stringformat:".1f" }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </span>
+                            <div class="estrellas-promedio">
+                                {# Lógica para renderizar estrellas promedio #}
+                                {% for i in "12345" %}
+                                    {% if avg_calificacion and forloop.counter <= avg_calificacion|floatformat:"0" %}
+                                        &#9733; {# Estrella rellena #}
+                                    {% else %}
+                                        &#9734; {# Estrella vacía #}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="total-opiniones">basado en {{ num_opiniones }} {{ num_opiniones|pluralize:"opinión,opiniones" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="lista-opiniones">
+                        {% for opinion in opiniones %}
+                            <div class="opinion-card">
+                                <div class="opinion-header">
+                                    <span><strong>{{ opinion.usuario.username }}</strong></span>
+                                    <span>Fecha: {{ opinion.fecha_opinion|date:"d M Y" }}</span>
+                                </div>
+                                <div class="opinion-calificacion">
+                                    {# Estrellas para cada opinión individual #}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= opinion.calificacion %}
+                                            &#9733;
+                                        {% else %}
+                                            &#9734;
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="opinion-perfil-comentario">{{ opinion.comentario|default:"(Sin comentario)" }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {# Este mensaje se muestra solo si NO hay opiniones y no se muestra el formulario de opinión #}
+                    {% if not puede_dejar_opinion %}
+                        <p class="empty-message">Este evento aún no tiene opiniones. ¡Sé el primero en calificarlo después de asistir!</p>
+                    {% endif %}
+                {% endif %}
+            </div>{# Cierre de opiniones-section #}
+        </div>{# Cierre de opiniones-section-wrapper #}
+
+    </div>{# Cierre del evento-detalle-container principal #}
+</div>{# Cierre de evento-fondo-global #}
+
+{% endblock %} {# <-- CIERRE DE BLOCK CONTENT #}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/detalle_evento.js' %}"></script>
+{% endblock extra_js %}

@@ -17,15 +17,17 @@ urlpatterns = [
     path('despedida/', views.despedida_view, name='despedida'),
     path('inicio/', views.inicio, name='inicio'),
     path('solicitud_proveedor/', views.solicitud_proveedor, name='solicitud_proveedor'),
-    path('perfil/', views.perfil_usuario, name='perfil'),
+    path('perfil/', views.perfil, name='perfil'),
         # --- URLs del Panel de Administración ---
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'), # <-- ¡NUEVA LÍNEA!
     path('admin/solicitudes/', views.lista_solicitudes, name='lista_solicitudes'),
     path('admin/solicitudes/aprobar/<int:solicitud_id>/', views.aprobar_solicitud, name='aprobar_solicitud'),
     path('admin/solicitudes/rechazar/<int:solicitud_id>/', views.rechazar_solicitud, name='rechazar_solicitud'),
+    path('mi-perfil/notificaciones/', views.notification_list_view, name='notification_list'),
+    path('notificaciones/marcar-leida/', views.mark_notification_as_read_view, name='mark_notification_as_read'),
+    path('notificaciones/no-leidas/conteo/', views.get_unread_notifications_count, name='unread_notifications_count'),
 ]
 
 # Esto es para servir archivos de medios (como fotos de perfil) en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

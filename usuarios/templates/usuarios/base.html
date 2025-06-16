@@ -1,3 +1,4 @@
+{# usuarios/base.html (CORREGIDO) #}
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
@@ -6,58 +7,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Ticket World{% endblock %}</title>
 
+    {# CSRF Token para peticiones AJAX #}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    {# Fuentes de Google Fonts #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    {# SweetAlert2 para alertas bonitas #}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    {# Hojas de estilo globales #}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event_cards.css' %}"> {# Cargar estilos de tarjetas globalmente #}
+    
+    {# Bloque para CSS adicional específico de cada página #}
     {% block extra_css %}{% endblock %}
 </head>
 <body class="main-layout">
+    {# Mensaje de consola para verificar carga de script #}
+    <script>console.log('base.html: Inicio del body y carga de scripts');</script>
 
-    {% if messages %}
-        <ul class="messages-container">
-            {% for message in messages %}
-                <li class="message-item {{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    {# Contenedor para mensajes de Django (success, error, info, warning) #}
+{% if messages %}
+<ul class="messages-container">
+    {% for message in messages %}
+        {# AÑADIMOS la clase 'message-item' junto a las etiquetas de Django #}
+        <li class="message-item {{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
+    {# Header principal de la aplicación #}
     <header class="main-header">
         <div class="header-group-left">
             <a href="{% url 'usuarios:inicio' %}">
+                {# Logo del sitio #}
                 <img src="{% static 'img/logo.png' %}" alt="Logo TicketWorld" class="logo" />
             </a>
         </div>
 
         <div class="header-group-right">
+            {# Botón "Eventos Pasados" visible si el usuario está autenticado #}
+            {% if user.is_authenticated %}
+                <a href="{% url 'tickets:lista_eventos_pasados' %}" class="btn-eventos-pasados">Eventos Pasados</a>
+            {% endif %}
+
+            {# Botón "Vender" visible si no está autenticado o es usuario/cliente #}
             {% if not user.is_authenticated or user.rol == 'cliente' or user.rol == 'usuario' %}
                 <a href="{% url 'usuarios:solicitud_proveedor' %}" class="btn btn-vender">Vender</a>
             {% endif %}
+
+            {# Enlace al carrito de compras #}
             <a href="{% url 'tickets:ver_carrito' %}" class="header-cart-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 <span>Carrito</span>
             </a>
             
+            {# Acciones de usuario (notificaciones y menú desplegable) #}
             <div class="user-actions">
                 {% if user.is_authenticated %}
-                <div class="user-menu">
-                    <span class="user-greeting">Hola, <strong>{{ user.username }}</strong></span>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url 'usuarios:perfil' %}">Mi Perfil</a></li>
-                        {% if user.rol == 'proveedor' or user.rol == 'admin' %}
-                        <li><a href="{% url 'tickets:mis_eventos' %}">Mis Eventos</a></li>
-                        <li><a href="{% url 'tickets:crear_evento' %}">Crear Evento</a></li>
-                        {% endif %}
-                        {% if user.is_superuser %}
-                        <li><a href="/admin/">Panel Django</a></li>
-                        {% endif %}
-                        <li class="divider"></li>
-                        <li><a href="{% url 'usuarios:logout' %}" class="logout-link">Salir</a></li>
-                    </ul>
-                </div>
+                    {# Ícono de Campana con Badge para Notificaciones Globales #}
+                    <a href="{% url 'usuarios:perfil' %}#mis-notificaciones" class="notification-bell-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span id="global-unread-notification-count" class="notification-badge" style="display: none;"></span>
+                    </a>
+
+                    {# Menú desplegable de usuario #}
+                    <div class="user-menu">
+                        <span class="user-greeting">Hola, <strong>{{ user.username }}</strong></span>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'usuarios:perfil' %}">Mi Perfil</a></li>
+                            
+                            {% if user.rol == 'proveedor' or user.rol == 'admin' %}
+                            
+                            <li><a href="{% url 'tickets:panel_proveedor' %}">Panel de Proveedor</a></li>
+                            <li><a href="{% url 'tickets:crear_evento' %}">Crear Evento</a></li>
+                            
+                            {% endif %}
+                            
+                            {% if user.is_superuser %}
+                            <li><a href="{% url 'usuarios:admin_dashboard' %}">Panel Admin</a></li>
+                            {% endif %}
+                            
+                            <li class="divider"></li>
+                            <li><a href="{% url 'usuarios:logout' %}" class="logout-link">Salir</a></li>
+                        </ul>
+                    </div>
                 {% else %}
+                {# Botones de autenticación para usuarios no logueados #}
                 <div class="auth-buttons">
                     <a href="{% url 'usuarios:login' %}" class="btn btn-login">Iniciar Sesión</a>
                     <a href="{% url 'usuarios:registro' %}" class="btn btn-register">Registro</a>
@@ -67,15 +105,48 @@
         </div>
     </header>
 
+    {# Contenido principal de la página (se llena con el bloque 'content' de las plantillas hijas) #}
     <main class="main-content">
+        {# Este bloque de mensajes es redundante si messages-container ya es global y fixed. #}
+        {# Se mantiene por si se usa en algún caso específico, pero messages.js lo maneja mejor. #}
+        {% comment %}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endcomment %}
         {% block content %}{% endblock %}
     </main>
 
+    {# Footer principal de la aplicación #}
     <footer class="main-footer">
         <p>&copy; {% now "Y" %} Ticket World. Todos los derechos reservados.</p>
     </footer>
 
+    {# Script para pasar URLs de Django a variables JavaScript globales #}
+    <script>
+        console.log('base.html: Definiendo DJANGO_URLS y USER_IS_AUTHENTICATED');
+        const DJANGO_URLS = {
+            unreadNotificationsCount: "{% url 'usuarios:unread_notifications_count' %}",
+            markNotificationAsRead: "{% url 'usuarios:mark_notification_as_read' %}",
+            perfilBaseUrl: "{% url 'usuarios:perfil' %}", 
+        };
+        {# Define si el usuario está autenticado como un booleano JavaScript #}
+        const USER_IS_AUTHENTICATED = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        console.log('base.html: DJANGO_URLS y USER_IS_AUTHENTICATED definidos.');
+    </script>
+
+    {# Scripts JavaScript globales #}
     <script src="{% static 'js/messages.js' %}"></script>
+    <script src="{% static 'js/favorite_logic.js' %}"></script>
+    <script src="{% static 'js/global_notifications_badge.js' %}"></script>
+    
+    {# Bloque para scripts JavaScript adicionales específicos de cada página #}
     {% block extra_js %}{% endblock %}
+    {# Mensaje de consola para verificar fin de carga de scripts #}
+    <script>console.log('base.html: Fin del body y scripts cargados.');</script>
 </body>
 </html>

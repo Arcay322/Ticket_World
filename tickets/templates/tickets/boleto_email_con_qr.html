@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus Boletos</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: 'Poppins', sans-serif;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <tr>
+            <td style="padding: 30px;">
+                <h2 style="color: #212529; margin: 0 0 10px 0;">¡Hola, {{ venta.usuario.username }}!</h2>
+                <p style="color: #6c757d; font-size: 16px; margin: 0 0 20px 0;">Aquí tienes tus boletos. Presenta cada código QR en la entrada del evento.</p>
+
+                <!-- Bucle para cada boleto individual -->
+                {% for boleto in boletos_individuales %}
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px;">
+                    <tr>
+                        <!-- Columna de Información del Boleto -->
+                        <td style="padding: 20px; vertical-align: top;">
+                            <p style="text-transform: uppercase; color: #00acc1; font-weight: 700; font-size: 12px; margin: 0 0 5px 0;">{{ boleto.detalle.boleto.evento.categoria.nombre }}</p>
+                            <h3 style="color: #212529; margin: 0 0 15px 0;">{{ boleto.detalle.boleto.evento.nombre }}</h3>
+                            <p style="color: #212529; font-size: 14px; margin: 0 0 10px 0;">
+                                <strong>Boleto:</strong> {{ boleto.detalle.boleto.display_name }}
+                            </p>
+                            <p style="color: #212529; font-size: 14px; margin: 0 0 20px 0;">
+                                <strong>Asiento/Entrada:</strong> #{{ boleto.numero_asiento }} de {{ boleto.total_asientos }}
+                            </p>
+                            <p style="color: #6c757d; font-size: 14px; margin: 0 0 5px 0;">
+                                📅 {{ boleto.detalle.boleto.evento.fecha|date:"l, d 'de' F, Y - H:i" }}h
+                            </p>
+                            <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                                📍 {{ boleto.detalle.boleto.evento.lugar }}
+                            </p>
+                        </td>
+                        <!-- Columna del Código QR -->
+                        <td width="150" style="padding: 20px; text-align: center; vertical-align: top;">
+                            <img src="cid:{{ boleto.cid }}" alt="Código QR" width="120" height="120">
+                            <p style="font-size: 12px; color: #6c757d; margin: 10px 0 0 0;">
+                                <strong>Asistente:</strong><br>{{ venta.usuario.username }}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                {% endfor %}
+
+                <p style="color: #6c757d; font-size: 14px; margin: 20px 0 0 0;">
+                    ¡Disfruta del evento!
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>

@@ -1,0 +1,278 @@
+/* static/css/lista_eventos.css (Revisado y Refactorizado) */
+
+/* --- Estilos para el Encabezado de la Página (Título y Subtítulo de "Eventos Pasados" / "Próximos Eventos") --- */
+.page-header {
+    background-color: var(--color-fondo);
+    padding: 60px 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 40px;
+}
+
+.page-header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-header h1 {
+    font-size: 3em;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.page-header p {
+    font-size: 1.1em;
+    color: var(--color-texto-secundario);
+    margin-bottom: 0;
+}
+
+/* --- Sección de Eventos (Cuadrícula de Eventos y Tarjetas) --- */
+.events-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas de igual tamaño */
+    gap: 1.5rem; /* Espacio entre las tarjetas */
+    max-width: 1200px; /* Ancho máximo, similar al de inicio.html */
+    margin: 0 auto; /* Centrar la cuadrícula */
+    padding: 0 20px; /* Padding a los lados si la pantalla es más pequeña que max-width */
+}
+
+.event-card {
+    background-color: var(--color-superficie); /* Fondo blanco para las tarjetas */
+    border-radius: var(--borde-radio); /* Bordes redondeados */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra suave */
+    transition: all 0.3s ease; /* Transición para efectos de hover */
+    overflow: hidden; /* Asegura que la imagen no se desborde */
+    display: flex; /* Para organizar el contenido verticalmente */
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); /* Sombra más pronunciada */
+}
+
+.card-image-link {
+    display: block;
+    position: relative; /* ¡CRÍTICO! Necesario para posicionar el botón de favorito */
+}
+
+.event-card img {
+    width: 100%;
+    aspect-ratio: 16 / 10; /* Mantener una relación de aspecto consistente para las imágenes */
+    object-fit: cover; /* La imagen cubre el área, recortando si es necesario */
+    display: block;
+}
+
+.card-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Permite que el contenido se estire para llenar el espacio disponible */
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+    min-height: 2.8em; /* Asegura que los títulos tengan una altura mínima, útil si son cortos */
+}
+
+.card-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    margin: 0 0 1rem 0;
+}
+
+.card-date svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-texto-secundario);
+    flex-shrink: 0; /* Evita que el icono se encoja */
+}
+
+/* El botón "Comprar" o "Ver Opiniones" en la tarjeta */
+/* NOTA: .btn-vender general está en base.css. Este es solo un ajuste de layout. */
+.btn-vender {
+    margin-top: auto; /* Empuja el botón al final de la tarjeta */
+}
+
+.no-events-message {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2em;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin: 30px auto;
+    max-width: 800px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    grid-column: 1 / -1; /* Ocupa todas las columnas en el grid */
+}
+
+/* --- Estilos para la Paginación --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 1rem; /* Espacio antes del botón inferior */
+}
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item .page-link {
+    position: relative;
+    display: block;
+    padding: 0.75rem 1rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: var(--color-primario, #00acc1);
+    background-color: var(--color-superficie, #fff);
+    border: 1px solid #dee2e6;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.page-item .page-link:hover {
+    z-index: 2;
+    color: var(--color-primario-oscuro, #00838f);
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--color-primario, #00acc1);
+    border-color: var(--color-primario, #00acc1);
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: var(--color-superficie, #fff);
+    border-color: #dee2e6;
+}
+
+/* --- Estilos para el Botón de Navegación Inferior (Ver Próximos/Pasados Eventos) --- */
+.navigation-button-bottom-container {
+    display: flex;
+    justify-content: center; /* Centra el botón */
+    margin-top: 3rem; /* Espacio superior para separarlo de la paginación */
+    margin-bottom: 3rem; /* Espacio inferior general de la sección */
+}
+
+.btn-ver-otras-seccion {
+    display: inline-block;
+    background-color: var(--color-primario); /* Color principal de tu marca */
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.3); /* Sombra para darle profundidad */
+}
+
+.btn-ver-otras-seccion:hover {
+    background-color: var(--color-primario-oscuro);
+    transform: translateY(-2px); /* Efecto de elevación al pasar el ratón */
+}
+
+/* --- Estilos para el botón de favorito en las tarjetas (componente reutilizable) --- */
+/* MOVIDO de detalle_evento.css (estaba duplicado) */
+.event-card .btn-favorito-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 5;
+    outline: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.event-card .btn-favorito-card:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.event-card .btn-favorito-card svg {
+    fill: none;
+    stroke: gray;
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.event-card .btn-favorito-card svg.favorited {
+    fill: red;
+    stroke: red;
+}
+
+/* --- Diseño Responsive --- */
+@media (max-width: 1024px) {
+    .events-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2.5em;
+    }
+    .page-header p {
+        font-size: 1em;
+    }
+    .events-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 0 10px;
+    }
+    .card-title {
+        font-size: 1rem;
+    }
+    .card-content {
+        padding: 1rem;
+    }
+    .btn-vender {
+        padding: 0.6rem 1rem;
+        font-size: 0.9em;
+    }
+    .btn-ver-otras-seccion {
+        padding: 0.8rem 1.5rem;
+        font-size: 1em;
+    }
+}
+@media (max-width: 480px) {
+    .events-wrapper {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,6 +1,6 @@
-/* static/css/carrito.css */
+/* static/css/carrito.css (Revisado y Refactorizado) */
 
-.page-content { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+/* NOTA: .page-content ahora está en base.css */
 
 .carrito-container { display: flex; flex-wrap: wrap; gap: 2rem; }
 .lista-items { flex: 2; min-width: 350px; }
@@ -11,7 +11,7 @@
     padding: 1.5rem;
     background: var(--color-superficie, #fff);
     border-radius: var(--borde-radio, 12px);
-    box-shadow: var(--sombra-suave);
+    box-shadow: var(--sombra-suave); /* Usando la nueva variable de sombra */
     margin-bottom: 1.5rem;
 }
 
@@ -43,18 +43,12 @@
 .item-precio a.eliminar-link { font-size: 0.9rem; color: var(--color-error, #dc3545); text-decoration: none; }
 .item-precio a.eliminar-link:hover { text-decoration: underline; font-weight: 700; }
 
-/* === Estilo mejorado para el texto de "pocos boletos" === */
-.pocos-boletos-texto {
-    display: block;
-    font-size: 0.85em;
-    font-weight: 700;
-    color: var(--color-acento, #ff9800);
-    margin-top: 8px;
-}
-.agotado-texto { font-weight: 700; color: var(--color-error, #dc3545); }
+/* NOTA: .pocos-boletos-texto y .agotado-texto se movieron a detalle_evento.css (o lista_eventos.css) */
+/* Se eliminaron de aquí para evitar duplicidad y mantener un único lugar de definición para status de boletos */
+
 
 /* --- Resumen del Carrito --- */
-.resumen-carrito { flex: 1; min-width: 300px; background: var(--color-superficie, #fff); border-radius: var(--borde-radio, 12px); padding: 1.5rem; box-shadow: var(--sombra-suave); height: fit-content; position: sticky; top: 2rem; }
+.resumen-carrito { flex: 1; min-width: 300px; background: var(--color-superficie, #fff); border-radius: var(--borde-radio, 12px); padding: 1.5rem; box-shadow: var(--sombra-suave); /* Usando la nueva variable de sombra */ height: fit-content; position: sticky; top: 2rem; }
 .resumen-carrito h3 { margin: 0 0 1.5rem 0; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
 .resumen-linea { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.1rem; }
 .total-precio { font-weight: 700; font-size: 1.75rem; }

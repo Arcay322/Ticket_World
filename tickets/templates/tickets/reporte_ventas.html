@@ -1,0 +1,136 @@
+{% extends "usuarios/base.html" %}
+{% load static %}
+
+{% block title %}Reporte de Ventas - {{ evento.nombre }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/reporte_ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-content report-container">
+    
+    <div class="report-header">
+        <div>
+            <h1 class="section-title">Reporte de Ventas</h1>
+            <p class="section-subtitle">Evento: <strong>{{ evento.nombre }}</strong></p>
+        </div>
+        <div class="report-actions">
+            <a href="#" class="btn-export">Exportar a CSV</a>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE KPIs CON ICONOS -->
+    <div class="dashboard-grid kpi-grid">
+        <div class="kpi-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h4>Ingresos Totales</h4>
+            <p>${{ ingresos_totales|stringformat:".2f" }}</p>
+        </div>
+        <div class="kpi-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2z"></path><path d="M4 16h16"></path><path d="M14 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path></svg>
+            </div>
+            <h4>Boletos Vendidos</h4>
+            <p>{{ boletos_vendidos }}</p>
+        </div>
+        <div class="kpi-card">
+            <div class="card-icon">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            </div>
+            <h4>Órdenes de Compra</h4>
+            <p>{{ ordenes_totales }}</p>
+        </div>
+        <div class="kpi-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </div>
+            <h4>Ingreso Promedio / Orden</h4>
+            <p>${{ ingreso_promedio_orden|stringformat:".2f" }}</p>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE GRÁFICOS -->
+    <div class="dashboard-grid charts-grid">
+        <div class="chart-container">
+            <h3>Ventas por Día</h3>
+            <canvas id="ventasPorDiaChart" data-labels='{{ labels_grafico_lineas|safe }}' data-data='{{ data_grafico_lineas|safe }}'></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>Boletos por Tipo</h3>
+            <canvas id="boletosPorTipoChart" data-labels='{{ labels_grafico_pie|safe }}' data-data='{{ data_grafico_pie|safe }}'></canvas>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE TABLA DETALLADA -->
+    <div class="tabla-container" style="margin-top: 2.5rem;">
+        <h3>Detalle de Ventas</h3>
+        <div class="table-responsive">
+            <table class="tabla-reporte">
+                <thead>
+                    <tr>
+                        <th>ID Venta</th><th>Fecha de Compra</th><th>Comprador</th><th>Detalle</th><th class="col-numerica">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in page_obj %}
+                    <tr>
+                        <td><strong>#{{ venta.id }}</strong></td>
+                        <td>{{ venta.fecha_compra|date:"d M Y, H:i" }}h</td>
+                        <td>{{ venta.usuario.username }}</td>
+                        <td>
+                            <ul style="padding-left: 0; list-style: none; margin: 0;">
+                            {% for detalle in venta.detalles.all %}
+                                <li>{{ detalle.cantidad }} x {{ detalle.boleto.display_name }}</li>
+                            {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="col-numerica">${{ venta.total_venta|stringformat:".2f" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="no-data-row">Aún no se han registrado ventas para este evento.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    {% if page_obj.has_other_pages %}
+    <nav class="pagination-container" aria-label="Navegación de páginas de ventas">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="bottom-nav">
+        <a href="{% url 'tickets:panel_proveedor' %}" class="btn-volver">← Volver al Panel General</a>
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/reporte_ventas.js' %}"></script>
+{% endblock %}

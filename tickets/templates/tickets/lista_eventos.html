@@ -1,70 +1,114 @@
-{% extends 'usuarios/base.html' %} {# ¡Importante! Usamos la ruta consistente con tu base.html #}
-{% load static %}
+{# tickets/lista_eventos.html #}
 
-{% block title %}{{ panel_title }}{% endblock %}
+{% extends "usuarios/base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Eventos{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+    {# ¡CORRECCIÓN! Cargamos la hoja de estilos correcta que contiene todo el diseño. #}
+    <link rel="stylesheet" href="{% static 'css/lista_eventos.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="admin-panel-container">
-    <h1 class="panel-title">{{ panel_title }}</h1>
-    <p class="panel-subtitle">{{ panel_subtitle }}</p>
+<div class="page-header">
+    <div class="container">
+        <h1>{{ panel_title|default:"Próximos Eventos" }}</h1>
+        <p>{{ panel_subtitle|default:"Descubre los eventos que están por venir." }}</p>
+    </div>
+</div>
 
-    {# Los mensajes de Django se mostrarán automáticamente por base.html #}
+{# Mensajes de Django (success, error, info, warning) #}
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
-    {% if eventos %}
-        <div class="table-responsive">
-            <table class="solicitudes-table"> {# Reutilizamos la misma clase de tabla para el estilo #}
-                <thead>
-                    <tr>
-                        <th>Nombre Evento</th>
-                        <th>Descripción</th>
-                        <th>Fecha y Hora</th>
-                        <th>Categoría</th>
-                        <th>Lugar</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for evento in eventos %}
-                    <tr>
-                        <td>{{ evento.nombre }}</td>
-                        <td>{{ evento.descripcion|truncatechars:100 }}</td>
-                        <td>{{ evento.fecha|date:"d M Y H:i" }}</td>
-                        <td>{{ evento.categoria.nombre }}</td>
-                        <td>{{ evento.lugar }}</td>
-                        <td>
-                            {% if evento.aprobado %}
-                                <span class="status-approved">Aprobado</span>
-                            {% else %}
-                                <span class="status-pending">Pendiente</span>
-                            {% endif %}
-                        </td>
-                        <td class="actions-cell">
-                            <form method="post" action="{% url 'tickets:aprobar_evento' evento.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-approve">Aprobar</button>
-                            </form>
-                            <form method="post" action="{% url 'tickets:rechazar_evento' evento.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-reject">Rechazar</button>
-                            </form>
-                            {# Opcional: Botón para editar el evento antes de aprobar #}
-                            {# <a href="{% url 'tickets:editar_evento' evento.id %}" class="btn btn-edit">Editar</a> #}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="container events-wrapper">
+    {% for evento in page_obj %}
+        <div class="event-card">
+            <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-image-link">
+                <div class="card-imagen-container">
+                    {% if evento.imagen_portada %}
+                        <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img">
+                    {% else %}
+                        <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img">
+                    {% endif %}
+                    
+                    {% if request.user.is_authenticated %}
+                        <button class="btn-favorito-card" data-evento-id="{{ evento.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+                                 fill="{% if evento.id in favorited_event_ids %}red{% else %}none{% endif %}" 
+                                 stroke="{% if evento.id in favorited_event_ids %}red{% else %}currentColor{% endif %}" 
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            </a>{# Cierre de .card-image-link #}
+
+            <div class="card-content">
+                <h3 class="card-title">{{ evento.nombre }}</h3>
+                <p class="card-date">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>{{ evento.fecha|date:"D, d M - H:i" }}h</span>
+                </p>
+                {% if evento.lugar %}
+                    <p class="card-location">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M12 21.7C17.3 17 22 13.5 22 10A7 7 0 0 0 12 3a7 7 0 0 0-10 7c0 3.5 4.7 7 10 11.7z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>{{ evento.lugar }}</span>
+                    </p>
+                {% endif %}
+                {% if evento.fecha < timezone.now %}
+                    <a href="{% url 'tickets:detalle_evento' evento.id %}" class="btn-vender">Ver Opiniones</a>
+                {% else %}
+                    <a href="{% url 'tickets:detalle_evento' evento.id %}" class="btn-vender">Comprar</a>
+                {% endif %}
+            </div>
         </div>
-    {% else %}
-        <div class="no-records-message">
-            <p>🎉 ¡No hay eventos pendientes de aprobación en este momento! 🎉</p>
-            <p>Puedes ir a revisar las <a href="{% url 'usuarios:lista_solicitudes' %}" style="color: #007bff; text-decoration: underline;">solicitudes de proveedores</a>.</p>
-        </div>
+    {% empty %}
+        <p class="no-events-message">No se encontraron eventos disponibles en esta sección.</p>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="pagination-container" aria-label="Navegación de páginas">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if categoria_filtrada %}&categoria={{ categoria_filtrada.id }}{% endif %}">Anterior</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if categoria_filtrada %}&categoria={{ categoria_filtrada.id }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if categoria_filtrada %}&categoria={{ categoria_filtrada.id }}{% endif %}">Siguiente</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<div class="navigation-button-bottom-container">
+    {# Esta lógica determina si se muestra el enlace a eventos pasados o próximos #}
+    {% if request.resolver_match.url_name == 'lista_eventos' %} {# Si la vista actual es 'lista_eventos' (próximos eventos) #}
+        <a href="{% url 'tickets:lista_eventos_pasados' %}" class="btn-ver-otras-seccion">Ver Eventos Pasados</a>
+    {% elif request.resolver_match.url_name == 'lista_eventos_pasados' %} {# Si la vista actual es 'lista_eventos_pasados' #}
+        <a href="{% url 'tickets:lista_eventos' %}{% if search_query %}?q={{ search_query }}{% endif %}{% if categoria_filtrada %}&categoria={{ categoria_filtrada.id }}{% endif %}" class="btn-ver-otras-seccion">Ver Próximos Eventos</a>
     {% endif %}
 </div>
+
 {% endblock %}

@@ -1,5 +1,6 @@
 # tickets/models.py
 
+import uuid  # <-- MODIFICACIÓN: Import necesario para el campo UUID
 from django.db import models
 from django.conf import settings 
 from django.utils import timezone
@@ -21,7 +22,6 @@ class Categoria(models.Model):
         return self.nombre
 
 class Evento(models.Model):
-    # ... (todos tus campos existentes se quedan igual)
     creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='eventos_creados', verbose_name="Creado por")
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Evento")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción Detallada")
@@ -49,45 +49,40 @@ class Evento(models.Model):
     def es_futuro(self):
         return self.fecha > timezone.now()
 
-    # === PROPIEDAD 1: CALCULAR TOTAL DE BOLETOS VENDIDOS ===
+    # --- MODIFICACIÓN: Comentarios de advertencia de rendimiento ---
+    # ADVERTENCIA: Estas propiedades pueden ser lentas si se usan en un bucle (problema N+1).
+    # Para listas de eventos, es preferible usar los valores pre-calculados con .annotate() en la vista,
+    # como ya hicimos en el panel de proveedor.
+
     @property
     def total_boletos_vendidos(self):
-        # Suma el campo 'cantidad_vendida' de todos los boletos asociados a este evento.
         total = self.boletos.aggregate(total=Sum('cantidad_vendida'))['total']
-        return total or 0 # Devuelve el total, o 0 si no hay ninguno.
+        return total or 0
 
-    # === PROPIEDAD 2: CALCULAR INGRESOS TOTALES ===
     @property
     def ingresos_generados(self):
-        # Busca en los detalles de venta, multiplica cantidad por precio y suma todo.
+        # Esta consulta es particularmente compleja y lenta en un bucle.
         total = self.boletos.aggregate(
             total=Sum(F('detalle_ventas__cantidad') * F('detalle_ventas__precio_unitario'))
         )['total']
         return total or Decimal('0.00')
+
 class Boleto(models.Model):
     TIPO_BOLETO_CHOICES = [
-        ('general', 'General'),
-        ('vip', 'VIP'),
-        ('preventa', 'Preventa'),
-        ('estudiante', 'Estudiante'),
-        ('conadis', 'CONADIS'),
-        ('otro', 'Otro'),
+        ('general', 'General'), ('vip', 'VIP'), ('preventa', 'Preventa'),
+        ('estudiante', 'Estudiante'), ('conadis', 'CONADIS'), ('otro', 'Otro'),
     ]
-
     evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='boletos', verbose_name="Evento")
     tipo = models.CharField(max_length=50, choices=TIPO_BOLETO_CHOICES, default='general', verbose_name="Tipo de Boleto")
-    nombre_boleto = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nombre del Boleto",
-                                     help_text="Ej: 'Entrada General Día 1', 'Mesa VIP', etc.")
+    nombre_boleto = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nombre del Boleto", help_text="Ej: 'Entrada General Día 1', 'Mesa VIP', etc.")
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
     cantidad_total = models.PositiveIntegerField(verbose_name="Cantidad Total Disponible")
     cantidad_vendida = models.PositiveIntegerField(default=0, verbose_name="Cantidad Vendida")
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
     
-    # === MÉTODO AÑADIDO: Esta es la nueva propiedad inteligente ===
     @property
     def display_name(self):
-        # Si 'nombre_boleto' tiene texto, lo devuelve. Si no, devuelve el nombre legible del 'tipo'.
         return self.nombre_boleto if self.nombre_boleto else self.get_tipo_display()
 
     class Meta:
@@ -97,7 +92,6 @@ class Boleto(models.Model):
         ordering = ['precio']
 
     def __str__(self):
-        # Actualizamos el __str__ para que use nuestra nueva propiedad
         return f"{self.display_name} para {self.evento.nombre} (${self.precio})"
 
     @property
@@ -115,20 +109,17 @@ class MetodoPago(models.Model):
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.nombre
     class Meta:
         verbose_name = "Método de Pago"
         verbose_name_plural = "Métodos de Pago"
         ordering = ['nombre']
 
-    def __str__(self):
-        return self.nombre
-
 class Venta(models.Model):
     ESTADO_VENTA_CHOICES = [
-        ('pendiente', 'Pendiente'),
-        ('completa', 'Completa'),
-        ('cancelada', 'Cancelada'),
-        ('reembolsada', 'Reembolsada'),
+        ('pendiente', 'Pendiente'), ('completa', 'Completa'),
+        ('cancelada', 'Cancelada'), ('reembolsada', 'Reembolsada'),
     ]
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ventas', verbose_name="Usuario")
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT, related_name='ventas', verbose_name="Método de Pago")
@@ -151,6 +142,8 @@ class Venta(models.Model):
         self.save(update_fields=['total_venta'])
 
 class DetalleVenta(models.Model):
+    # Asegúrate de que todas estas líneas estén indentadas con 4 espacios
+    boleto_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles', verbose_name="Venta")
     boleto = models.ForeignKey(Boleto, on_delete=models.PROTECT, related_name='detalle_ventas', verbose_name="Boleto")
     cantidad = models.PositiveIntegerField(verbose_name="Cantidad")
@@ -159,18 +152,19 @@ class DetalleVenta(models.Model):
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
+        # Asegúrate de que estas líneas estén indentadas con 8 espacios
         verbose_name = "Detalle de Venta"
         verbose_name_plural = "Detalles de Ventas"
         unique_together = ('venta', 'boleto')
 
     def __str__(self):
-        return f"{self.cantidad} x {self.boleto.nombre_boleto or self.boleto.get_tipo_display()} en venta {self.venta.pk}"
+        # Y esta con 8 espacios también
+        return f"{self.cantidad} x {self.boleto.display_name} en venta {self.venta.pk}"
+
 
 class Opinion(models.Model):
     ESTADO_OPINION_CHOICES = [
-        ('pendiente', 'Pendiente'),
-        ('aprobada', 'Aprobada'),
-        ('rechazada', 'Rechazada'),
+        ('pendiente', 'Pendiente'), ('aprobada', 'Aprobada'), ('rechazada', 'Rechazada'),
     ]
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='opiniones', verbose_name="Usuario")
     evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='opiniones', verbose_name="Evento")
