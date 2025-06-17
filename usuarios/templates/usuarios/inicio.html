@@ -1,4 +1,3 @@
-{# inicio.html #}
 {% extends "usuarios/base.html" %}
 {% load static %}
 {% load tz %} 
@@ -9,7 +8,6 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/inicio.css' %}" />
-    {# ANTES: <link rel="stylesheet" href="{% static 'css/lista_eventos.css' %}" /> - ELIMINADO, ahora en base.html como event_cards.css #}
 {% endblock %}
 
 {% block content %}
@@ -66,17 +64,16 @@
             <h2 class="section-title">Próximos Eventos</h2>
         {% endif %}
 
-        <div class="events-wrapper"> {# Esta clase events-wrapper ahora usa estilos de event_cards.css #}
+        <div class="events-wrapper">
             {% for evento in page_obj %}
-                <div class="event-card"> {# Esta clase event-card ahora usa estilos de event_cards.css #}
+                <div class="event-card">
                     <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-image-link">
-                        <div class="card-imagen-container"> {# Contenedor para imagen y botón de favorito #}
+                        <div class="card-imagen-container">
                             {% if evento.imagen_portada %}
                                 <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img">
                             {% else %}
                                 <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img">
                             {% endif %}
-                            {# Botón de Favorito en tarjeta - favorite_logic.js lo detectará por data-evento-id #}
                             {% if request.user.is_authenticated %}
                                 <button class="btn-favorito-card" data-evento-id="{{ evento.id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart {% if evento.id in favorited_event_ids %}favorited{% endif %}">
@@ -84,9 +81,8 @@
                                     </svg>
                                 </button>
                             {% endif %}
-                        </div> {# Cierre de card-imagen-container #}
-                    </a>{# Cierre de .card-image-link #}
-
+                        </div>
+                    </a>
                     <div class="card-content">
                         <h3 class="card-title">{{ evento.nombre }}</h3>
                         <p class="card-date">
@@ -110,7 +106,7 @@
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">Anterior</span></li>
                 {% endif %}
-
+                
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
                         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
@@ -127,12 +123,11 @@
             </ul>
         </nav>
         {% endif %}
-    </div>{# CIERRE DEL CONTENEDOR CON ID="seccion-eventos" #}
+    </div>
 </section>
 {% endblock content %}
 
 {% block extra_js %}
     {{ block.super }}
-    <script src="{% static 'js/inicio.js' %}"></script> {# <-- Tu script específico de inicio #}
-    {# ANTES: <script src="{% static 'js/lista_eventos.js' %}"></script> - ELIMINADO, ahora en base.html como favorite_logic.js #}
+    <script src="{% static 'js/inicio.js' %}"></script>
 {% endblock extra_js %}

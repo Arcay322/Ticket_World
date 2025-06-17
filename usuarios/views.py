@@ -213,7 +213,7 @@ def registro_exitoso(request):
 # -------------------------------------------------------------------
 def inicio(request):
     """
-    Muestra la página de inicio con eventos futuros y lógica de paginación/búsqueda.
+    Muestra la página de inicio con eventos futuros, destacados y lógica de paginación/búsqueda.
     """
     # Importaciones de modelos locales para reducir dependencias globales
     from tickets.models import Categoria, Evento
@@ -239,6 +239,14 @@ def inicio(request):
             Q(creado_por__username__icontains=query)
         )
 
+    # =======================================================
+    # === NUEVA LÓGICA PARA SELECCIONAR EVENTOS DESTACADOS ===
+    # =======================================================
+    eventos_destacados = Evento.objects.filter(
+        aprobado=True,
+        fecha__gte=timezone.now()
+    ).order_by('fecha')[:3] # Tomamos los 3 eventos más próximos
+
     # === LÓGICA DE PAGINACIÓN ===
     paginator = Paginator(eventos_list, 8)
     page_number = request.GET.get('page')
@@ -253,6 +261,7 @@ def inicio(request):
         'categoria_filtrada': categoria_filtrada,
         'search_query': query,
         'favorited_event_ids': favorited_event_ids,
+        'eventos_destacados': eventos_destacados, # <-- AÑADIDO AL CONTEXTO
     }
 
     return render(request, 'usuarios/inicio.html', context)
