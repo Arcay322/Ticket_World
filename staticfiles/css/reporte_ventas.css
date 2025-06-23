@@ -1,0 +1,132 @@
+/* static/css/reporte_ventas.css */
+
+/* --- Variables de Diseño --- */
+:root {
+    --report-bg-color: #f8f9fa;
+    --report-surface-color: #ffffff;
+    --report-text-primary: #212529;
+    --report-text-secondary: #6c757d;
+    --report-border-color: #e9ecef;
+    --report-accent-color: #007bff;
+}
+
+/* --- Contenedor Principal y Encabezado --- */
+.report-container {
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 40px auto;
+    background-color: var(--report-bg-color);
+    font-family: 'Poppins', sans-serif;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 50px;
+    border-bottom: 1px solid var(--report-border-color);
+}
+
+.report-header .section-title { font-size: 2.2em; color: var(--report-text-primary); margin-bottom: 8px; font-weight: 600; }
+.report-header .section-subtitle { font-size: 1.1em; color: var(--report-text-secondary); }
+.btn-export { background-color: #198754; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 500; white-space: nowrap; }
+
+/* --- KPIs y Gráficos --- */
+.dashboard-grid {
+    display: grid;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.charts-grid {
+    grid-template-columns: 2fr 1fr;
+}
+
+.kpi-card, .chart-container, .tabla-container {
+    background-color: var(--report-surface-color);
+    border-radius: 8px;
+    padding: 25px;
+    border: 1px solid var(--report-border-color);
+}
+
+.kpi-card h4 { font-size: 1em; font-weight: 500; margin-bottom: 8px; color: var(--report-text-secondary); }
+.kpi-card p { font-size: 2.2em; font-weight: 600; color: var(--report-text-primary); margin: 0; }
+.chart-container h3 { margin-bottom: 20px; font-size: 1.2em; font-weight: 600; color: var(--report-text-primary); }
+.tabla-container h3 { margin-bottom: 15px; font-size: 1.2em; font-weight: 600; color: var(--report-text-primary); }
+
+/* --- ESTILOS PARA LA TABLA DE DETALLE DE VENTAS --- */
+.table-responsive {
+    overflow-x: auto;
+}
+.tabla-reporte {
+    width: 100%;
+    border-collapse: collapse;
+}
+.tabla-reporte th, .tabla-reporte td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--report-border-color);
+    font-size: 0.95em;
+    vertical-align: middle;
+}
+.tabla-reporte thead th {
+    font-weight: 600;
+    color: var(--report-text-secondary);
+    text-transform: uppercase;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+.tabla-reporte tbody tr:last-child td {
+    border-bottom: none;
+}
+.tabla-reporte tbody td {
+    color: #555;
+}
+.tabla-reporte .col-numerica { text-align: right; }
+.tabla-reporte ul { padding-left: 0; list-style: none; margin: 0; }
+.no-data-row { text-align: center; padding: 3rem; color: var(--report-text-secondary); }
+
+
+/* --- ESTILOS PARA EL BOTÓN DE VOLVER Y PAGINACIÓN --- */
+.bottom-nav {
+    text-align: center;
+    margin-top: 40px;
+}
+.btn-volver {
+    display: inline-block;
+    color: var(--report-text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+.btn-volver:hover {
+    color: var(--report-accent-color);
+}
+.pagination-container {
+    margin-top: 30px;
+}
+
+/* --- Responsive --- */
+@media(max-width: 1200px) {
+    .charts-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 768px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+}
+.kpi-card .card-icon {
+    margin-bottom: 15px;
+    color: var(--report-accent-color, #007bff); /* Usa el color de acento del reporte */
+}
+
+.kpi-card .card-icon svg {
+    width: 24px;      /* Tamaño del icono */
+    height: 24px;
+    stroke-width: 1.5; /* Grosor de la línea del icono */
+}

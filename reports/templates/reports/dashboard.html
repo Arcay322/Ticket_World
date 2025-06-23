@@ -1,0 +1,242 @@
+{# reports/templates/reports/dashboard.html #}
+{% extends 'admin/base.html' %} {# <--- Extiende la plantilla base de Jazzmin #}
+{% load static %}
+
+{% block title %}{{ panel_title }}{% endblock %}
+
+{% block extra_css %}
+    {# Puedes añadir CSS personalizado aquí si necesitas micro-ajustes #}
+    <style>
+        /* CSS para asegurar dimensiones y estilos visuales */
+        .chart-container-wrapper {
+            position: relative; /* Esencial para que maintainAspectRatio: false funcione bien */
+            height: 250px; /* Altura fija para todos los gráficos */
+            width: 100%; /* Asegura que ocupe todo el ancho disponible del col-lg-6 */
+        }
+        canvas {
+            /* Asegura que el canvas ocupe el 100% de su contenedor wrapper */
+            width: 100% !important;
+            height: 100% !important;
+            display: block; /* Elimina espacio extra que algunos navegadores añaden */
+        }
+        /* Otros estilos para tablas, etc. */
+        .table-responsive .table th,
+        .table-responsive .table td {
+            white-space: nowrap; /* Evita que el texto se envuelva en las celdas de la tabla */
+            vertical-align: middle; /* Centra el contenido de la celda verticalmente */
+        }
+        .table-responsive .table th:nth-child(6), /* Ajusta ancho de la columna Fecha en Últimas Ventas */
+        .table-responsive .table td:nth-child(6) {
+            min-width: 120px; /* Ancho mínimo para la columna Fecha */
+        }
+        /* Color para la comisión en la tabla de ventas, si no se aplica bien con text-success */
+        .table .text-success {
+            color: var(--success) !important; /* Usa la variable CSS de Bootstrap para success */
+            font-weight: 600; /* Un poco de negrita para destacar */
+        }
+    </style>
+{% endblock %}
+
+{% block content %} {# Todo el contenido principal va aquí #}
+<div class="container-fluid"> {# Usamos container-fluid para ancho completo en admin #}
+    {# Título y subtítulo del panel #}
+    <h1 class="mt-4">{{ panel_title }}</h1> {# mt-4 para margen superior del título #}
+    <p class="text-muted mb-4">{{ panel_subtitle }}</p> {# text-muted y mb-4 para espaciado #}
+
+    {# --- KPI CARDS (usando small-box de AdminLTE) --- #}
+    <div class="row">
+        {# Ganancia Plataforma #}
+        <div class="col-lg-3 col-6"> {# col-lg-3 para 4 por fila en grande, col-6 para 2 por fila en móvil #}
+            <div class="small-box bg-info"> {# bg-info es un color estándar de AdminLTE #}
+                <div class="inner">
+                    <h3>${{ ganancia_plataforma_30_dias|floatformat:2 }}</h3>
+                    <p>Ganancia Plataforma (30 días)</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-dollar-sign"></i> {# Icono de Font Awesome #}
+                </div>
+            </div>
+        </div>
+        {# Ingresos Brutos #}
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>${{ ingresos_brutos_30_dias|floatformat:2 }}</h3>
+                    <p>Ingresos Brutos (30 días)</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+        {# Nuevos Usuarios #}
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning"> {# bg-warning para amarillo, el texto será oscuro #}
+                <div class="inner">
+                    <h3>{{ nuevos_usuarios_30_dias }}</h3>
+                    <p>Nuevos Usuarios (30 días)</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+            </div>
+        </div>
+        {# Total Ventas #}
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>{{ total_ventas }}</h3>
+                    <p>Total Ventas</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- SECCIÓN DE GRÁFICOS (usando AdminLTE cards) --- #}
+    {# Se inicia una nueva fila con mt-4 para mantener el espaciado #}
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line mr-1"></i> Ingresos Brutos en los últimos 30 días
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container-wrapper"> {# Wrapper para controlar la altura del gráfico #}
+                        <canvas id="ingresosChart"
+                                data-labels='{{ labels_ingresos|safe }}'
+                                data-data='{{ data_ingresos|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-chart mr-1"></i> Nuevos Usuarios en los últimos 30 días
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container-wrapper"> {# Wrapper #}
+                        <canvas id="usuariosChart"
+                                data-labels='{{ labels_usuarios|safe }}'
+                                data-data='{{ data_usuarios|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- GRÁFICO DE DISTRIBUCIÓN DE EVENTOS POR CATEGORÍA --- #}
+    {# Esta sección se mantiene en una nueva fila si no hay otro elemento al lado #}
+    <div class="row mt-4">
+        <div class="col-lg-6"> {# Ocupa la mitad del ancho si hay otro elemento al lado #}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-pie-chart mr-1"></i> Distribución de Eventos por Categoría
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container-wrapper"> {# Wrapper #}
+                        <canvas id="categoryPieChart"
+                                data-labels='{{ labels_categorias|safe }}'
+                                data-data='{{ data_categorias|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# Puedes añadir otra tarjeta o elemento aquí para que compartan la fila si lo deseas #}
+    </div>
+
+    {# --- ÚLTIMAS VENTAS Y USUARIOS REGISTRADOS (usando AdminLTE tables) --- #}
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-shopping-bag mr-1"></i> Últimas Ventas
+                    </h3>
+                </div>
+                <div class="card-body p-0"> {# p-0 para quitar padding del body y que la tabla se ajuste #}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-valign-middle"> {# Clases de tabla de AdminLTE #}
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Usuario</th>
+                                    <th>Monto Bruto</th>
+                                    <th>Comisión</th>
+                                    <th>Ganancia Proveedor</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venta in ultimas_ventas %}
+                                <tr>
+                                    <td>#{{ venta.id }}</td>
+                                    <td>{{ venta.usuario.username }}</td>
+                                    <td>${{ venta.total_bruto|floatformat:2 }}</td>
+                                    <td><span class="text-success">${{ venta.comision_plataforma|floatformat:2 }}</span></td>
+                                    <td>${{ venta.ganancia_proveedor|floatformat:2 }}</td>
+                                    <td>{{ venta.fecha_compra|date:"d M, H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center text-muted">No hay ventas recientes.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users mr-1"></i> Últimos Usuarios Registrados
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-valign-middle">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Fecha Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usuario in ultimos_usuarios %}
+                                <tr>
+                                    <td>{{ usuario.username }}</td>
+                                    <td>{{ usuario.email }}</td>
+                                    <td>{{ usuario.get_rol_display }}</td>
+                                    <td>{{ usuario.date_joined|date:"d M, H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No hay usuarios recientes.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %}
+    El bloque extra_js se ha eliminado de aquí porque toda la lógica JavaScript (incluida la carga de Chart.js
+    y la inicialización de los gráficos) se ha movido a tu archivo
+    'static/admin_custom/custom_admin.js', que Jazzmin carga a través de JAZZMIN_SETTINGS["custom_js"].
+    Esto asegura que Chart.js esté disponible antes de que tus scripts lo usen.
+{% endcomment %}

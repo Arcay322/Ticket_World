@@ -1,0 +1,933 @@
+/* static/css/perfil.css (Optimizado con Espaciado Mejorado y estilos para icono de contraseña) */
+
+/* --- Contenedor Principal del Perfil --- */
+.perfil-container {
+    max-width: 1100px;
+    margin: 4rem auto;
+    padding: 0;
+    background-color: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
+    border: 1px solid #eee;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Título principal "Mi Perfil" */
+.perfil-container > h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-top: 2.5rem;
+    position: relative;
+}
+
+.perfil-container > h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background-color: var(--color-acento);
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+/* --- Contenedor principal para el diseño de 2 columnas --- */
+.main-profile-content-wrapper {
+    display: flex;
+    flex-grow: 1;
+    margin-top: 1.5rem;
+}
+
+/* --- COLUMNA IZQUIERDA: Menú Lateral del Perfil --- */
+.perfil-sidebar-nav {
+    flex-shrink: 0;
+    width: 250px;
+    background-color: var(--color-fondo);
+    border-right: 1px solid #eee;
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.02);
+}
+
+/* Header del Sidebar (Avatar, Nombre, Rol) */
+.perfil-sidebar-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+}
+
+/* --- MEJORA: Avatar con Borde Degradado/Animado --- */
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 0.8rem auto;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--color-primario), var(--color-acento), var(--color-primario-oscuro));
+    padding: 4px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover::before {
+    transform: rotate(360deg);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- MEJORA: Tipografía y Jerarquía --- */
+.profile-username {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin-bottom: 0.4rem;
+}
+
+.profile-role {
+    display: inline-block;
+    background-color: var(--color-primario);
+    color: white;
+    padding: 0.2rem 0.7rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* --- MEJORA: Estado de Completitud del Perfil --- */
+.profile-completion-status {
+    width: 80%;
+    margin: 2rem auto 0 auto;
+    text-align: center;
+}
+
+.completion-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.completion-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--color-primario), var(--color-acento));
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+.completion-text {
+    font-size: 0.85rem;
+    color: var(--color-texto-secundario);
+    font-weight: 500;
+}
+
+
+/* --- Estilos de Pestañas (Tabs) - Ahora Verticales con Iconos --- */
+.perfil-tabs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    border-left: 5px solid transparent;
+    padding: 1rem 1.5rem;
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative; /* ¡FUNDAMENTAL para posicionar el badge de notificación en la pestaña! */
+}
+
+.tab-button:hover {
+    color: var(--color-primario);
+    background-color: #f0f0f0;
+    border-left-color: var(--color-primario-oscuro);
+}
+
+.tab-button.active {
+    color: var(--color-primario);
+    background-color: var(--color-superficie);
+    border-left-color: var(--color-primario);
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tab-button svg {
+    stroke: var(--color-texto-secundario);
+    transition: stroke 0.3s ease;
+}
+
+.tab-button:hover svg,
+.tab-button.active svg {
+    stroke: var(--color-primario);
+}
+
+/* --- Ajuste específico para el badge de notificación en la pestaña del perfil --- */
+.perfil-tabs .tab-button .notification-badge {
+    /* Las propiedades básicas ya vienen de base.css, aquí solo las ajustamos para este contexto */
+    position: absolute; /* Asegura que sea absoluto respecto al botón */
+    
+    /* Ajustes para colocarlo a la derecha del texto "Notificaciones" y más grande */
+    top: 50%; /* Centra verticalmente el badge con respecto al botón */
+    right: 10px; /* Margen desde el borde derecho del botón (puedes ajustar 5px-15px) */
+    transform: translateY(-50%); /* Ajusta el 50% de su propia altura hacia arriba para un centrado perfecto */
+
+    font-size: 0.75em; /* Tamaño de la fuente del número */
+    min-width: 1.5em; /* Ancho mínimo del círculo */
+    height: 1.5em; /* Misma altura para que sea circular */
+    padding: 0.15em; /* Relleno interno */
+    line-height: 1.2em; /* Alineación vertical del texto */
+    text-align: center; /* Centrado horizontal del texto */
+
+    background-color: #ff4d4f; /* Asegura el color rojo */
+    color: white;
+    border-radius: 50%; /* Mantiene la forma circular */
+    z-index: 2; /* Para asegurar que esté por encima del texto del botón */
+}
+
+
+/* --- COLUMNA DERECHA: Área de Contenido de las Pestañas --- */
+.perfil-content-area {
+    flex-grow: 1;
+    background-color: var(--color-superficie);
+    padding: 3rem;
+}
+
+/* Títulos de Sección dentro de las Pestañas */
+.section-title-tab {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin-top: 0;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--color-primario);
+    padding-bottom: 0.8rem;
+    text-align: left;
+}
+
+
+/* --- Estilos de Formularios de Perfil (Información Personal y Contraseña) --- */
+.perfil-form {
+    background-color: transparent;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+    margin-bottom: 3rem;
+}
+
+.perfil-form .form-group {
+    margin-bottom: 1.8rem;
+}
+
+.perfil-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--color-texto-principal);
+}
+
+.perfil-form input[type="text"],
+.perfil-form input[type="email"],
+.perfil-form input[type="password"],
+.perfil-form select,
+.perfil-form textarea {
+    width: 100%;
+    padding: 0.9rem;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: var(--color-texto-principal);
+    background-color: var(--color-superficie);
+    z-index: 1;
+}
+
+.perfil-form input:focus,
+.perfil-form select:focus,
+.perfil-form textarea:focus {
+    border-color: var(--color-primario);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.2);
+}
+
+/* --- REGLA PARA FORZAR LA VISIBILIDAD DEL TEXTO CUANDO EL TIPO ES 'TEXT' --- */
+.perfil-form input[type="text"] {
+    -webkit-text-security: none !important;
+    color: var(--color-texto-principal) !important;
+    text-shadow: none !important;
+    font-family: var(--fuente-principal) !important;
+}
+
+/* Estilos para el contenedor del campo de contraseña y el icono */
+.password-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Para empujar el icono a la derecha */
+    width: 100%;
+    z-index: 1;
+}
+
+.password-field-wrapper input {
+    flex-grow: 1;
+    padding-right: 3rem; /* Espacio para el icono */
+}
+
+/* Estilos para el icono de alternar visibilidad de contraseña */
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    cursor: pointer;
+    color: var(--color-texto-secundario);
+    transition: color 0.2s ease;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.toggle-password:hover {
+    color: var(--color-primario);
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+}
+
+.perfil-form .form-text {
+    font-size: 0.85em;
+    color: var(--color-texto-secundario);
+    margin-top: 0.25rem;
+}
+
+.perfil-form ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.perfil-form ul li {
+    font-size: 0.85em;
+    color: var(--color-texto-secundario);
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+}
+
+.perfil-form .invalid-feedback {
+    color: var(--color-error);
+    font-size: 0.85em;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    padding: 1.1rem;
+    background-color: var(--color-primario);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 172, 193, 0.4);
+}
+
+.btn-submit:hover {
+    background-color: var(--color-primario-oscuro);
+    transform: translateY(-2px);
+}
+
+
+/* --- Estilos de Historial de Compras (listas en perfil) --- */
+.compras-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+}
+
+.compra-card {
+    background-color: var(--color-fondo);
+    padding: 1.8rem;
+    border-radius: var(--borde-radio);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease;
+}
+
+.compra-card:hover {
+    transform: translateY(-3px);
+}
+
+.compra-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #ddd;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    font-size: 0.95rem;
+    gap: 0.5rem;
+}
+
+.compra-details h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--color-primario-oscuro);
+}
+
+.compra-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.compra-details ul li {
+    background-color: var(--color-fondo);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9em;
+    color: var(--color-texto-principal);
+    border: 1px solid #f0f0f0;
+}
+
+.compra-details ul li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* --- Estilos de Mis Opiniones (listas en perfil) --- */
+.opiniones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+}
+
+.opinion-perfil-card {
+    background-color: var(--color-fondo);
+    padding: 1.8rem;
+    border-radius: var(--borde-radio);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease;
+}
+
+.opinion-perfil-card:hover {
+    transform: translateY(-3px);
+}
+
+.opinion-perfil-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    font-size: 0.95rem;
+    gap: 0.5rem;
+}
+
+.opinion-perfil-header a {
+    color: var(--color-primario);
+    text-decoration: none;
+}
+
+.opinion-perfil-header a:hover {
+    text-decoration: underline;
+}
+
+.opinion-perfil-rating-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #ddd;
+}
+
+.calificacion-perfil {
+    color: var(--color-acento);
+    font-size: 1.4em;
+}
+
+.calificacion-perfil span {
+    margin-right: 2px;
+}
+
+.estado-perfil {
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.estado-pendiente {
+    background-color: #ffecb3;
+    color: #e65100;
+}
+
+.estado-aprobada {
+    background-color: #c8e6c9;
+    color: #1b5e20;
+}
+
+.estado-rechazada {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+}
+
+.opinion-perfil-comentario {
+    font-size: 0.95em;
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+}
+
+/* --- Estilos de Mis Entradas (Tickets comprados - lista en perfil) --- */
+.entradas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+}
+
+.entrada-card {
+    background-color: var(--color-superficie);
+    padding: 1.8rem;
+    border-radius: var(--borde-radio);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+    transition: transform 0.2s ease;
+}
+
+.entrada-card:hover {
+    transform: translateY(-3px);
+}
+
+.entrada-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #ddd;
+}
+
+.entrada-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin: 0;
+}
+
+.entrada-header span {
+    font-size: 0.95rem;
+    color: var(--color-texto-secundario);
+    font-weight: 500;
+}
+
+.entrada-details {
+    margin-bottom: 1rem;
+}
+
+.entrada-details p {
+    font-size: 0.95rem;
+    color: var(--color-texto-principal);
+    margin-bottom: 0.5rem;
+}
+
+.entrada-details h4 {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--color-primario-oscuro);
+    margin-bottom: 0.75rem;
+}
+
+.entrada-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.entrada-details ul li {
+    background-color: var(--color-fondo);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9em;
+    color: var(--color-texto-principal);
+    border: 1px solid #f0f0f0;
+}
+
+.entrada-details ul li:last-child {
+    margin-bottom: 0;
+}
+
+.entrada-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #eee;
+}
+
+.btn-ver-detalle-entrada {
+    background-color: var(--color-primario);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 172, 193, 0.3);
+}
+
+.btn-ver-detalle-entrada:hover {
+    background-color: var(--color-primario-oscuro);
+    transform: translateY(-2px);
+}
+
+/* --- Estilos para la sección de Eventos Favoritos (en perfil) --- */
+/* Reutiliza .events-wrapper y .event-card de event_cards.css */
+
+
+/* --- Estilos de la sección "Mis Notificaciones" --- */
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+.notification-item {
+    background-color: var(--color-fondo);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: var(--borde-radio);
+    border: 1px solid #eee;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.notification-item.unread {
+    background-color: #e6f7ff; /* Un azul claro para notificaciones no leídas */
+    border-color: var(--color-primario);
+    box-shadow: 0 4px 15px rgba(0, 172, 193, 0.1);
+}
+
+.notification-item.unread .notification-header {
+    font-weight: bold;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.notification-type {
+    font-weight: 700;
+    color: var(--color-primario-oscuro);
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.notification-time {
+    font-size: 0.8em;
+    color: var(--color-texto-secundario);
+}
+
+.notification-message {
+    font-size: 1em;
+    line-height: 1.6;
+    color: var(--color-texto-principal);
+    margin-bottom: 1rem;
+}
+
+.notification-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-notification-action {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-notification-action:hover {
+    transform: translateY(-1px);
+}
+
+.btn-notification-action.btn-mark-read {
+    background-color: #cccccc; /* Gris claro */
+    color: #333;
+    border: 1px solid #bbbbbb;
+}
+
+.btn-notification-action.btn-mark-read:hover {
+    background-color: #b0b0b0;
+}
+
+.btn-notification-action { /* Estilo general para todos los enlaces de acción */
+    background-color: var(--color-primario);
+    color: white;
+    border: none;
+}
+
+.btn-notification-action:hover {
+    background-color: var(--color-primario-oscuro);
+}
+
+
+/* --- Responsive Adjustments (para perfil.css) --- */
+@media (max-width: 1200px) {
+    .perfil-container {
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .perfil-container {
+        margin: 2rem auto;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        max-width: 100%;
+    }
+    .perfil-container > h1 {
+        font-size: 2.2rem;
+        padding-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .main-profile-content-wrapper {
+        flex-direction: column;
+    }
+    .perfil-sidebar-nav {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #eee;
+        padding: 1.5rem 1rem;
+        box-shadow: none;
+    }
+    .perfil-sidebar-header {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+    .profile-username {
+        font-size: 1.4rem;
+    }
+    .profile-role {
+        margin-bottom: 1rem;
+    }
+
+    .perfil-tabs {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+    .tab-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9em;
+        margin: 0.2rem;
+        border-bottom: 1px solid #eee;
+        border-left: none;
+        border-radius: 6px;
+        text-align: center;
+        box-shadow: none;
+    }
+    .tab-button.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--color-primario);
+        box-shadow: none;
+    }
+    .perfil-content-area {
+        padding: 1.5rem 1rem;
+        border-radius: 0 0 var(--borde-radio) var(--borde-radio);
+        box-shadow: none;
+    }
+    .section-title-tab {
+        font-size: 1.4rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.25rem;
+    }
+    .perfil-form {
+        margin-bottom: 1.5rem;
+        padding: 0;
+    }
+    .perfil-form .form-group {
+        margin-bottom: 1rem;
+    }
+    .perfil-form input,
+    .perfil-form select,
+    .perfil-form textarea {
+        padding: 0.7rem;
+        font-size: 0.9em;
+    }
+    .btn-submit {
+        font-size: 1em;
+        padding: 0.8rem;
+    }
+    .compras-list,
+    .opiniones-list {
+        gap: 1rem;
+    }
+    .compra-card,
+    .opinion-perfil-card {
+        padding: 1rem;
+    }
+    .compra-header,
+    .opinion-perfil-header,
+    .opinion-perfil-rating-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        font-size: 0.9em;
+    }
+    .calificacion-perfil {
+        font-size: 1.2em;
+    }
+    .estado-perfil {
+        font-size: 0.75em;
+    }
+    .compra-details ul li {
+        font-size: 0.85em;
+        padding: 0.6rem 0.8rem;
+    }
+    .opinion-perfil-comentario {
+        font-size: 0.9em;
+    }
+    .empty-message {
+        padding: 1rem;
+        font-size: 0.9em;
+    }
+
+    /* Ajustes responsive para la sección de notificaciones */
+    .notification-item {
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+    }
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .notification-type {
+        font-size: 0.8em;
+    }
+    .notification-time {
+        font-size: 0.7em;
+    }
+    .notification-message {
+        font-size: 0.9em;
+        margin-bottom: 0.8rem;
+    }
+    .notification-item-actions {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+    .btn-notification-action {
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.8em;
+    }
+    .btn-mark-all-read {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9em;
+    }
+}
+.notification-actions-top {
+    width: 100%;
+    margin-bottom: 1.5rem; /* Espacio entre el botón y la lista */
+    display: flex; 
+}
+
+.btn-mark-all-read {
+    background-color: #f0f0f0; 
+    color: var(--color-texto-secundario);
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    font-size: 0.9em;
+    font-family: var(--fuente-principal); /* Asegura la misma fuente */
+    font-weight: 500;
+    border-radius: 20px; 
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.btn-mark-all-read:hover {
+    background-color: #e0e0e0;
+    border-color: #ccc;
+    color: var(--color-texto-principal);
+}

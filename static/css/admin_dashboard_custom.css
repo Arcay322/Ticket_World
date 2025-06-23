@@ -1,0 +1,223 @@
+/* static/css/admin_dashboard_custom.css (Ajustado para Jazzmin) */
+
+/* --- Variables de Diseño --- */
+:root {
+    --admin-bg-color: #f8f9fa;
+    --admin-surface-color: #ffffff;
+    --admin-text-primary: #212529;
+    --admin-text-secondary: #6c757d;
+    --admin-border-color: #e9ecef;
+    --admin-accent-color: #0d6efd;
+    --admin-accent-hover: #0b5ed7;
+    --admin-pending-color-dark: #b98900;
+    --admin-pending-bg: #fff8e1;
+}
+
+/* --- Contenedor Principal (MODIFICADO) --- */
+/* Esta es la modificación más importante.
+   Quitamos el fondo y los márgenes para que se integre con el cuerpo de Jazzmin,
+   pero mantenemos el padding interno y la fuente. */
+.admin-panel-container {
+    padding: 20px 5px; /* Reducimos un poco el padding para que se vea mejor */
+    font-family: 'Poppins', sans-serif;
+    background-color: transparent; /* Importante: hereda el fondo de Jazzmin */
+}
+
+.panel-title {
+    font-size: 2.2em;
+    color: var(--admin-text-primary);
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.panel-subtitle {
+    font-size: 1.1em;
+    color: var(--admin-text-secondary);
+    text-align: left;
+    margin-bottom: 50px;
+}
+
+/* --- Grillas de Layout --- */
+.dashboard-grid {
+    display: grid;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.action-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* --- Tarjetas --- */
+.dashboard-card {
+    background-color: var(--admin-surface-color);
+    border-radius: 8px;
+    padding: 25px;
+    border: 1px solid var(--admin-border-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card:hover {
+    border-color: var(--admin-accent-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card-title {
+    font-size: 1em;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--admin-text-secondary);
+}
+
+.card-number {
+    font-size: 2.5em;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin-bottom: 20px;
+    line-height: 1;
+}
+
+.card-link {
+    margin-top: auto;
+    background-color: var(--admin-accent-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.card-link:hover {
+    background-color: var(--admin-accent-hover);
+}
+
+/* --- Iconos --- */
+.card-icon {
+    margin-bottom: 20px;
+    color: var(--admin-accent-color);
+    line-height: 1;
+}
+
+/* Ajuste para iconos de Font Awesome (i) en lugar de SVG */
+.card-icon i {
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* --- Tarjetas de Acción con Estado Pendiente --- */
+.action-card .card-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #e7f1ff; /* Azul pálido por defecto */
+    transition: background-color 0.3s ease;
+}
+
+.action-card .card-icon {
+    margin-bottom: 0;
+}
+
+.action-card .card-icon-wrapper.pending {
+    background-color: var(--admin-pending-bg);
+}
+
+.action-card .card-icon-wrapper.pending i { /* Aplicamos el color al icono 'i' */
+    color: var(--admin-pending-color-dark);
+}
+
+.action-card .card-number.pending {
+    color: var(--admin-pending-color-dark);
+}
+
+/* --- Gráficos --- */
+.chart-grid {
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+.chart-container {
+    background: var(--admin-surface-color);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border-color);
+}
+.chart-container h3 {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+}
+
+/* --- Tablas de Actividad --- */
+.table-grid {
+    grid-template-columns: 1fr 1fr;
+}
+.table-container {
+    background-color: var(--admin-surface-color);
+    border-radius: 8px;
+    padding: 25px;
+    border: 1px solid var(--admin-border-color);
+}
+.table-container h3 {
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+}
+.table-responsive {
+    overflow-x: auto;
+}
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.activity-table th, .activity-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--admin-border-color);
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+.activity-table .col-numerica { /* Para alinear números a la derecha */
+    text-align: right;
+}
+.activity-table .success {
+    color: #198754;
+    font-weight: 500;
+}
+.activity-table thead th {
+    font-weight: 600;
+    color: var(--admin-text-secondary);
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+.activity-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.activity-table tbody td {
+    color: #555;
+}
+
+/* --- Responsive --- */
+@media(max-width: 1200px) {
+    .chart-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 992px) {
+    .table-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 768px) {
+    .panel-title, .panel-subtitle { text-align: center; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+}

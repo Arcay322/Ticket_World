@@ -1,0 +1,50 @@
+/* static/usuarios/css/solicitudes.css */
+/* Este archivo solo contiene estilos para la página de lista de solicitudes */
+
+.solicitudes-container {
+    /* Este contenedor puede heredar los estilos de .page-container de base.css
+       o tener sus propios estilos si quieres que ocupe más ancho. */
+    max-width: 800px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #e0f7fa;
+    border: 2px solid #b2ebf2;
+    border-radius: 15px;
+}
+
+.solicitud-box {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    color: #006064;
+    font-size: 14px;
+}
+
+.solicitud-box button {
+    background-color: #00bcd4;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 10px;
+    margin-top: 15px;
+}
+
+.solicitud-box button:hover {
+    background-color: #0097a7;
+}
+
+.solicitud-box .btn-reject {
+    background-color: #e53935;
+}
+
+.solicitud-box .btn-reject:hover {
+    background-color: #b71c1c;
+}

@@ -4,7 +4,6 @@
 {% block title %}Panel de Proveedor{% endblock %}
 
 {% block extra_css %}
-    {# Carga su propio CSS dedicado y el CSS de la tabla de eventos #}
     <link rel="stylesheet" href="{% static 'css/panel_proveedor.css' %}">
     <link rel="stylesheet" href="{% static 'css/mis_eventos.css' %}">
 {% endblock %}
@@ -12,9 +11,7 @@
 {% block content %}
 <div class="page-content report-container">
     
-    <!-- ENCABEZADO DE PÁGINA -->
     <div class="report-header">
-        <!-- MODIFICACIÓN: Se añadió la clase 'report-header-text' -->
         <div class="report-header-text">
             <h1 class="section-title">Dashboard de Proveedor</h1>
             <p class="section-subtitle">Un resumen del rendimiento de todos tus eventos.</p>
@@ -24,17 +21,16 @@
         </div>
     </div>
 
-    <!-- TARJETAS DE KPIs -->
     <div class="dashboard-grid kpi-grid">
         <div class="kpi-card">
             <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
-            <h4>Ingresos Totales</h4>
-            <p>${{ ingresos_totales|stringformat:".2f" }}</p>
+            <h4>Ganancias Netas Totales</h4>
+            <p>${{ ganancias_totales|floatformat:2 }}</p>
         </div>
         <div class="kpi-card">
             <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg></div>
-            <h4>Ingresos (Últ. 30 días)</h4>
-            <p>${{ ingresos_30_dias|stringformat:".2f" }}</p>
+            <h4>Ganancias Netas (Últ. 30 días)</h4>
+            <p>${{ ganancias_30_dias|floatformat:2 }}</p>
         </div>
         <div class="kpi-card">
             <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
@@ -43,24 +39,22 @@
         </div>
         <div class="kpi-card">
             <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-            <h4>Ingreso Promedio/Evento</h4>
-            <p>${{ ingreso_promedio_evento|stringformat:".2f" }}</p>
+            <h4>Ganancia Neta Promedio/Evento</h4>
+            <p>${{ ganancia_promedio_evento|floatformat:2 }}</p>
         </div>
     </div>
     
-    <!-- GRÁFICOS -->
     <div class="dashboard-grid charts-grid">
         <div class="chart-container">
-            <h3>Ingresos Mensuales</h3>
+            <h3>Ganancias Mensuales</h3>
             <canvas id="ingresosMesChart" data-labels='{{ labels_ingresos_mes|safe }}' data-data='{{ data_ingresos_mes|safe }}'></canvas>
         </div>
         <div class="chart-container">
-            <h3>Top 5 Eventos por Ingresos</h3>
+            <h3>Top 5 Eventos por Ganancia</h3>
             <canvas id="topEventosChart" data-labels='{{ labels_top_eventos|safe }}' data-data='{{ data_top_eventos|safe }}'></canvas>
         </div>
     </div>
 
-    <!-- CONTENEDOR DE LA TABLA Y PAGINACIÓN AJAX -->
     <div id="gestion-eventos-container">
         {% include 'tickets/panel_proveedor_tabla_ajax.html' with eventos_activos=eventos_activos %}
     </div>

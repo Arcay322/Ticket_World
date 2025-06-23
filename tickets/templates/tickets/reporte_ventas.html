@@ -12,7 +12,7 @@
     
     <div class="report-header">
         <div>
-            <h1 class="section-title">Reporte de Ventas</h1>
+            <h1 class="section-title">Reporte de Rendimiento</h1>
             <p class="section-subtitle">Evento: <strong>{{ evento.nombre }}</strong></p>
         </div>
         <div class="report-actions">
@@ -20,14 +20,14 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE KPIs CON ICONOS -->
+    <!-- SECCIÓN DE KPIs CON ICONOS (CORREGIDA) -->
     <div class="dashboard-grid kpi-grid">
         <div class="kpi-card">
             <div class="card-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </div>
-            <h4>Ingresos Totales</h4>
-            <p>${{ ingresos_totales|stringformat:".2f" }}</p>
+            <h4>Tus Ganancias Netas</h4>
+            <p class="success">${{ ganancias_netas_totales|floatformat:2 }}</p>
         </div>
         <div class="kpi-card">
             <div class="card-icon">
@@ -47,15 +47,15 @@
             <div class="card-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             </div>
-            <h4>Ingreso Promedio / Orden</h4>
-            <p>${{ ingreso_promedio_orden|stringformat:".2f" }}</p>
+            <h4>Ganancia Promedio / Orden</h4>
+            <p>${{ ganancia_promedio_orden|floatformat:2 }}</p>
         </div>
     </div>
 
-    <!-- SECCIÓN DE GRÁFICOS -->
+    <!-- SECCIÓN DE GRÁFICOS (CORREGIDA) -->
     <div class="dashboard-grid charts-grid">
         <div class="chart-container">
-            <h3>Ventas por Día</h3>
+            <h3>Ganancias por Día</h3>
             <canvas id="ventasPorDiaChart" data-labels='{{ labels_grafico_lineas|safe }}' data-data='{{ data_grafico_lineas|safe }}'></canvas>
         </div>
         <div class="chart-container">
@@ -64,14 +64,19 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE TABLA DETALLADA -->
+    <!-- SECCIÓN DE TABLA DETALLADA (CORREGIDA) -->
     <div class="tabla-container" style="margin-top: 2.5rem;">
         <h3>Detalle de Ventas</h3>
         <div class="table-responsive">
             <table class="tabla-reporte">
                 <thead>
                     <tr>
-                        <th>ID Venta</th><th>Fecha de Compra</th><th>Comprador</th><th>Detalle</th><th class="col-numerica">Total</th>
+                        <th>ID Venta</th>
+                        <th>Fecha de Compra</th>
+                        <th>Comprador</th>
+                        <th>Detalle</th>
+                        <th class="col-numerica">Total Bruto</th>
+                        <th class="col-numerica success">Tu Ganancia</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,10 +92,11 @@
                             {% endfor %}
                             </ul>
                         </td>
-                        <td class="col-numerica">${{ venta.total_venta|stringformat:".2f" }}</td>
+                        <td class="col-numerica">${{ venta.total_bruto|floatformat:2 }}</td>
+                        <td class="col-numerica success"><strong>${{ venta.ganancia_proveedor|floatformat:2 }}</strong></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="5" class="no-data-row">Aún no se han registrado ventas para este evento.</td></tr>
+                    <tr><td colspan="6" class="no-data-row">Aún no se han registrado ventas para este evento.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

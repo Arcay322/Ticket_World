@@ -1,0 +1,74 @@
+/* static/css/login.css */
+
+.login-container {
+    background-color: #fff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 350px;
+}
+
+.login-container .logo {
+    width: 150px;
+    margin-bottom:-20px;
+}
+
+.login-container h2 {
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 25px;
+}
+
+.form-field {
+    margin-bottom: 18px;
+    /* Esto alinea las etiquetas a la izquierda */
+    text-align: left;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #37474f;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #cfd8dc;
+    border-radius: 6px;
+    box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
+}
+
+.login-container button {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    background-color: #00acc1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.login-container button:hover {
+    background-color: #00838f;
+}
+
+.login-container .register-link {
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.login-container .register-link a {
+    color: #00acc1;
+    text-decoration: none;
+    font-weight: bold;
+}

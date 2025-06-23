@@ -39,5 +39,8 @@ urlpatterns = [
     path('reporte-ventas/<int:evento_id>/', reporte_ventas_view, name='reporte_ventas'),
     path('panel-proveedor/filtrar-eventos/', filtrar_eventos_proveedor_ajax, name='filtrar_eventos_ajax'),
     path('reporte-ventas/<int:evento_id>/', reporte_ventas_view, name='reporte_ventas'),
+    path('admin-notifications-count/', views.get_admin_notification_count_json, name='admin_notifications_count'),
+    path('admin-pending-events-count/', views.get_pending_events_count_json, name='pending_events_count'), # <-- ¡CORREGIDO!
+    path('admin-pending-supplier-requests-count/', views.get_pending_supplier_requests_count_json, name='pending_supplier_requests_count'),
 ]
 

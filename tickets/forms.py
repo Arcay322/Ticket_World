@@ -1,12 +1,10 @@
 # tickets/forms.py
 from django import forms
-from django.utils import timezone # Asegúrate de importar timezone
-# Asegúrate de que los modelos Opinion y otros estén importados
-from .models import Evento, Boleto, Opinion, Venta, DetalleVenta, Categoria # Asegúrate de importar todos los modelos necesarios
+from django.utils import timezone
+from .models import Evento, Boleto, Opinion, Categoria
 from django.forms import inlineformset_factory
-from decimal import Decimal # Importar Decimal si es necesario para lógica CONADIS
 from django.forms.models import BaseInlineFormSet
-# Asegúrate de que los modelos Categoria y Lugar estén importados
+
 
 class EventoForm(forms.ModelForm):
     class Meta:
@@ -27,19 +25,12 @@ class EventoForm(forms.ModelForm):
             'imagen_portada': forms.ClearableFileInput(),
         }
 
-    # === ESTE MÉTODO __init__ ES LA SOLUCIÓN ===
-    # Se asegura de que la fecha se muestre correctamente al editar.
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si el formulario está editando un evento que ya existe...
         if self.instance and self.instance.pk and self.instance.fecha:
-            # ...formateamos la fecha al formato que el widget HTML necesita ('YYYY-MM-DDTHH:MM').
             self.initial['fecha'] = self.instance.fecha.strftime('%Y-%m-%dT%H:%M')
-        
-        # Mantenemos la lógica para ordenar las categorías
         self.fields['categoria'].queryset = Categoria.objects.all().order_by('nombre')
 
-    # --- Tus validaciones (están perfectas, se quedan igual) ---
     def clean_fecha(self):
         fecha = self.cleaned_data.get('fecha')
         if fecha and fecha < timezone.now():
@@ -56,7 +47,6 @@ class EventoForm(forms.ModelForm):
         return cleaned_data
 
 class BoletoForm(forms.ModelForm):
-    # Definimos ambos campos en la clase
     anadir_quitar_stock = forms.IntegerField(
         label="Añadir/Quitar Boletos",
         required=False,
@@ -66,25 +56,18 @@ class BoletoForm(forms.ModelForm):
     class Meta:
         model = Boleto
         fields = ['tipo', 'nombre_boleto', 'precio', 'cantidad_total']
+        # Hacemos que cantidad_total no sea requerido a nivel de formulario,
+        # ya que nuestra lógica clean se encarga de validarlo.
         extra_kwargs = { 'cantidad_total': {'required': False} }
-        # ... (Tus otros labels y widgets se quedan igual)
 
-    # === MÉTODO __init__ AÑADIDO PARA LA LÓGICA INTELIGENTE ===
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # self.instance es el objeto Boleto que se está editando.
-        # Si no existe (es decir, es un formulario para un boleto nuevo)...
         if not self.instance or not self.instance.pk:
-            # ...eliminamos el campo 'anadir_quitar_stock' que no tiene sentido aquí.
-            self.fields.pop('anadir_quitar_stock')
+            self.fields.pop('anadir_quitar_stock', None)
         else:
-            # Si SÍ estamos editando un boleto que ya existe...
-            # ...eliminamos el campo 'cantidad_total' que es confuso.
-            self.fields.pop('cantidad_total')
+            self.fields.pop('cantidad_total', None)
 
     def clean(self):
-        # ... (Tu método clean se queda exactamente igual, está perfecto)
         cleaned_data = super().clean()
         if self.instance and self.instance.pk:
             anadir_quitar = cleaned_data.get('anadir_quitar_stock')
@@ -93,13 +76,28 @@ class BoletoForm(forms.ModelForm):
                 if nueva_cantidad_total < self.instance.cantidad_vendida:
                     raise forms.ValidationError(f"No puedes reducir el stock a {nueva_cantidad_total}. Ya se han vendido {self.instance.cantidad_vendida} boletos.")
         else:
-            if self.has_changed() and not cleaned_data.get('cantidad_total'):
-                 raise forms.ValidationError("Debes especificar la 'Cantidad Total Disponible' para los boletos nuevos.")
+            # Solo validamos cantidad_total para formularios nuevos que no están marcados para borrar
+            if not cleaned_data.get('DELETE'):
+                if self.has_changed() and not cleaned_data.get('cantidad_total'):
+                    raise forms.ValidationError("Debes especificar la 'Cantidad Total Disponible' para los boletos nuevos.")
         return cleaned_data
 
 
 class BaseBoletoFormSet(BaseInlineFormSet):
-    # Esta lógica es la que nos permite eliminar el último boleto sin errores.
+    # --- INICIO DE LA LÓGICA AÑADIDA ---
+    # Este __init__ se ejecuta ANTES de la validación.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for form in self.forms:
+            # Comprobamos si el tipo de boleto en los datos enviados es 'conadis'
+            # La clave del campo en form.data tiene un prefijo, ej: 'boletos-0-tipo'
+            if form.prefix and form.data.get(f'{form.prefix}-tipo') == 'conadis':
+                # Si es CONADIS, hacemos que el campo de precio NO sea obligatorio.
+                # Esto permite que formset.is_valid() devuelva True.
+                form.fields['precio'].required = False
+    # --- FIN DE LA LÓGICA AÑADIDA ---
+
+    # Tu lógica existente se mantiene intacta, lo cual es correcto.
     def clean(self):
         super().clean()
         if any(self.errors):
@@ -108,38 +106,26 @@ class BaseBoletoFormSet(BaseInlineFormSet):
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                 valid_forms_count += 1
+        # Usamos self.min_num que definimos en el factory.
         if valid_forms_count < self.min_num:
             raise forms.ValidationError(f"Debes proporcionar al menos {self.min_num} tipo de boleto.")
 
 
-# === DEFINIMOS NUESTRAS DOS "RECETAS" DE FORMSET ===
-
-# Receta para CREAR eventos: Necesita al menos 1 boleto y muestra 1 formulario extra.
+# Estas definiciones ya usan tu BaseBoletoFormSet, así que heredarán la nueva lógica.
 BoletoFormSetCreate = inlineformset_factory(
     Evento, Boleto, form=BoletoForm, formset=BaseBoletoFormSet,
     extra=1, min_num=1, can_delete=True, validate_min=True
 )
 
-# Receta para EDITAR eventos: NO muestra formularios extra.
 BoletoFormSetEdit = inlineformset_factory(
     Evento, Boleto, form=BoletoForm, formset=BaseBoletoFormSet,
-    extra=0, min_num=1, can_delete=True, validate_min=True # Mantenemos el mínimo de 1 boleto por evento
+    extra=0, min_num=1, can_delete=True, validate_min=True
 )
+
 class StarRatingWidget(forms.RadioSelect):
-    # Asegúrate de que esta ruta sea correcta según la configuración de tus TEMPLATES
     template_name = 'tickets/widgets/star_rating_widget.html'
 
-    # REMUEVE o COMENTA COMPLETAMENTE el método create_option.
-    # No lo necesitamos porque la plantilla star_rating_widget.html
-    # ya renderiza el input y la etiqueta de la estrella directamente.
-    # Si lo dejas, podría interferir con la renderización de la estrella.
-    # def create_option(self, name, value, label, selected, index, attrs, *args, **kwargs):
-    #     attrs['data-value'] = value
-    #     return super().create_option(name, value, value, selected, index, attrs, *args, **kwargs)
-
-# === Tu formulario de opinión existente ===
 class OpinionForm(forms.ModelForm):
-    # Asegúrate de que el campo de calificación tenga 5 opciones
     CALIFICACION_CHOICES = [
         (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')
     ]
@@ -147,7 +133,6 @@ class OpinionForm(forms.ModelForm):
     calificacion = forms.ChoiceField(
         label="Tu Calificación (1-5 estrellas)",
         choices=CALIFICACION_CHOICES,
-        # ¡CORRECCIÓN CLAVE AQUÍ! Usa tu widget personalizado
         widget=StarRatingWidget()
     )
 
@@ -160,7 +145,3 @@ class OpinionForm(forms.ModelForm):
     class Meta:
         model = Opinion
         fields = ['calificacion', 'comentario']
-        # Ya no es necesario 'widgets' para 'comentario' si lo defines directamente arriba.
-        # labels = {
-        #     'comentario': 'Tu Comentario',
-        # }

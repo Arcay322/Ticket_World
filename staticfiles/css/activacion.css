@@ -1,0 +1,66 @@
+.activar-correo-container,
+.activacion-exitosa-container,
+.activacion-fallida-container {
+    text-align: center;
+    padding: 30px;
+}
+
+.activacion-exitosa-container .btn,
+.activacion-fallida-container .btn {
+    margin-top: 20px;
+    display: inline-block;
+}
+
+/* usuarios/css/activacion.css */
+
+.activar-correo-container {
+    background-color: #ffffff;
+    margin: 30px auto;
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    color: #333333;
+}
+
+.activar-correo-container .logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 150px;
+}
+
+.activar-correo-container h2 {
+    color: #006064;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.activar-correo-container p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.activar-correo-container a.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #00bcd4;
+    color: #ffffff !important;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.activar-correo-container a.btn:hover {
+    background-color: #0097a7;
+}
+
+.activar-correo-container .footer {
+    text-align: center;
+    font-size: 13px;
+    color: #888888;
+    margin-top: 30px;
+}

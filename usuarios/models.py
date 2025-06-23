@@ -65,7 +65,8 @@ class SolicitudProveedor(models.Model):
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.nombre_empresa}"
 
-class Notification(models.Model):
+# --- MODELO DE NOTIFICACIÓN PERSONALIZADO RENOMBRADO A UserNotification ---
+class UserNotification(models.Model): # <-- ¡RENOMBRADO AQUÍ!
     # Destinatario de la notificación: Usar settings.AUTH_USER_MODEL como string
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='web_notifications', verbose_name="Destinatario")
     
@@ -95,8 +96,8 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
 
     class Meta:
-        verbose_name = "Notificación"
-        verbose_name_plural = "Notificaciones"
+        verbose_name = "Notificación de Usuario" # <-- ¡VERBOSE_NAME TAMBIÉN CAMBIADO!
+        verbose_name_plural = "Notificaciones de Usuario" # <-- ¡VERBOSE_NAME_PLURAL TAMBIÉN CAMBIADO!
         ordering = ['-created_at'] # Las más nuevas primero
 
     def __str__(self):

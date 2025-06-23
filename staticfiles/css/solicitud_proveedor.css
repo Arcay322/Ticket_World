@@ -1,0 +1,104 @@
+/* static/css/solicitud_proveedor.css */
+
+.form-page-wrapper {
+    /* Este contenedor se asegura de que haya espacio y todo esté centrado */
+    width: 100%;
+    padding: 3rem 1rem; /* Espacio vertical y horizontal */
+    box-sizing: border-box;
+}
+
+.form-container {
+    max-width: 600px; /* Un buen ancho para un formulario con más campos */
+    margin: 0 auto; /* Centra el contenedor en la página */
+    background: #ffffff;
+    padding: 2.5rem 3rem; /* Espaciado interno generoso */
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    font-size: 1rem;
+    color: #777;
+}
+
+/* Estilos para los campos generados por {{ form.as_p }} */
+.form-container form p {
+    margin-bottom: 1.25rem;
+}
+
+.form-container label {
+    display: block;
+    font-weight: 500;
+    color: #37474f;
+    margin-bottom: 0.5rem;
+}
+
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="tel"],
+.form-container textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif; /* Usamos la fuente principal del sitio */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-container input:focus,
+.form-container textarea:focus {
+    outline: none;
+    border-color: #00acc1;
+    box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.2);
+}
+
+.form-container textarea {
+    resize: vertical; /* Permite al usuario agrandar el área de texto verticalmente */
+    min-height: 120px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background-color: #00acc1;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #00838f;
+}
+
+.back-link-container {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.back-link-container a {
+    color: #00796b;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link-container a:hover {
+    text-decoration: underline;
+}

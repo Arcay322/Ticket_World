@@ -1,0 +1,169 @@
+/* Ticket_World/static/admin_custom/custom_jazzmin.css */
+
+/* --- Variables de Color (para fácil mantenimiento) --- */
+:root {
+    --primary-color: #00bcd4; /* Tu turquesa/cian principal */
+    --secondary-color: #ff9800; /* Tu naranja/amarillo de acento */
+    --text-color-dark: #333333;
+    --text-color-light: #ffffff;
+    --bg-light-gray: #f8f9fa; /* Fondo muy claro para el body */
+    --card-bg-light: #ffffff; /* Blanco puro para tarjetas y sidebar */
+    --border-color: #e0e0e0;
+}
+
+/* --- Estilos Generales --- */
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color-dark);
+    background-color: var(--bg-light-gray) !important; /* Asegura el fondo general */
+}
+
+/* --- Barra de Navegación Superior (Navbar) --- */
+.main-header {
+    background-color: var(--card-bg-light) !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.main-header .nav-link, .main-header .navbar-brand {
+    color: var(--text-color-dark) !important;
+}
+.main-header .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* --- Barra Lateral (Sidebar) --- */
+/* ¡USAMOS SELECTORES SIMPLES QUE SABEMOS QUE FUNCIONAN! */
+.main-sidebar, .main-sidebar::before, .main-sidebar::after {
+    background-color: var(--card-bg-light) !important; /* Fondo BLANCO/CLARO para sidebar */
+    border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+.brand-link { /* Área del logo en sidebar */
+    border-bottom: 1px solid var(--border-color) !important;
+    background-color: var(--card-bg-light) !important;
+    color: var(--text-color-dark) !important;
+}
+.brand-link .brand-image {
+    filter: invert(0);
+}
+
+/* Colores de texto y enlaces en la barra lateral */
+.main-sidebar .nav-sidebar .nav-link { /* Añadimos .nav-sidebar para un poco más de especificidad */
+    color: var(--text-color-dark) !important;
+}
+.main-sidebar .nav-sidebar .nav-link.active {
+    background-color: var(--primary-color) !important; /* Fondo del elemento activo: turquesa */
+    color: var(--text-color-light) !important; /* Texto blanco en activo */
+    border-radius: 5px;
+}
+.main-sidebar .nav-sidebar .nav-link:not(.active):hover {
+    background-color: rgba(0, 188, 212, 0.1) !important; /* Turquesa muy claro para hover */
+    color: var(--primary-color) !important; /* Texto turquesa en hover */
+    border-radius: 5px;
+}
+/* Títulos de las secciones en el sidebar */
+.main-sidebar .nav-sidebar .nav-header {
+    color: var(--text-color-dark) !important;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+/* Iconos en la barra lateral */
+.main-sidebar .nav-icon {
+    color: var(--primary-color); /* Color de los iconos: turquesa */
+}
+.main-sidebar .nav-link.active .nav-icon {
+    color: var(--text-color-light); /* Icono blanco en elemento activo */
+}
+
+
+/* --- Tarjetas (Cards) de Contenido --- */
+.card {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
+    border: none !important;
+    background-color: var(--card-bg-light) !important;
+}
+.card-header {
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-color-dark) !important;
+    font-weight: 600;
+}
+.card-body {
+    color: var(--text-color-dark) !important;
+}
+
+
+/* --- Botones --- */
+/* Selectores simples que deberían funcionar */
+.btn-primary, .btn-info, .btn-success,
+.btn-dark, .btn-secondary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-color-light) !important;
+    border-radius: 5px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+.btn-primary:hover, .btn-info:hover, .btn-success:hover,
+.btn-dark:hover, .btn-secondary:hover {
+    background-color: #00a4bd !important;
+    border-color: #00a4bd !important;
+}
+
+/* Botones de Modificar (y otros .btn-warning) - color naranja */
+.btn-warning {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: var(--text-color-light) !important;
+    border-radius: 5px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+.btn-warning:hover {
+    background-color: #e68900 !important;
+    border-color: #e68900 !important;
+}
+
+
+/* --- Campos de Formulario y Tablas --- */
+.form-control, .select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border-radius: 5px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+.form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25) !important;
+}
+
+/* Tablas */
+.table {
+    color: var(--text-color-dark);
+}
+.table th {
+    background-color: var(--bg-light-gray);
+    border-bottom: 2px solid var(--border-color);
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 188, 212, 0.05) !important;
+}
+
+/* --- Footer --- */
+.main-footer {
+    background-color: var(--card-bg-light) !important;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color-dark);
+}
+
+/* --- Mensajes de Django (success, info, warning, error) --- */
+.alert-success { background-color: #e6ffee !important; border-color: #00c853 !important; color: #007e33 !important; }
+.alert-info { background-color: #e0f2f7 !important; border-color: #00bcd4 !important; color: #00798a !important; }
+.alert-warning { background-color: #fff3e0 !important; border-color: #ff9800 !important; color: #cc6c00 !important; }
+.alert-danger { background-color: #ffebee !important; border-color: #f44336 !important; color: #d32f2f !important; }
+
+/* Para Google Fonts, si las usas */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); */

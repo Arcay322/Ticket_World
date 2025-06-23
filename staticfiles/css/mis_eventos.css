@@ -1,0 +1,214 @@
+/* static/css/mis_eventos.css */
+.section-subtitle {
+    text-align: center;
+    color: var(--color-texto-secundario);
+    margin-top: -2rem;
+    margin-bottom: 3rem;
+}
+
+.tabla-container {
+    background: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
+    overflow: hidden; /* Para que la tabla respete los bordes redondeados */
+}
+
+.tabla-eventos {
+    width: 100%;
+    border-collapse: collapse; /* Une los bordes de las celdas */
+}
+
+.tabla-eventos th, .tabla-eventos td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tabla-eventos thead {
+    background-color: #f8f9fa;
+}
+
+.tabla-eventos th {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    text-transform: uppercase;
+}
+
+.tabla-eventos tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-eventos tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+}
+
+.status-aprobado {
+    background-color: #28a745; /* Verde */
+}
+
+.status-pendiente {
+    background-color: #ffc107; /* Amarillo */
+    color: #333;
+}
+
+.btn-accion {
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-right: 0.5rem;
+}
+
+.btn-editar {
+    background-color: var(--color-primario);
+    color: white;
+}
+.btn-ver {
+    background-color: #6c757d;
+    color: white;
+}
+
+.no-events-row {
+    text-align: center;
+    padding: 3rem;
+    color: #777;
+    font-style: italic;
+}
+.col-numerica {
+    text-align: right;
+}
+.stats-container {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--color-superficie);
+    padding: 1.5rem;
+    border-radius: var(--borde-radio);
+    text-align: center;
+    flex-grow: 1;
+    max-width: 300px;
+    box-shadow: var(--sombra-suave);
+}
+
+.stat-card h4 {
+    font-size: 1rem;
+    color: var(--color-texto-secundario);
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+}
+
+.stat-card span {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primario);
+}
+.tabla-container {
+    background-color: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    padding: 1.5rem;
+    box-shadow: var(--sombra-media);
+    overflow-x: auto; /* Para que la tabla sea responsive en móviles */
+}
+
+.tabla-eventos {
+    width: 100%;
+    border-collapse: collapse; /* Une los bordes de las celdas */
+    text-align: left;
+}
+
+.tabla-eventos th, .tabla-eventos td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle; /* Alinea el contenido de las celdas verticalmente */
+}
+
+.tabla-eventos thead th {
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-texto-secundario);
+    border-bottom-width: 2px;
+}
+
+.tabla-eventos tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-eventos .col-numerica {
+    text-align: right;
+}
+
+/* --- ESTILOS PARA LAS ACCIONES (LA SOLUCIÓN PRINCIPAL) --- */
+
+.cell-actions {
+    min-width: 180px; /* Evita que la columna se comprima demasiado */
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre botones */
+}
+
+.btn-accion {
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-editar {
+    background-color: var(--color-primario);
+    color: white;
+}
+.btn-editar:hover {
+    background-color: var(--color-primario-oscuro);
+}
+
+.btn-ver {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-ver:hover {
+    background-color: #5a6268;
+}
+.page-header {
+    margin-bottom: 2rem; /* Espacio entre el cabezado y la tabla */
+    padding-bottom: 1.5rem; /* Espacio interno inferior */
+    border-bottom: 1px solid #eee; /* Línea de separación sutil */
+}
+
+/* Estilos para el título y subtítulo dentro del nuevo contenedor */
+.page-header .section-title {
+    display: block; /* Asegura que ocupe su propia línea */
+    margin-bottom: 0.5rem; /* Espacio entre título y subtítulo */
+    font-size: 2.5em; /* Tamaño del título */
+    font-weight: 700;
+}
+
+.page-header .section-subtitle {
+    display: block; /* Asegura que ocupe su propia línea */
+    font-size: 1.1em;
+    color: var(--color-texto-secundario);
+    margin: 0;
+}

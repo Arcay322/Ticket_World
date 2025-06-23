@@ -1,11 +1,10 @@
-# tickets/models.py
-
-import uuid  # <-- MODIFICACIÓN: Import necesario para el campo UUID
+import uuid
 from django.db import models
-from django.conf import settings 
+from django.conf import settings
 from django.utils import timezone
 from django.db.models import Sum, F
 from decimal import Decimal
+from datetime import timedelta # <-- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=255, unique=True, verbose_name="Nombre de la Categoría")
@@ -35,6 +34,7 @@ class Evento(models.Model):
     esta_agotado = models.BooleanField(default=False, verbose_name="Boletos Agotados", help_text="Se marca automáticamente si no quedan boletos disponibles.")
     creado_en = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     actualizado_en = models.DateTimeField(auto_now=True, verbose_name="Última Actualización")
+    es_destacado = models.BooleanField(default=False, verbose_name="Es Destacado", help_text="Marca este evento para que aparezca en la sección de destacados.")
 
     class Meta:
         verbose_name = "Evento"
@@ -47,12 +47,18 @@ class Evento(models.Model):
 
     @property
     def es_futuro(self):
+        """Devuelve True si el evento aún no ha pasado."""
         return self.fecha > timezone.now()
 
-    # --- MODIFICACIÓN: Comentarios de advertencia de rendimiento ---
-    # ADVERTENCIA: Estas propiedades pueden ser lentas si se usan en un bucle (problema N+1).
-    # Para listas de eventos, es preferible usar los valores pre-calculados con .annotate() en la vista,
-    # como ya hicimos en el panel de proveedor.
+    @property
+    def show_countdown(self):
+        """
+        Devuelve True si el evento es futuro Y está programado para ocurrir
+        dentro del próximo mes (30 días), para mostrar el contador.
+        """
+        now = timezone.now()
+        one_month_from_now = now + timedelta(days=30)
+        return self.fecha > now and self.fecha <= one_month_from_now
 
     @property
     def total_boletos_vendidos(self):
@@ -61,7 +67,6 @@ class Evento(models.Model):
 
     @property
     def ingresos_generados(self):
-        # Esta consulta es particularmente compleja y lenta en un bucle.
         total = self.boletos.aggregate(
             total=Sum(F('detalle_ventas__cantidad') * F('detalle_ventas__precio_unitario'))
         )['total']
@@ -80,7 +85,7 @@ class Boleto(models.Model):
     cantidad_vendida = models.PositiveIntegerField(default=0, verbose_name="Cantidad Vendida")
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
-    
+
     @property
     def display_name(self):
         return self.nombre_boleto if self.nombre_boleto else self.get_tipo_display()
@@ -102,7 +107,6 @@ class Boleto(models.Model):
     def esta_agotado(self):
         return self.cantidad_restante <= 0
 
-
 class MetodoPago(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Método de Pago")
     activo = models.BooleanField(default=True, verbose_name="Activo")
@@ -111,6 +115,7 @@ class MetodoPago(models.Model):
 
     def __str__(self):
         return self.nombre
+        
     class Meta:
         verbose_name = "Método de Pago"
         verbose_name_plural = "Métodos de Pago"
@@ -124,7 +129,13 @@ class Venta(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ventas', verbose_name="Usuario")
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT, related_name='ventas', verbose_name="Método de Pago")
     fecha_compra = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Compra")
-    total_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Total de la Venta")
+    
+    # --- INICIO DE CAMPOS MODIFICADOS ---
+    total_bruto = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Total Bruto de la Venta")
+    comision_plataforma = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Comisión de la Plataforma")
+    ganancia_proveedor = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Ganancia para el Proveedor")
+    # --- FIN DE CAMPOS MODIFICADOS ---
+
     estado = models.CharField(max_length=20, choices=ESTADO_VENTA_CHOICES, default='pendiente', verbose_name="Estado de la Venta")
     actualizado_en = models.DateTimeField(auto_now=True)
 
@@ -134,15 +145,11 @@ class Venta(models.Model):
         ordering = ['-fecha_compra']
 
     def __str__(self):
-        return f"Venta #{self.pk} - {self.usuario.username} - {self.total_venta} ({self.get_estado_display()})"
+        return f"Venta #{self.pk} - {self.usuario.username} - {self.total_bruto} ({self.get_estado_display()})"
     
-    def calcular_total_venta(self):
-        total = sum(detalle.precio_unitario * detalle.cantidad for detalle in self.detalles.all())
-        self.total_venta = total
-        self.save(update_fields=['total_venta'])
+    # El método calcular_total_venta se elimina porque la lógica ahora vive en la vista para mayor seguridad.
 
 class DetalleVenta(models.Model):
-    # Asegúrate de que todas estas líneas estén indentadas con 4 espacios
     boleto_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles', verbose_name="Venta")
     boleto = models.ForeignKey(Boleto, on_delete=models.PROTECT, related_name='detalle_ventas', verbose_name="Boleto")
@@ -152,15 +159,12 @@ class DetalleVenta(models.Model):
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # Asegúrate de que estas líneas estén indentadas con 8 espacios
         verbose_name = "Detalle de Venta"
         verbose_name_plural = "Detalles de Ventas"
         unique_together = ('venta', 'boleto')
 
     def __str__(self):
-        # Y esta con 8 espacios también
         return f"{self.cantidad} x {self.boleto.display_name} en venta {self.venta.pk}"
-
 
 class Opinion(models.Model):
     ESTADO_OPINION_CHOICES = [
@@ -182,3 +186,38 @@ class Opinion(models.Model):
 
     def __str__(self):
         return f"Opinión de {self.usuario.username} sobre {self.evento.nombre} (Calificación: {self.calificacion})"
+class AdminNotification(models.Model):
+    # Destinatario: Un superusuario
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='admin_notifications', # Nuevo related_name para no chocar
+        verbose_name="Destinatario Admin",
+        limit_choices_to={'is_superuser': True} # Solo superusuarios como destinatarios
+    )
+
+    # Tipo de notificación
+    NOTIFICATION_TYPES = [
+        ('aprobacion_evento', 'Aprobación de Evento'),
+        ('solicitud_proveedor', 'Solicitud de Proveedor'),
+        ('comentario_pendiente', 'Comentario Pendiente'),
+        ('error_sistema', 'Error del Sistema'),
+        ('general', 'General Admin'),
+    ]
+    type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='general', verbose_name="Tipo")
+
+    message = models.TextField(verbose_name="Mensaje")
+
+    # Enlace opcional a la página del admin relevante
+    link = models.URLField(max_length=500, blank=True, null=True, verbose_name="Enlace Admin")
+
+    read = models.BooleanField(default=False, verbose_name="Leída")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+
+    class Meta:
+        verbose_name = "Notificación de Admin"
+        verbose_name_plural = "Notificaciones de Admin"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.get_type_display()}] para {self.recipient.username}: {self.message[:50]}..."

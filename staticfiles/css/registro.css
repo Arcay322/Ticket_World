@@ -1,0 +1,86 @@
+/* static/css/registro.css (Versión Reducida -20%) */
+
+.register-container {
+    background-color: #fff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    /* === CAMBIO: Contenedor más compacto === */
+    max-width: 350px;
+}
+
+.register-container .logo {
+    /* === CAMBIO: Logo reducido === */
+    width: 150px;
+    height: auto;
+    margin-bottom: -20px;
+}
+
+.register-container h2 {
+    color: #333;
+    margin-bottom: 25px;
+    /* === CAMBIO: Título reducido === */
+    font-size: 22px;
+}
+
+.register-container .form-field {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.register-container .form-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #37474f;
+    font-weight: bold;
+    /* === CAMBIO: Etiquetas reducidas === */
+    font-size: 13px;
+}
+
+.register-container .form-field input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cfd8dc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    /* === CAMBIO: Texto de input reducido === */
+    font-size: 15px;
+}
+
+.register-container .error-message {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.register-container button {
+    background-color: #00acc1;
+    color: white;
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.register-container button:hover {
+    background-color: #00838f;
+}
+
+.register-container .login-link {
+    margin-top: 20px;
+    /* === CAMBIO: Enlace reducido === */
+    font-size: 13px;
+}
+
+.register-container .login-link a {
+    color: #00acc1;
+    text-decoration: none;
+    font-weight: bold;
+}

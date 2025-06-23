@@ -1,0 +1,167 @@
+/* static/css/event_forms.css (Versión Refactorizada) */
+
+.form-container {
+    max-width: 800px;
+    margin: 3rem auto; /* Más margen para separar del header */
+    padding: 2.5rem;
+    background-color: var(--color-superficie);
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-media);
+    font-family: var(--fuente-principal);
+    color: var(--color-texto-principal);
+}
+
+.form-container .panel-title {
+    font-size: 2.2rem;
+    color: var(--color-texto-principal);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.form-container .panel-subtitle {
+    font-size: 1rem;
+    color: var(--color-texto-secundario);
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.form-section-title {
+    font-size: 1.5rem;
+    color: var(--color-primario);
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-primario);
+    text-align: left;
+    font-weight: 600;
+}
+
+.form-field-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-field-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+}
+
+.form-field-group input,
+.form-field-group select,
+.form-field-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--color-texto-principal);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field-group input:focus,
+.form-field-group select:focus,
+.form-field-group textarea:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.25);
+    outline: none;
+}
+
+.form-errors {
+    color: var(--color-error);
+    font-size: 0.9em;
+    margin-top: 5px;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* Estilos para el formset de boletos */
+.boleto-form-wrapper {
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    border-radius: var(--borde-radio);
+    margin-bottom: 1.5rem;
+    background-color: #fdfdfd;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+.boleto-form-wrapper.removing {
+    opacity: 0;
+    transform: scale(0.95);
+    height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    border: none;
+}
+.delete-boleto-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: var(--color-error);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.add-boleto-button {
+    display: inline-block; /* No ocupa todo el ancho */
+    padding: 0.7rem 1.5rem;
+    background-color: #5c6bc0; /* Un color secundario para acciones de añadir */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-boleto-button:hover {
+    background-color: #3f51b5;
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-acento); /* Botón principal usa el color de acento */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 2rem;
+}
+
+.btn-submit:hover {
+    background-color: var(--color-acento-oscuro);
+}
+.conadis-help-text {
+    display: block;
+    font-size: 0.85em;
+    color: var(--color-primario, #00acc1);
+    font-style: italic;
+    margin-top: 5px;
+}
+.form-field-group input[readonly] {
+    background-color: #e9ecef; /* Un gris suave */
+    cursor: not-allowed;
+}
+.precio-automatico {
+    padding: 0.8rem 1rem;
+    background-color: #e9ecef; /* Mismo color que un campo readonly */
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #6c757d; /* Un gris para indicar que no es editable */
+    margin-top: 0;
+}

@@ -26,25 +26,29 @@ import uuid
 # --- Imports de nuestras aplicaciones ---
 from usuarios.decorators import admin_required
 from .models import Evento, Categoria, Boleto, Venta, DetalleVenta, MetodoPago, Opinion
-from usuarios.models import Notification
+from usuarios.models import UserNotification, SolicitudProveedor
+# ¡ASEGÚRATE DE QUE ESTA FUNCIÓN ESTÉ DISPONIBLE O QUÍTALA SI NO EXISTE!
+# Si no existe, puedes definir una función vacía: def create_web_notification(*args, **kwargs): pass
 from usuarios.views import create_web_notification 
+
+# --- CAMBIO IMPORTANTE: AHORA IMPORTAMOS DESDE FORMS.PY ---
 from .forms import EventoForm, BoletoFormSetCreate, BoletoFormSetEdit, OpinionForm
 
 
+# ======================================================
+# === CONSTANTE DE COMISIÓN
+# ======================================================
+TASA_COMISION = Decimal('0.05')
+
+# ... (El resto del archivo es idéntico al que te pasé antes, lo incluyo para que sea copiar y pegar)
 # ======================================================
 # === FUNCIONES AYUDANTES
 # ======================================================
 
 def _attach_event_stats(eventos_list):
-    """
-    Toma una lista de objetos Evento y les añade los datos agregados
-    de boletos vendidos e ingresos, haciendo solo una consulta extra.
-    """
     if not eventos_list:
         return []
-
     ids_eventos = [evento.id for evento in eventos_list]
-    
     datos_agregados = DetalleVenta.objects.filter(
         boleto__evento_id__in=ids_eventos,
         venta__estado='completa'
@@ -54,7 +58,6 @@ def _attach_event_stats(eventos_list):
         total_tickets=Sum('cantidad'),
         total_revenue=Sum(F('cantidad') * F('precio_unitario'))
     )
-    
     mapa_datos = {
         item['boleto__evento_id']: {
             'tickets': item.get('total_tickets', 0),
@@ -62,7 +65,6 @@ def _attach_event_stats(eventos_list):
         }
         for item in datos_agregados
     }
-
     for evento in eventos_list:
         datos = mapa_datos.get(evento.id)
         if datos:
@@ -71,23 +73,16 @@ def _attach_event_stats(eventos_list):
         else:
             evento.total_boletos_vendidos_annotated = 0
             evento.ingresos_generados_annotated = Decimal('0.00')
-            
     return eventos_list
 
 
 def enviar_correo_completo_en_hilo(subject, html_content, recipient_list, attachments=None):
-    """
-    Función universal para enviar correos en segundo plano.
-    Maneja correos simples o con archivos adjuntos. NO TOCA LA BASE DE DATOS.
-    """
     try:
         email = EmailMultiAlternatives(subject, "", settings.DEFAULT_FROM_EMAIL, recipient_list)
         email.attach_alternative(html_content, "text/html")
-        
         if attachments:
             for attachment in attachments:
                 email.attach(attachment)
-        
         email.send()
         print(f"Correo '{subject}' encolado para envío en segundo plano.")
     except Exception as e:
@@ -132,7 +127,7 @@ def detalle_evento_view(request, evento_id):
                 usuario_ya_opino = Opinion.objects.filter(evento=evento, usuario=request.user).exists()
                 if not usuario_ya_opino:
                     puede_dejar_opinion = True
-                    if request.method == 'POST':
+                    if request.method == 'POST' and 'submit_opinion' in request.POST: # Check for a specific submit button name
                         opinion_form = OpinionForm(request.POST)
                         if opinion_form.is_valid():
                             opinion = opinion_form.save(commit=False)
@@ -267,20 +262,32 @@ def checkout_procesar_view(request):
                 if not boleto or boleto.cantidad_restante < cantidad_deseada:
                     messages.error(request, f"Stock insuficiente para '{boleto.display_name if boleto else 'un boleto'}.")
                     return redirect('tickets:ver_carrito')
+            
             metodo_pago, _ = MetodoPago.objects.get_or_create(nombre='Tarjeta de Crédito (Simulado)')
             venta = Venta.objects.create(usuario=request.user, metodo_pago=metodo_pago, estado='completa')
-            detalles_a_crear, boletos_a_actualizar, total_venta_calculado = [], [], Decimal('0.00')
+            
+            detalles_a_crear, boletos_a_actualizar = [], []
+            total_bruto_calculado = Decimal('0.00')
+
             for evento_id, boletos in carrito.items():
                 for boleto_id_str, cantidad in boletos.items():
                     boleto = boletos_dict[int(boleto_id_str)]
                     detalles_a_crear.append(DetalleVenta(venta=venta, boleto=boleto, cantidad=cantidad, precio_unitario=boleto.precio))
                     boleto.cantidad_vendida += cantidad
                     boletos_a_actualizar.append(boleto)
-                    total_venta_calculado += boleto.precio * cantidad
+                    total_bruto_calculado += boleto.precio * cantidad
+            
             DetalleVenta.objects.bulk_create(detalles_a_crear)
             Boleto.objects.bulk_update(boletos_a_actualizar, ['cantidad_vendida'])
-            venta.total_venta = total_venta_calculado
+            
+            comision_calculada = total_bruto_calculado * TASA_COMISION
+            ganancia_proveedor_calculada = total_bruto_calculado - comision_calculada
+
+            venta.total_bruto = total_bruto_calculado
+            venta.comision_plataforma = comision_calculada
+            venta.ganancia_proveedor = ganancia_proveedor_calculada
             venta.save()
+            
             venta_id = venta.id
             primer_evento_nombre = boletos_a_actualizar[0].evento.nombre if boletos_a_actualizar else "Varios Eventos"
             create_web_notification(request.user, 'compra', f'¡Tu compra para "{primer_evento_nombre}" ha sido exitosa!', link=reverse('usuarios:perfil') + '#mis-entradas')
@@ -331,19 +338,43 @@ def crear_evento(request):
     if request.user.rol not in ['proveedor', 'admin']:
         messages.error(request, "Solo los proveedores pueden crear eventos.")
         return redirect('usuarios:inicio')
+        
     if request.method == 'POST':
-        form, formset = EventoForm(request.POST, request.FILES), BoletoFormSetCreate(request.POST, request.FILES, prefix='boletos')
+        form = EventoForm(request.POST, request.FILES)
+        formset = BoletoFormSetCreate(request.POST, request.FILES, prefix='boletos')
+        
         if form.is_valid() and formset.is_valid():
+            
+            precio_general = None
+            conadis_form = None
+
+            for form_individual, cleaned_data in zip(formset.forms, formset.cleaned_data):
+                tipo_boleto = cleaned_data.get('tipo')
+                
+                if tipo_boleto == 'general':
+                    precio_general = cleaned_data.get('precio')
+                
+                if tipo_boleto == 'conadis':
+                    conadis_form = form_individual
+
+            if precio_general is not None and conadis_form is not None:
+                precio_conadis_calculado = precio_general * Decimal('0.80')
+                conadis_form.instance.precio = precio_conadis_calculado
+            
             with transaction.atomic():
                 evento = form.save(commit=False)
                 evento.creado_por = request.user
                 evento.save()
+                
                 formset.instance = evento
                 formset.save()
+                
             messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
             return redirect('tickets:panel_proveedor')
     else:
-        form, formset = EventoForm(), BoletoFormSetCreate(prefix='boletos')
+        form = EventoForm()
+        formset = BoletoFormSetCreate(prefix='boletos')
+        
     context = {'form': form, 'formset': formset, 'panel_title': 'Crear Nuevo Evento', 'button_text': 'Crear Evento'}
     return render(request, 'tickets/crear_evento.html', context)
 
@@ -353,19 +384,41 @@ def editar_evento_view(request, evento_id):
     if evento.creado_por != request.user and not request.user.is_superuser:
         messages.error(request, "No tienes permiso para editar este evento.")
         return redirect('tickets:panel_proveedor')
+        
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES, instance=evento)
         formset = BoletoFormSetEdit(request.POST, request.FILES, instance=evento, prefix='boletos')
+        
         if form.is_valid() and formset.is_valid():
+            
+            precio_general = None
+            conadis_form = None
+
+            for form_individual, cleaned_data in zip(formset.forms, formset.cleaned_data):
+                if cleaned_data.get('DELETE'):
+                    continue
+                tipo_boleto = cleaned_data.get('tipo')
+                if tipo_boleto == 'general':
+                    precio_general = cleaned_data.get('precio')
+                if tipo_boleto == 'conadis':
+                    conadis_form = form_individual
+
+            if precio_general is not None and conadis_form is not None:
+                precio_conadis_calculado = precio_general * Decimal('0.80')
+                conadis_form.instance.precio = precio_conadis_calculado
+
             form.save()
             formset.save()
+            
             messages.success(request, f'El evento "{evento.nombre}" ha sido actualizado con éxito.')
             return redirect('tickets:panel_proveedor')
     else:
         form = EventoForm(instance=evento)
         formset = BoletoFormSetEdit(instance=evento, prefix='boletos')
+        
     context = {'form': form, 'formset': formset, 'panel_title': 'Editar Evento', 'button_text': 'Guardar Cambios'}
     return render(request, 'tickets/crear_evento.html', context)
+
 
 @login_required
 def reporte_ventas_view(request, evento_id):
@@ -373,24 +426,35 @@ def reporte_ventas_view(request, evento_id):
     if evento.creado_por != request.user and not request.user.is_superuser:
         messages.error(request, "No tienes permiso para ver el reporte de este evento.")
         return redirect('tickets:panel_proveedor')
+    
     ventas_del_evento = Venta.objects.filter(detalles__boleto__evento=evento, estado='completa').distinct().order_by('-fecha_compra')
-    ingresos_totales = ventas_del_evento.aggregate(total_sum=Sum('total_venta'))['total_sum'] or 0
+    
+    ganancias_netas_totales = ventas_del_evento.aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
+    ingresos_brutos_totales = ventas_del_evento.aggregate(total_sum=Sum('total_bruto'))['total_sum'] or 0
+    
     boletos_vendidos = DetalleVenta.objects.filter(venta__in=ventas_del_evento).aggregate(total=Sum('cantidad'))['total'] or 0
     ordenes_totales = ventas_del_evento.count()
-    ingreso_promedio_orden = (ingresos_totales / ordenes_totales) if ordenes_totales > 0 else 0
-    ventas_por_dia = ventas_del_evento.annotate(dia=TruncDate('fecha_compra')).values('dia').annotate(total_ventas=Sum('total_venta')).order_by('dia')
+    ganancia_promedio_orden = (ganancias_netas_totales / ordenes_totales) if ordenes_totales > 0 else 0
+    
+    ventas_por_dia = ventas_del_evento.annotate(dia=TruncDate('fecha_compra')).values('dia').annotate(total_ventas=Sum('ganancia_proveedor')).order_by('dia')
     labels_grafico_lineas = [v['dia'].strftime('%d %b') for v in ventas_por_dia]
     data_grafico_lineas = [float(v['total_ventas']) for v in ventas_por_dia]
+    
     boletos_por_tipo = DetalleVenta.objects.filter(venta__in=ventas_del_evento).values('boleto__tipo').annotate(cantidad_total=Sum('cantidad')).order_by('-cantidad_total')
     labels_grafico_pie = [b['boleto__tipo'].capitalize() for b in boletos_por_tipo]
     data_grafico_pie = [b['cantidad_total'] for b in boletos_por_tipo]
+    
     paginator = Paginator(ventas_del_evento, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
     context = {
-        'evento': evento, 'page_obj': page_obj, 'ingresos_totales': ingresos_totales,
-        'boletos_vendidos': boletos_vendidos, 'ordenes_totales': ordenes_totales,
-        'ingreso_promedio_orden': ingreso_promedio_orden,
+        'evento': evento, 'page_obj': page_obj, 
+        'ganancias_netas_totales': ganancias_netas_totales,
+        'ingresos_brutos_totales': ingresos_brutos_totales,
+        'boletos_vendidos': boletos_vendidos, 
+        'ordenes_totales': ordenes_totales,
+        'ganancia_promedio_orden': ganancia_promedio_orden,
         'labels_grafico_lineas': json.dumps(labels_grafico_lineas),
         'data_grafico_lineas': json.dumps(data_grafico_lineas),
         'labels_grafico_pie': json.dumps(labels_grafico_pie),
@@ -398,42 +462,59 @@ def reporte_ventas_view(request, evento_id):
     }
     return render(request, 'tickets/reporte_ventas.html', context)
 
+
 @login_required
 def panel_proveedor_view(request):
     if request.user.rol not in ['proveedor', 'admin']:
         messages.error(request, "Acceso denegado.")
         return redirect('usuarios:inicio')
+        
     eventos_proveedor = Evento.objects.filter(creado_por=request.user)
     ventas_globales = Venta.objects.filter(detalles__boleto__evento__in=eventos_proveedor, estado='completa').distinct()
-    ingresos_totales = ventas_globales.aggregate(total_sum=Sum('total_venta'))['total_sum'] or 0
+
+    ganancias_totales = ventas_globales.aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
+    
     hace_30_dias = timezone.now() - timedelta(days=30)
-    ingresos_30_dias = ventas_globales.filter(fecha_compra__gte=hace_30_dias).aggregate(total_sum=Sum('total_venta'))['total_sum'] or 0
+    ganancias_30_dias = ventas_globales.filter(fecha_compra__gte=hace_30_dias).aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
+    
     eventos_publicados_count = eventos_proveedor.count()
-    ingreso_promedio_evento = (ingresos_totales / eventos_publicados_count) if eventos_publicados_count > 0 else 0
+    ganancia_promedio_evento = (ganancias_totales / eventos_publicados_count) if eventos_publicados_count > 0 else 0
+    
     ingresos_por_mes_dict = defaultdict(Decimal)
     for venta in ventas_globales.order_by('fecha_compra'):
         mes_clave = venta.fecha_compra.strftime('%Y-%m')
-        ingresos_por_mes_dict[mes_clave] += venta.total_venta
+        ingresos_por_mes_dict[mes_clave] += venta.ganancia_proveedor
+    
     meses_ordenados = sorted(ingresos_por_mes_dict.keys())
     labels_ingresos_mes = [datetime.strptime(mes, '%Y-%m').strftime('%b %Y') for mes in meses_ordenados]
     data_ingresos_mes = [float(ingresos_por_mes_dict[mes]) for mes in meses_ordenados]
-    ingresos_por_evento_qs = Venta.objects.filter(detalles__boleto__evento__in=eventos_proveedor, estado='completa').values('detalles__boleto__evento__nombre').annotate(ingresos=Sum('total_venta', distinct=True)).order_by('-ingresos')[:5]
-    labels_top_eventos = [e['detalles__boleto__evento__nombre'] for e in ingresos_por_evento_qs]
-    data_top_eventos = [float(e['ingresos']) for e in ingresos_por_evento_qs]
+    
+    ganancias_por_evento_qs = Venta.objects.filter(detalles__boleto__evento__in=eventos_proveedor, estado='completa').values('detalles__boleto__evento__nombre').annotate(ganancias=Sum('ganancia_proveedor', distinct=True)).order_by('-ganancias')[:5]
+    labels_top_eventos = [e['detalles__boleto__evento__nombre'] for e in ganancias_por_evento_qs]
+    data_top_eventos = [float(e['ganancias']) for e in ganancias_por_evento_qs]
+    
     ultimas_ventas = ventas_globales.order_by('-fecha_compra')[:5]
     eventos_list = eventos_proveedor.select_related('categoria').order_by('-creado_en')
+    
     paginator = Paginator(eventos_list, 10)
     page_number = request.GET.get('page')
     page_obj_eventos = paginator.get_page(page_number)
     page_obj_eventos.object_list = _attach_event_stats(list(page_obj_eventos.object_list))
+    
     context = {
-        'ingresos_totales': ingresos_totales, 'ingresos_30_dias': ingresos_30_dias,
-        'eventos_publicados_count': eventos_publicados_count, 'ingreso_promedio_evento': ingreso_promedio_evento,
-        'labels_ingresos_mes': json.dumps(labels_ingresos_mes), 'data_ingresos_mes': json.dumps(data_ingresos_mes),
-        'labels_top_eventos': json.dumps(labels_top_eventos), 'data_top_eventos': json.dumps(data_top_eventos),
-        'ultimas_ventas': ultimas_ventas, 'eventos_activos': page_obj_eventos,
+        'ganancias_totales': ganancias_totales,
+        'ganancias_30_dias': ganancias_30_dias,
+        'eventos_publicados_count': eventos_publicados_count, 
+        'ganancia_promedio_evento': ganancia_promedio_evento,
+        'labels_ingresos_mes': json.dumps(labels_ingresos_mes), 
+        'data_ingresos_mes': json.dumps(data_ingresos_mes),
+        'labels_top_eventos': json.dumps(labels_top_eventos), 
+        'data_top_eventos': json.dumps(data_top_eventos),
+        'ultimas_ventas': ultimas_ventas, 
+        'eventos_activos': page_obj_eventos,
     }
     return render(request, 'tickets/panel_proveedor.html', context)
+
 
 @login_required
 def filtrar_eventos_proveedor_ajax(request):
@@ -508,3 +589,33 @@ def toggle_favorito_view(request, evento_id):
     else:
         messages.success(request, message_text)
         return redirect('tickets:detalle_evento', evento_id=evento.id)
+
+@login_required
+def get_admin_notification_count_json(request):
+    """
+    Devuelve el conteo de notificaciones de admin no leídas para el usuario actual como JSON.
+    """
+    from tickets.utils import get_unread_admin_notifications_count # Importar aquí para evitar circularidad
+
+    count = get_unread_admin_notifications_count(request)
+    return JsonResponse({'count': count})
+
+@login_required
+def get_pending_events_count_json(request):
+    """
+    Devuelve el conteo de eventos pendientes de aprobación como JSON.
+    """
+    # Importamos aquí para evitar problemas de circularidad en los imports
+    from tickets.utils import get_pending_events_count
+    count = get_pending_events_count()
+    return JsonResponse({'count': count})
+
+@login_required
+def get_pending_supplier_requests_count_json(request):
+    """
+    Devuelve el conteo de solicitudes de proveedor pendientes como JSON.
+    """
+    # Importamos aquí para evitar problemas de circularidad en los imports
+    from tickets.utils import get_pending_supplier_requests_count
+    count = get_pending_supplier_requests_count()
+    return JsonResponse({'count': count})

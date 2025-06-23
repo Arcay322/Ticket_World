@@ -12,21 +12,20 @@
     <h1 class="panel-title">{{ panel_title }}</h1>
     <p class="panel-subtitle">{{ panel_subtitle }}</p>
 
-    <!-- KPIs y Tarjetas de Acción -->
     <div class="dashboard-grid kpi-grid">
+        <div class="dashboard-card kpi-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 14.5a3.5 3.5 0 0 0-7 0V21h7v-6.5z"></path></svg>
+            </div>
+            <h2 class="card-title">Ganancia Plataforma (30 días)</h2>
+            <p class="card-number success">${{ ganancia_plataforma_30_dias|floatformat:2 }}</p>
+        </div>
         <div class="dashboard-card kpi-card">
             <div class="card-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </div>
-            <h2 class="card-title">Ingresos (30 días)</h2>
-            <p class="card-number success">${{ ingresos_30_dias|stringformat:".2f" }}</p>
-        </div>
-        <div class="dashboard-card kpi-card">
-            <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            </div>
-            <h2 class="card-title">Ingresos Totales</h2>
-            <p class="card-number info">${{ ingresos_totales|stringformat:".2f" }}</p>
+            <h2 class="card-title">Ingresos Brutos (30 días)</h2>
+            <p class="card-number">${{ ingresos_brutos_30_dias|floatformat:2 }}</p>
         </div>
         <div class="dashboard-card kpi-card">
             <div class="card-icon">
@@ -68,10 +67,9 @@
         </div>
     </div>
     
-    <!-- Gráficos -->
     <div class="dashboard-grid chart-grid">
         <div class="chart-container">
-            <h3>Ingresos en los últimos 30 días</h3>
+            <h3>Ingresos Brutos en los últimos 30 días</h3>
             <canvas id="ingresosChart" 
                     data-labels='{{ labels_ingresos|safe }}'
                     data-data='{{ data_ingresos|safe }}'></canvas>
@@ -84,7 +82,6 @@
         </div>
     </div>
 
-    <!-- Tablas de Actividad Reciente -->
     <div class="dashboard-grid table-grid">
         <div class="table-container">
             <h3>Últimas Ventas</h3>
@@ -94,7 +91,9 @@
                         <tr>
                             <th>ID Venta</th>
                             <th>Usuario</th>
-                            <th>Monto</th>
+                            <th>Monto Bruto</th>
+                            <th>Comisión</th>
+                            <th>Ganancia Proveedor</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
@@ -103,11 +102,13 @@
                         <tr>
                             <td>#{{ venta.id }}</td>
                             <td>{{ venta.usuario.username }}</td>
-                            <td>${{ venta.total_venta|stringformat:".2f" }}</td>
+                            <td>${{ venta.total_bruto|floatformat:2 }}</td>
+                            <td><span class="success">${{ venta.comision_plataforma|floatformat:2 }}</span></td>
+                            <td>${{ venta.ganancia_proveedor|floatformat:2 }}</td>
                             <td>{{ venta.fecha_compra|date:"d M, H:i" }}</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="4">No hay ventas recientes.</td></tr>
+                        <tr><td colspan="6">No hay ventas recientes.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

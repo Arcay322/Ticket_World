@@ -1,0 +1,41 @@
+/* static/css/activacion_exitosa.css */
+.exito-container {
+    background-color: #ffffff;
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 550px;
+    border-top: 5px solid #28a745; /* Línea verde de éxito */
+}
+
+.exito-container h2 {
+    color: #28a745; /* Verde */
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.exito-container p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.exito-container .btn-continuar {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 30px;
+    background-color: #28a745; /* Verde */
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.exito-container .btn-continuar:hover {
+    background-color: #218838;
+}
