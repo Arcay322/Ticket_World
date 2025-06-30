@@ -21,17 +21,17 @@ class Command(BaseCommand):
 
         # Define las imágenes para cada categoría con sus NOMBRES DE ARCHIVO.
         # El script las buscará en STATIC_IMG_FULL_DIR_PATH
-        DEPORTES_IMAGE_FILENAME = 'categoria_deportes.png'
+        DEPORTES_IMAGE_FILENAME = 'categoria_deportes.webp'  # Asegúrate de que este archivo exista en static/img/
 
         CONCIERTO_IMAGE_FILENAMES = [
-            'Concierto_Mon_Laferte.png',
-            'Concierto_Mora.png',
-            'Concierto_Quevedo.png',
-            'Concierto_Trueno.png',
-            'Concierto_Chayanne.png',
-            'Concierto_Duki.png',
-            'Concierto_Amen.png',
-            'Concierto_Paulo_Londra.png',
+            'Concierto_Mon_Laferte.webp',
+            'Concierto_Mora.webp',
+            'Concierto_Quevedo.webp',
+            'Concierto_Trueno.webp',
+            'Concierto_Chayanne.webp',
+            'Concierto_Duki.webp',
+            'Concierto_Amen.webp',
+            'Concierto_Paulo_Londra.webp',
         ]
 
         updated_count = 0

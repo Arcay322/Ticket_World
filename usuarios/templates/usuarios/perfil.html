@@ -183,7 +183,11 @@
                                     </ul>
                                 </div>
                                 <div class="entrada-actions">
-                                    <a href="{% url 'tickets:detalle_evento' entrada_evento.evento.id %}" class="btn-ver-detalle-entrada">Ver Detalles del Evento</a>
+                                    {% if entrada_evento.evento and entrada_evento.evento.id %}
+                                        <a href="{% url 'tickets:detalle_evento' entrada_evento.evento.id %}" class="btn-ver-detalle-entrada">Ver Detalles del Evento</a>
+                                    {% else %}
+                                        <span class="text-muted">Evento no disponible</span>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -232,7 +236,7 @@
                     <div class="events-wrapper">
                         {% for evento in eventos_favoritos %}
                             <div class="event-card">
-                                <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-image-link">
+                                <a href="{% if evento.id %}{% url 'tickets:detalle_evento' evento.id %}{% else %}#{% endif %}" class="card-image-link">
                                     <div class="card-imagen-container">
                                         {% if evento.imagen_portada %}
                                             <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img">
@@ -278,7 +282,13 @@
                         {% for opinion in mis_opiniones %}
                             <div class="opinion-perfil-card">
                                 <div class="opinion-perfil-header">
-                                    <span>Evento: <a href="{% url 'tickets:detalle_evento' opinion.evento.id %}">{{ opinion.evento.nombre }}</a></span>
+                                    <span>Evento: 
+                                        {% if opinion.evento and opinion.evento.id %}
+                                            <a href="{% url 'tickets:detalle_evento' opinion.evento.id %}">{{ opinion.evento.nombre }}</a>
+                                        {% else %}
+                                            <span class="text-muted">Evento no disponible</span>
+                                        {% endif %}
+                                    </span>
                                     <span>Fecha: {{ opinion.fecha_opinion|date:"d M Y" }}</span>
                                 </div>
                                 <div class="opinion-perfil-rating-status">

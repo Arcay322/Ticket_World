@@ -36,6 +36,7 @@ class VentaAdmin(admin.ModelAdmin):
     search_fields = ('id', 'usuario__username')
     readonly_fields = ('fecha_compra', 'total_bruto', 'comision_plataforma', 'ganancia_proveedor')
     inlines = [DetalleVentaInline]
+    list_select_related = ('usuario',)
 
 # ==========================================================
 # === CLASE EVENTOADMIN MODIFICADA ===
@@ -72,6 +73,10 @@ class EventoAdmin(admin.ModelAdmin):
     
     # Hacemos que los campos automáticos sean de solo lectura
     readonly_fields = ('esta_agotado',)
+    list_select_related = ('creado_por', 'categoria')
+    raw_id_fields = ('creado_por',)
+    list_per_page = 20
+    autocomplete_fields = ['creado_por', 'categoria']
 
     @admin.action(description='Aprobar eventos seleccionados')
     def aprobar_eventos(self, request, queryset):
@@ -164,9 +169,12 @@ class EventoAdmin(admin.ModelAdmin):
 @admin.register(Opinion)
 class OpinionAdmin(admin.ModelAdmin):
     list_display = ('evento', 'usuario', 'calificacion', 'estado')
-    list_filter = ('estado', 'calificacion', 'evento', 'usuario')
+    list_filter = ('estado', 'calificacion')  # Quitamos filtros de relaciones para evitar N+1
     search_fields = ('comentario', 'usuario__username', 'evento__nombre')
     actions = ['aprobar_opiniones', 'rechazar_opiniones']
+    list_select_related = ('evento', 'usuario', 'evento__categoria')
+    list_per_page = 25
+    autocomplete_fields = ['evento', 'usuario']  # OPTIMIZACIÓN: evita cargar todos los objetos relacionados
 
     @admin.action(description='Aprobar opiniones seleccionadas')
     def aprobar_opiniones(self, request, queryset):

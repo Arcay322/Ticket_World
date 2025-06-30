@@ -10,6 +10,7 @@ from datetime import timedelta, datetime
 import json
 import csv # Para exportar datos
 from django.http import HttpResponse # Para devolver archivos CSV
+from django.views.decorators.cache import cache_page
 
 # Importa TODOS los modelos necesarios
 from tickets.models import Evento, Venta, DetalleVenta, Categoria
@@ -93,6 +94,7 @@ def export_proveedores_csv(request):
 
 # --- VISTA PRINCIPAL DEL DASHBOARD ---
 
+@cache_page(60 * 5)  # Cachea la vista por 5 minutos
 @admin_required
 def reports_dashboard_view(request):
     # --- Manejo de Filtros de Fecha ---
@@ -126,9 +128,15 @@ def reports_dashboard_view(request):
         fecha_compra__lte=fecha_fin_dt
     )
     
-    ingresos_brutos_rango = ventas_completas_en_rango.aggregate(total=Sum('total_bruto'))['total'] or 0
-    ganancia_plataforma_rango = ventas_completas_en_rango.aggregate(total=Sum('comision_plataforma'))['total'] or 0
-    total_ventas_rango = ventas_completas_en_rango.count()
+    agregados_rango = ventas_completas_en_rango.aggregate(
+        total_bruto=Sum('total_bruto'),
+        total_comision=Sum('comision_plataforma'),
+        total_ventas=Count('id')
+    )
+    ingresos_brutos_rango = agregados_rango['total_bruto'] or 0
+    ganancia_plataforma_rango = agregados_rango['total_comision'] or 0
+    total_ventas_rango = agregados_rango['total_ventas'] or 0
+
     nuevos_usuarios_rango = Usuario.objects.filter(
         date_joined__date__gte=fecha_inicio,
         date_joined__lte=fecha_fin_dt
@@ -155,15 +163,19 @@ def reports_dashboard_view(request):
     else:
         usuarios_status_color = 'danger'
 
-
     # --- KPIs Totales Históricos (no cambian) ---
-    ingresos_brutos_totales = Venta.objects.filter(estado='completa').aggregate(total=Sum('total_bruto'))['total'] or 0
-    ganancia_plataforma_total = Venta.objects.filter(estado='completa').aggregate(total=Sum('comision_plataforma'))['total'] or 0
+    agregados_totales = Venta.objects.filter(estado='completa').aggregate(
+        total_bruto=Sum('total_bruto'),
+        total_comision=Sum('comision_plataforma')
+    )
+    ingresos_brutos_totales = agregados_totales['total_bruto'] or 0
+    ganancia_plataforma_total = agregados_totales['total_comision'] or 0
     total_usuarios_registrados = Usuario.objects.count()
     total_proveedores_activos = Usuario.objects.filter(rol='proveedor').count()
     total_eventos_aprobados = Evento.objects.filter(aprobado=True).count()
     
-    # ... (código de gráficos de ingresos y usuarios sin cambios) ...
+    # --- Gráficos y Tablas ---
+    # Gráfico 1: Ingresos diarios
     ingresos_diarios = (
         ventas_completas_en_rango
         .annotate(dia=TruncDate('fecha_compra'))
@@ -176,6 +188,7 @@ def reports_dashboard_view(request):
     data_ingresos = [ingresos_data_map.get(label, 0) for label in date_labels]
     labels_ingresos = date_labels
 
+    # Gráfico 2: Nuevos usuarios diarios
     usuarios_diarios_rango = (
         Usuario.objects.filter(
             date_joined__date__gte=fecha_inicio,
@@ -190,11 +203,12 @@ def reports_dashboard_view(request):
     data_usuarios = [usuarios_data_map.get(label, 0) for label in date_labels]
     labels_usuarios = date_labels
     
-    # ... (código de gráficos de categorías sin cambios) ...
+    # Gráfico 3: Eventos por categoría
     eventos_por_categoria_count = Evento.objects.filter(aprobado=True).values('categoria__nombre').annotate(count=Count('id')).order_by('categoria__nombre')
     labels_eventos_categoria = [item['categoria__nombre'] for item in eventos_por_categoria_count]
     data_eventos_categoria = [item['count'] for item in eventos_por_categoria_count]
     
+    # Gráfico 4: Ventas por categoría (ingresos)
     ventas_por_categoria_ingresos = (
         ventas_completas_en_rango
         .values('detalles__boleto__evento__categoria__nombre')

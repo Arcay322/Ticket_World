@@ -20,8 +20,6 @@ urlpatterns = [
     # Your other app URLs
     path('usuarios/', include('usuarios.urls')),
     path('tickets/', include('tickets.urls')),
-    
-
 ]
 
 # These lines are crucial for serving MEDIA and STATIC files in development mode.
@@ -33,3 +31,7 @@ if settings.DEBUG:
     # If you have static files directly in your 'static' folder that aren't collected
     # by an app, this line helps.
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    import debug_toolbar
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]

@@ -54,11 +54,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Si todo está bien, actualizamos el carrito.
             // Para evitar sobrecargar el servidor con cada tecla, podrías añadir un 'debounce' aquí
             // pero por ahora lo mantenemos simple.
-            actualizarCarrito(boletoId, cantidad);
+            actualizarCarrito(boletoId, cantidad, this);
         });
     });
 
-    function actualizarCarrito(boletoId, cantidad) {
+    function actualizarCarrito(boletoId, cantidad, inputElem) {
         fetch('/tickets/actualizar-carrito/', {
             method: 'POST',
             headers: {
@@ -78,9 +78,11 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.status === 'success') {
-                // La recarga es la forma más simple de asegurar que los totales se actualizan.
-                // Podríamos hacerlo sin recargar, pero aumenta la complejidad.
-                location.reload(); 
+                // Actualiza el subtotal y el total en el DOM sin recargar la página
+                const subtotalElem = document.getElementById('subtotal-' + boletoId);
+                if (subtotalElem) subtotalElem.textContent = data.nuevo_subtotal;
+                const totalElem = document.getElementById('total-general');
+                if (totalElem) totalElem.textContent = data.total_carrito;
             }
         })
         .catch(error => {

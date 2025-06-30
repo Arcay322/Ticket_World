@@ -27,6 +27,22 @@ class CustomUserAdmin(UserAdmin):
     def hacer_proveedor(self, request, queryset):
         queryset.update(rol='proveedor')
 
+class SolicitudProveedorAdmin(admin.ModelAdmin):
+    list_display = ('nombres', 'apellidos', 'email', 'telefono', 'nombre_empresa', 'aprobado', 'fecha_solicitud', 'user')
+    list_filter = ('aprobado', 'fecha_solicitud')
+    search_fields = ('nombres', 'apellidos', 'email', 'nombre_empresa', 'user__username')
+    list_select_related = ('user',)
+    raw_id_fields = ('user',)
+    list_per_page = 25
+
+class UserNotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'notification_type', 'message', 'read', 'created_at')
+    list_filter = ('notification_type', 'read', 'created_at')
+    search_fields = ('message', 'recipient__username')
+    list_select_related = ('recipient',)
+    raw_id_fields = ('recipient',)
+    list_per_page = 25
+
 admin.site.register(Usuario, CustomUserAdmin)
-admin.site.register(SolicitudProveedor)
-admin.site.register(UserNotification) # <-- ¡Registra tu UserNotification aquí!
+admin.site.register(SolicitudProveedor, SolicitudProveedorAdmin)
+admin.site.register(UserNotification, UserNotificationAdmin) # <-- ¡Registra tu UserNotification aquí!

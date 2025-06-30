@@ -22,6 +22,7 @@ from io import BytesIO
 import qrcode
 from email.mime.image import MIMEImage
 import uuid
+import time
 
 # --- Imports de nuestras aplicaciones ---
 from usuarios.decorators import admin_required
@@ -104,7 +105,8 @@ def index(request):
     return HttpResponse("¡Bienvenido a la sección de tickets!")
 
 def lista_eventos(request):
-    eventos_list = Evento.objects.filter(aprobado=True, fecha__gte=timezone.now()).order_by('fecha')
+    eventos_list = Evento.objects.filter(aprobado=True, fecha__gte=timezone.now()) \
+        .select_related('categoria', 'creado_por').order_by('fecha')
     paginator = Paginator(eventos_list, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -115,8 +117,13 @@ def lista_eventos(request):
     return render(request, 'tickets/lista_eventos.html', context)
 
 def detalle_evento_view(request, evento_id):
-    evento = get_object_or_404(Evento, pk=evento_id, aprobado=True)
-    opiniones = Opinion.objects.filter(evento=evento, estado='aprobada').order_by('-fecha_opinion')
+    # Optimización: prefetch de boletos y select_related de categoría
+    evento = get_object_or_404(
+        Evento.objects.select_related('categoria').prefetch_related('boletos'),
+        pk=evento_id, aprobado=True
+    )
+    # Optimización: select_related de usuario en opiniones
+    opiniones = Opinion.objects.filter(evento=evento, estado='aprobada').select_related('usuario').order_by('-fecha_opinion')
     estadisticas_opinion = opiniones.aggregate(avg_calificacion=Avg('calificacion'), num_opiniones=Count('id'))
     opinion_form, puede_dejar_opinion, usuario_ya_opino, ha_comprado = None, False, False, False
     evento_pasado = evento.fecha < timezone.now()
@@ -128,7 +135,7 @@ def detalle_evento_view(request, evento_id):
                 usuario_ya_opino = Opinion.objects.filter(evento=evento, usuario=request.user).exists()
                 if not usuario_ya_opino:
                     puede_dejar_opinion = True
-                    if request.method == 'POST' and 'submit_opinion' in request.POST: # Check for a specific submit button name
+                    if request.method == 'POST' and 'submit_opinion' in request.POST:
                         opinion_form = OpinionForm(request.POST)
                         if opinion_form.is_valid():
                             opinion = opinion_form.save(commit=False)
@@ -143,16 +150,12 @@ def detalle_evento_view(request, evento_id):
     
     is_favorited = False
     if request.user.is_authenticated:
-        is_favorited = evento in request.user.eventos_favoritos.all()
+        # Optimización: obtener IDs de favoritos una sola vez
+        fav_ids = set(request.user.eventos_favoritos.values_list('id', flat=True))
+        is_favorited = evento.id in fav_ids
 
-    # --- INICIO DE MODIFICACIÓN PARA LA SOLUCIÓN 2 ---
-    # Formatear latitud y longitud con punto decimal de forma explícita
-    # Usamos f-strings para asegurar el punto como separador decimal.
-    # round() ayuda a controlar la precisión.
-    # Asegúrate de que evento.latitud y evento.longitud existan y sean números.
     latitud_formateada = f"{round(evento.latitud, 6)}" if evento.latitud is not None else ""
     longitud_formateada = f"{round(evento.longitud, 6)}" if evento.longitud is not None else ""
-    # --- FIN DE MODIFICACIÓN PARA LA SOLUCIÓN 2 ---
 
     context = {
         'evento': evento, 
@@ -166,10 +169,8 @@ def detalle_evento_view(request, evento_id):
         'ha_comprado': ha_comprado, 
         'is_favorited': is_favorited,
         'favorited_event_ids': _get_common_event_context(request),
-        # --- AGREGAR LAS VARIABLES FORMATEADAS AL CONTEXTO ---
         'latitud_formateada': latitud_formateada,
         'longitud_formateada': longitud_formateada,
-        # --- FIN DE AGREGAR LAS VARIABLES FORMATEADAS ---
     }
     return render(request, 'tickets/detalle_evento.html', context)
 
@@ -213,17 +214,32 @@ def agregar_al_carrito_view(request, evento_id):
 
 @login_required
 def ver_carrito_view(request):
+    start_time = time.time()
     carrito = request.session.get('carrito', {})
+    t1 = time.time()
+    evento_ids = [int(eid) for eid in carrito.keys()]
+    boleto_ids = [int(bid) for boletos in carrito.values() for bid in boletos.keys()]
+    eventos = Evento.objects.in_bulk(evento_ids)
+    boletos = Boleto.objects.in_bulk(boleto_ids)
+    t2 = time.time()
     items_del_carrito, total_carrito = [], 0
-    for evento_id, boletos in carrito.items():
-        evento = Evento.objects.get(id=int(evento_id))
-        for boleto_id, cantidad in boletos.items():
-            boleto = Boleto.objects.get(id=int(boleto_id))
-            subtotal = boleto.precio * cantidad
-            items_del_carrito.append({'evento': evento, 'boleto': boleto, 'cantidad': cantidad, 'subtotal': subtotal})
-            total_carrito += subtotal
+    for evento_id, boletos_dict in carrito.items():
+        evento = eventos.get(int(evento_id))
+        for boleto_id, cantidad in boletos_dict.items():
+            boleto = boletos.get(int(boleto_id))
+            if evento and boleto:
+                subtotal = boleto.precio * cantidad
+                items_del_carrito.append({'evento': evento, 'boleto': boleto, 'cantidad': cantidad, 'subtotal': subtotal})
+                total_carrito += subtotal
+    t3 = time.time()
     context = {'items_del_carrito': items_del_carrito, 'total_carrito': total_carrito}
-    return render(request, 'tickets/carrito.html', context)
+    response = render(request, 'tickets/carrito.html', context)
+    t4 = time.time()
+    print(f"[DEBUG] Tiempo total ver_carrito_view: {(t4-start_time)*1000:.2f} ms")
+    print(f"[DEBUG] Tiempo consultas DB: {(t2-t1)*1000:.2f} ms")
+    print(f"[DEBUG] Tiempo construcción items_del_carrito: {(t3-t2)*1000:.2f} ms")
+    print(f"[DEBUG] Tiempo renderizado template: {(t4-t3)*1000:.2f} ms")
+    return response
 
 def actualizar_carrito_view(request):
     if request.method == 'POST':
@@ -449,33 +465,56 @@ def reporte_ventas_view(request, evento_id):
     if evento.creado_por != request.user and not request.user.is_superuser:
         messages.error(request, "No tienes permiso para ver el reporte de este evento.")
         return redirect('tickets:panel_proveedor')
-    
-    ventas_del_evento = Venta.objects.filter(detalles__boleto__evento=evento, estado='completa').distinct().order_by('-fecha_compra')
-    
-    ganancias_netas_totales = ventas_del_evento.aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
-    ingresos_brutos_totales = ventas_del_evento.aggregate(total_sum=Sum('total_bruto'))['total_sum'] or 0
-    
-    boletos_vendidos = DetalleVenta.objects.filter(venta__in=ventas_del_evento).aggregate(total=Sum('cantidad'))['total'] or 0
-    ordenes_totales = ventas_del_evento.count()
+
+    # Optimización: obtener todas las ventas completas del evento y sus detalles en una sola consulta
+    ventas_del_evento = Venta.objects.filter(
+        detalles__boleto__evento=evento, estado='completa'
+    ).distinct().order_by('-fecha_compra') \
+     .select_related('usuario', 'metodo_pago') \
+     .prefetch_related('detalles__boleto')
+
+    # IDs de ventas para usar en agregaciones
+    ventas_ids = ventas_del_evento.values_list('id', flat=True)
+
+    # Agregados globales en una sola consulta
+    agregados = Venta.objects.filter(id__in=ventas_ids).aggregate(
+        total_ganancia=Sum('ganancia_proveedor'),
+        total_bruto=Sum('total_bruto'),
+        total_ordenes=Count('id')
+    )
+
+    ganancias_netas_totales = agregados['total_ganancia'] or 0
+    ingresos_brutos_totales = agregados['total_bruto'] or 0
+    ordenes_totales = agregados['total_ordenes'] or 0
     ganancia_promedio_orden = (ganancias_netas_totales / ordenes_totales) if ordenes_totales > 0 else 0
-    
-    ventas_por_dia = ventas_del_evento.annotate(dia=TruncDate('fecha_compra')).values('dia').annotate(total_ventas=Sum('ganancia_proveedor')).order_by('dia')
+
+    # Ventas por día (una sola consulta)
+    ventas_por_dia = Venta.objects.filter(id__in=ventas_ids).annotate(
+        dia=TruncDate('fecha_compra')
+    ).values('dia').annotate(
+        total_ventas=Sum('ganancia_proveedor')
+    ).order_by('dia')
     labels_grafico_lineas = [v['dia'].strftime('%d %b') for v in ventas_por_dia]
     data_grafico_lineas = [float(v['total_ventas']) for v in ventas_por_dia]
-    
-    boletos_por_tipo = DetalleVenta.objects.filter(venta__in=ventas_del_evento).values('boleto__tipo').annotate(cantidad_total=Sum('cantidad')).order_by('-cantidad_total')
+
+    # Boletos por tipo (una sola consulta, sin venta__in costoso)
+    boletos_por_tipo = DetalleVenta.objects.filter(
+        venta__id__in=ventas_ids
+    ).values('boleto__tipo').annotate(
+        cantidad_total=Sum('cantidad')
+    ).order_by('-cantidad_total')
     labels_grafico_pie = [b['boleto__tipo'].capitalize() for b in boletos_por_tipo]
     data_grafico_pie = [b['cantidad_total'] for b in boletos_por_tipo]
-    
+
     paginator = Paginator(ventas_del_evento, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'evento': evento, 'page_obj': page_obj, 
         'ganancias_netas_totales': ganancias_netas_totales,
         'ingresos_brutos_totales': ingresos_brutos_totales,
-        'boletos_vendidos': boletos_vendidos, 
+        'boletos_vendidos': ordenes_totales, 
         'ordenes_totales': ordenes_totales,
         'ganancia_promedio_orden': ganancia_promedio_orden,
         'labels_grafico_lineas': json.dumps(labels_grafico_lineas),
@@ -491,39 +530,58 @@ def panel_proveedor_view(request):
     if request.user.rol not in ['proveedor', 'admin']:
         messages.error(request, "Acceso denegado.")
         return redirect('usuarios:inicio')
-        
-    eventos_proveedor = Evento.objects.filter(creado_por=request.user)
-    ventas_globales = Venta.objects.filter(detalles__boleto__evento__in=eventos_proveedor, estado='completa').distinct()
 
-    ganancias_totales = ventas_globales.aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
-    
+    eventos_proveedor = Evento.objects.filter(creado_por=request.user)
+    eventos_ids = list(eventos_proveedor.values_list('id', flat=True))
+
+    # Un solo query para ambos agregados de ganancias
+    from django.db.models import Case, When, DecimalField
     hace_30_dias = timezone.now() - timedelta(days=30)
-    ganancias_30_dias = ventas_globales.filter(fecha_compra__gte=hace_30_dias).aggregate(total_sum=Sum('ganancia_proveedor'))['total_sum'] or 0
-    
-    eventos_publicados_count = eventos_proveedor.count()
+    agregados = Venta.objects.filter(
+        detalles__boleto__evento__in=eventos_ids, estado='completa'
+    ).aggregate(
+        total_sum=Sum('ganancia_proveedor'),
+        total_sum_30=Sum(Case(
+            When(fecha_compra__gte=hace_30_dias, then='ganancia_proveedor'),
+            default=0,
+            output_field=DecimalField()
+        ))
+    )
+    ganancias_totales = agregados['total_sum'] or 0
+    ganancias_30_dias = agregados['total_sum_30'] or 0
+
+    eventos_publicados_count = len(eventos_ids)
     ganancia_promedio_evento = (ganancias_totales / eventos_publicados_count) if eventos_publicados_count > 0 else 0
-    
-    ingresos_por_mes_dict = defaultdict(Decimal)
-    for venta in ventas_globales.order_by('fecha_compra'):
-        mes_clave = venta.fecha_compra.strftime('%Y-%m')
-        ingresos_por_mes_dict[mes_clave] += venta.ganancia_proveedor
-    
-    meses_ordenados = sorted(ingresos_por_mes_dict.keys())
-    labels_ingresos_mes = [datetime.strptime(mes, '%Y-%m').strftime('%b %Y') for mes in meses_ordenados]
-    data_ingresos_mes = [float(ingresos_por_mes_dict[mes]) for mes in meses_ordenados]
-    
-    ganancias_por_evento_qs = Venta.objects.filter(detalles__boleto__evento__in=eventos_proveedor, estado='completa').values('detalles__boleto__evento__nombre').annotate(ganancias=Sum('ganancia_proveedor', distinct=True)).order_by('-ganancias')[:5]
+
+    # Ganancias por mes (todo en DB)
+    ventas_globales = Venta.objects.filter(
+        detalles__boleto__evento__in=eventos_ids, estado='completa'
+    )
+    ventas_por_mes = ventas_globales.annotate(
+        mes=TruncMonth('fecha_compra')
+    ).values('mes').annotate(
+        total_mes=Sum('ganancia_proveedor')
+    ).order_by('mes')
+    labels_ingresos_mes = [v['mes'].strftime('%b %Y') for v in ventas_por_mes]
+    data_ingresos_mes = [float(v['total_mes']) for v in ventas_por_mes]
+
+    # Top 5 eventos por ganancia (todo en DB)
+    ganancias_por_evento_qs = ventas_globales.values(
+        'detalles__boleto__evento__nombre'
+    ).annotate(
+        ganancias=Sum('ganancia_proveedor', distinct=True)
+    ).order_by('-ganancias')[:5]
     labels_top_eventos = [e['detalles__boleto__evento__nombre'] for e in ganancias_por_evento_qs]
     data_top_eventos = [float(e['ganancias']) for e in ganancias_por_evento_qs]
-    
+
     ultimas_ventas = ventas_globales.order_by('-fecha_compra')[:5]
     eventos_list = eventos_proveedor.select_related('categoria').order_by('-creado_en')
-    
+
     paginator = Paginator(eventos_list, 10)
     page_number = request.GET.get('page')
     page_obj_eventos = paginator.get_page(page_number)
     page_obj_eventos.object_list = _attach_event_stats(list(page_obj_eventos.object_list))
-    
+
     context = {
         'ganancias_totales': ganancias_totales,
         'ganancias_30_dias': ganancias_30_dias,
@@ -561,8 +619,15 @@ def gestion_eventos(request):
 
 @admin_required
 def lista_eventos_pendientes(request):
-    eventos_pendientes = Evento.objects.filter(aprobado=False).order_by('-creado_en')
-    context = { 'eventos': eventos_pendientes, 'panel_title': 'Eventos Pendientes de Aprobación' }
+    eventos_qs = Evento.objects.filter(aprobado=False).select_related('creado_por', 'categoria').order_by('-creado_en')
+    paginator = Paginator(eventos_qs, 25)  # 25 eventos por página
+    page_number = request.GET.get('page')
+    eventos_pendientes = paginator.get_page(page_number)
+    context = {
+        'eventos': eventos_pendientes,
+        'panel_title': 'Eventos Pendientes de Aprobación',
+        'panel_subtitle': 'Revisa y aprueba/rechaza los eventos enviados por proveedores.'
+    }
     return render(request, 'tickets/lista_eventos_pendientes.html', context)
 
 @admin_required

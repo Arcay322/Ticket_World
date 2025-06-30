@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="hero-section" style="background-image: url('{% static 'img/portada_ticket_world2.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+<section class="hero-section" style="background-image: url('{% static 'img/portada.webp' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
     <div class="hero-content">
         <h1>Encuentra tu próximo evento</h1>
         <p>Los mejores conciertos, festivales y deportes están aquí.</p>
@@ -80,32 +80,35 @@
         <div class="scrolling-wrapper">
             <div class="scrolling-track">
                 {% for evento in eventos_destacados %}
-                <div class="event-card featured-event-card">
-                    <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-primary-link">
-                        <div class="featured-star-icon">
-                            {# Aquí sigue usando el SVG original ya que no es un icono de categoría #}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                            </svg>
-                        </div>
-                        <div class="card-imagen-container">
-                            {% if evento.imagen_portada %}
-                                <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img">
+                <a href="{% url 'tickets:detalle_evento' evento.id %}" class="event-card featured-event-card card-primary-link">
+                    <div class="featured-star-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    </div>
+                    <div class="card-imagen-container">
+                        {% if evento.imagen_portada %}
+                            {% if evento.imagen_portada.url|slice:"-5:" == ".webp" %}
+                                <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img" loading="lazy">
                             {% else %}
-                                <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img">
+                                {% with webp_url=evento.imagen_portada.url|cut:'.jpg'|cut:'.jpeg'|cut:'.png'|add:'.webp' %}
+                                <picture>
+                                    <source srcset="{{ webp_url }}" type="image/webp">
+                                    <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img" loading="lazy">
+                                </picture>
+                                {% endwith %}
                             {% endif %}
-                            {# --- BOTÓN DE FAVORITO EN TARJETA (USANDO EL SPRITE SVG) --- #}
-                            {% if request.user.is_authenticated %}
-                                <button class="btn-favorito-card" data-evento-id="{{ evento.id }}">
-                                    {# Usar el ícono de corazón del sprite. El 'fill' inicial se basa en 'favorited_event_ids' #}
-                                    <svg width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart" fill="{% if evento.id in favorited_event_ids %}red{% else %}none{% endif %}">
-                                        <use href="#icon-heart"></use>
-                                    </svg>
-                                </button>
-                            {% endif %}
-                            {# ------------------------------------ #}
-                        </div>
-                    </a>
+                        {% else %}
+                            <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img" loading="lazy">
+                        {% endif %}
+                        {% if request.user.is_authenticated %}
+                            <button class="btn-favorito-card" data-evento-id="{{ evento.id }}" tabindex="-1">
+                                <svg width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart" fill="{% if evento.id in favorited_event_ids %}red{% else %}none{% endif %}">
+                                    <use href="#icon-heart"></use>
+                                </svg>
+                            </button>
+                        {% endif %}
+                    </div>
                     <div class="card-content featured-overlay-content">
                         <h3 class="card-title">{{ evento.nombre }}</h3>
                         <p class="card-date">
@@ -113,7 +116,7 @@
                             <span>{{ evento.fecha|date:"D, d M - H:i" }}h</span>
                         </p>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -136,9 +139,18 @@
                     <a href="{% url 'tickets:detalle_evento' evento.id %}" class="card-image-link">
                         <div class="card-imagen-container">
                             {% if evento.imagen_portada %}
-                                <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img">
+                                {% if evento.imagen_portada.url|slice:"-5:" == ".webp" %}
+                                    <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img" loading="lazy">
+                                {% else %}
+                                    {% with webp_url=evento.imagen_portada.url|cut:'.jpg'|cut:'.jpeg'|cut:'.png'|add:'.webp' %}
+                                    <picture>
+                                        <source srcset="{{ webp_url }}" type="image/webp">
+                                        <img src="{{ evento.imagen_portada.url }}" alt="Imagen de {{ evento.nombre }}" class="evento-img" loading="lazy">
+                                    </picture>
+                                    {% endwith %}
+                                {% endif %}
                             {% else %}
-                                <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img">
+                                <img src="https://placehold.co/400x250/00838f/FFF?text=Evento+Sin+Imagen" alt="Evento sin imagen" class="evento-img" loading="lazy">
                             {% endif %}
                             {# --- BOTÓN DE FAVORITO EN TARJETA (USANDO EL SPRITE SVG) --- #}
                             {% if request.user.is_authenticated %}

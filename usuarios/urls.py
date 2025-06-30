@@ -19,7 +19,6 @@ urlpatterns = [
     path('solicitud_proveedor/', views.solicitud_proveedor, name='solicitud_proveedor'),
     path('perfil/', views.perfil, name='perfil'),
         # --- URLs del Panel de Administración ---
-    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'), # <-- ¡NUEVA LÍNEA!
     path('admin/solicitudes/', views.lista_solicitudes, name='lista_solicitudes'),
     path('admin/solicitudes/aprobar/<int:solicitud_id>/', views.aprobar_solicitud, name='aprobar_solicitud'),
     path('admin/solicitudes/rechazar/<int:solicitud_id>/', views.rechazar_solicitud, name='rechazar_solicitud'),

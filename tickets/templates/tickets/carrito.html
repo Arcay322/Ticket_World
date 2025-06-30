@@ -19,10 +19,10 @@
                         <div class="item-imagen">
                             {# Check if an image exists, otherwise display a placeholder #}
                             {% if item.evento.imagen_portada %}
-                                <img src="{{ item.evento.imagen_portada.url }}" alt="Imagen de {{ item.evento.nombre }}">
+                                <img src="{{ item.evento.imagen_portada.url }}" alt="Imagen de {{ item.evento.nombre }}" loading="lazy">
                             {% else %}
                                 {# Ensure you have a 'no_image.png' or similar in your static/images/ folder #}
-                                <img src="{% static 'images/no_image.png' %}" alt="Imagen no disponible para {{ item.evento.nombre }}">
+                                <img src="{% static 'images/no_image.png' %}" alt="Imagen no disponible para {{ item.evento.nombre }}" loading="lazy">
                             {% endif %}
                         </div>
                         <div class="item-detalles">

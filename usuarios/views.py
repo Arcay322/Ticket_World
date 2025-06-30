@@ -212,91 +212,6 @@ def is_eligible_for_supplier_form(user):
     return user.is_authenticated and (user.rol == 'usuario' or user.rol == 'cliente')
 
 
-@admin_required
-def admin_dashboard(request):
-    # --- Métricas para las tarjetas de acción ---
-    solicitudes_pendientes_count = SolicitudProveedor.objects.filter(aprobado=False).count()
-    eventos_pendientes_count = Evento.objects.filter(aprobado=False).count()
-
-    # --- KPIs Globales ---
-    hace_30_dias = timezone.now() - timedelta(days=30)
-    
-    ventas_completas = Venta.objects.filter(estado='completa')
-    ventas_recientes = ventas_completas.filter(fecha_compra__gte=hace_30_dias)
-
-    ingresos_brutos_30_dias = ventas_recientes.aggregate(total=Sum('total_bruto'))['total'] or 0
-    ganancia_plataforma_30_dias = ventas_recientes.aggregate(total=Sum('comision_plataforma'))['total'] or 0
-
-    ingresos_brutos_totales = ventas_completas.aggregate(total=Sum('total_bruto'))['total'] or 0
-    ganancia_plataforma_total = ventas_completas.aggregate(total=Sum('comision_plataforma'))['total'] or 0
-    
-    nuevos_usuarios_30_dias = Usuario.objects.filter(date_joined__gte=hace_30_dias).count()
-    total_ventas = ventas_completas.count()
-
-    # --- Datos para Gráfico de Ingresos Diarios ---
-    ingresos_diarios = (
-        ventas_recientes
-        .annotate(dia=TruncDate('fecha_compra'))
-        .values('dia')
-        .annotate(total=Sum('total_bruto'))
-        .order_by('dia')
-    )
-    labels_ingresos = [i['dia'].strftime('%d %b') for i in ingresos_diarios]
-    data_ingresos = [float(i['total']) for i in ingresos_diarios]
-
-    # --- Datos para Gráfico de Tendencias de Usuarios ---
-    usuarios_diarios = (
-        Usuario.objects.filter(date_joined__gte=hace_30_dias)
-        .annotate(dia=TruncDate('date_joined'))
-        .values('dia')
-        .annotate(cantidad=Count('id'))
-        .order_by('dia')
-    )
-    labels_usuarios = [u['dia'].strftime('%d %b') for u in usuarios_diarios]
-    data_usuarios = [u['cantidad'] for u in usuarios_diarios]
-    
-    # --- NUEVA MÉTRICA: DISTRIBUCIÓN DE EVENTOS POR CATEGORÍA ---
-    # Contar eventos aprobados por categoría
-    eventos_por_categoria = Evento.objects.filter(aprobado=True).values('categoria__nombre').annotate(count=Count('id')).order_by('categoria__nombre')
-    
-    labels_categorias = [item['categoria__nombre'] for item in eventos_por_categoria]
-    data_categorias = [item['count'] for item in eventos_por_categoria]
-    # --- FIN NUEVA MÉTRICA ---
-    
-    # --- Tablas de Actividad Reciente ---
-    ultimas_ventas = ventas_completas.select_related('usuario').order_by('-fecha_compra')[:5]
-    ultimos_usuarios = Usuario.objects.order_by('-date_joined')[:5]
-
-    context = {
-        'panel_title': 'Panel de Administración',
-        'panel_subtitle': 'Un resumen completo del estado y rendimiento de la plataforma.',
-        
-        'solicitudes_pendientes_count': solicitudes_pendientes_count,
-        'eventos_pendientes_count': eventos_pendientes_count,
-
-        'ingresos_brutos_30_dias': ingresos_brutos_30_dias,
-        'ganancia_plataforma_30_dias': ganancia_plataforma_30_dias,
-        'ingresos_brutos_totales': ingresos_brutos_totales,
-        'ganancia_plataforma_total': ganancia_plataforma_total,
-        
-        'nuevos_usuarios_30_dias': nuevos_usuarios_30_dias,
-        'total_ventas': total_ventas,
-        
-        'labels_ingresos': json.dumps(labels_ingresos),
-        'data_ingresos': json.dumps(data_ingresos),
-        'labels_usuarios': json.dumps(labels_usuarios),
-        'data_usuarios': json.dumps(data_usuarios),
-        
-        # --- AÑADIMOS LAS NUEVAS VARIABLES AL CONTEXTO ---
-        'labels_categorias': json.dumps(labels_categorias),
-        'data_categorias': json.dumps(data_categorias),
-        
-        'ultimas_ventas': ultimas_ventas,
-        'ultimos_usuarios': ultimos_usuarios,
-    }
-    return render(request, 'usuarios/admin_dashboard.html', context)
-
-
 @user_passes_test(is_eligible_for_supplier_form, login_url=reverse_lazy('usuarios:login'))
 def solicitud_proveedor(request):
     """
@@ -378,36 +293,37 @@ def perfil(request):
     profile_form = UserProfileUpdateForm(instance=request.user)
     password_form = PasswordChangeForm(request.user)
 
-    # --- Inicialización de datos del perfil ---
-    compras_con_detalles = Venta.objects.filter(usuario=request.user, estado='completa').prefetch_related(
+    # --- Inicialización de datos del perfil (sin paginación) ---
+    compras = Venta.objects.filter(usuario=request.user, estado='completa').prefetch_related(
         'detalles__boleto__evento'
     ).order_by('-fecha_compra')
-    
-    mis_opiniones = Opinion.objects.filter(usuario=request.user).order_by('-fecha_opinion')
 
-    mis_entradas_query = DetalleVenta.objects.filter(
+    mis_opiniones = Opinion.objects.filter(usuario=request.user).select_related('evento').order_by('-fecha_opinion')
+
+    # --- ENTRADAS ACTIVAS agrupadas por evento ---
+    detalles_entradas = DetalleVenta.objects.filter(
         venta__usuario=request.user,
         venta__estado='completa',
         boleto__evento__fecha__gte=timezone.now()
     ).select_related('boleto__evento', 'boleto').order_by('boleto__evento__fecha')
 
-    eventos_con_entradas = {}
-    for detalle in mis_entradas_query:
+    entradas_dict = {}
+    for detalle in detalles_entradas:
         evento = detalle.boleto.evento
-        if evento.id not in eventos_con_entradas:
-            eventos_con_entradas[evento.id] = {
+        if evento.id not in entradas_dict:
+            entradas_dict[evento.id] = {
                 'evento': evento,
                 'boletos_comprados': []
             }
-        eventos_con_entradas[evento.id]['boletos_comprados'].append({
-            'tipo': detalle.boleto.display_name,
+        entradas_dict[evento.id]['boletos_comprados'].append({
+            'tipo': detalle.boleto.tipo,
             'cantidad': detalle.cantidad,
-            'precio_unitario': detalle.precio_unitario,
+            'precio_unitario': detalle.precio_unitario
         })
-    mis_entradas_para_template = list(eventos_con_entradas.values())
+    mis_entradas = list(entradas_dict.values())
 
-    eventos_favoritos = request.user.eventos_favoritos.all().order_by('nombre')
-    
+    eventos_favoritos = request.user.eventos_favoritos.select_related('categoria', 'creado_por').order_by('nombre')
+
     # --- Lógica de manejo de POST (actualización de perfil/contraseña) ---
     if request.method == 'POST' and 'update_profile' in request.POST:
         profile_form = UserProfileUpdateForm(request.POST, instance=request.user)
@@ -445,11 +361,11 @@ def perfil(request):
     context = {
         'profile_form': profile_form,
         'password_form': password_form,
-        'compras': compras_con_detalles,
+        'compras': compras,
         'mis_opiniones': mis_opiniones,
-        'mis_entradas': mis_entradas_para_template,
+        'mis_entradas': mis_entradas,
         'eventos_favoritos': eventos_favoritos,
-        'notifications': UserNotification.objects.filter(recipient=request.user).order_by('-created_at') # <-- ¡CAMBIADO AQUÍ!
+        'notifications': UserNotification.objects.filter(recipient=request.user).order_by('-created_at')
     }
     return render(request, 'usuarios/perfil.html', context)
 
@@ -509,94 +425,76 @@ def inicio(request: HttpRequest):
     Muestra la página de inicio con eventos futuros, destacados y lógica de paginación/búsqueda.
     Maneja la paginación y el cambio de pestañas (tabs) con AJAX.
     """
-    categorias = Categoria.objects.all() 
-    categoria_filtrada = None 
-    
-    current_tab = request.GET.get('tab', 'proximos') 
+    categorias = Categoria.objects.all()
+    categoria_filtrada = None
+
+    current_tab = request.GET.get('tab', 'proximos')
     categoria_id = request.GET.get('categoria')
-    search_query = request.GET.get('q') 
+    search_query = request.GET.get('q')
 
     # Queryset base para los eventos principales (paginados)
-    # Siempre empezamos con eventos aprobados y activos
-    eventos_principales_queryset = Evento.objects.filter(aprobado=True, esta_activo=True)
+    eventos_principales_queryset = Evento.objects.filter(aprobado=True, esta_activo=True).select_related('categoria', 'creado_por')
 
-    section_title = "Eventos" 
-
-    # ===================================================================
-    # === APLICACIÓN DE FILTROS EN CASCADA (BÚSQUEDA > CATEGORÍA > PESTAÑA) ===
-    # ===================================================================
+    section_title = "Eventos"
 
     # 1. Aplicar filtro de búsqueda si existe
     if search_query:
         eventos_principales_queryset = eventos_principales_queryset.filter(
-            Q(nombre__icontains=search_query) | 
-            Q(descripcion__icontains=search_query) | 
-            Q(lugar_nombre__icontains=search_query) | 
-            Q(direccion__icontains=search_query) | 
-            Q(ciudad__icontains=search_query) | 
-            Q(pais__icontains=search_query) | 
+            Q(nombre__icontains=search_query) |
+            Q(descripcion__icontains=search_query) |
+            Q(lugar_nombre__icontains=search_query) |
+            Q(direccion__icontains=search_query) |
+            Q(ciudad__icontains=search_query) |
+            Q(pais__icontains=search_query) |
             Q(categoria__nombre__icontains=search_query) |
             Q(creado_por__username__icontains=search_query)
-        ).distinct() 
-        
+        ).distinct()
         section_title = f"Resultados para '{search_query}'"
-        current_tab = None # Desactivar la pestaña si hay búsqueda
-
+        current_tab = None
     # 2. Aplicar filtro de categoría si existe (SOLO si no hay búsqueda activa)
-    elif categoria_id: 
+    elif categoria_id:
         try:
             categoria_filtrada = get_object_or_404(Categoria, id=categoria_id)
             eventos_principales_queryset = eventos_principales_queryset.filter(categoria=categoria_filtrada)
             section_title = f"Eventos en: {categoria_filtrada.nombre}"
-            current_tab = None # Desactivar la pestaña si hay filtro de categoría
-        except Exception: 
-            pass 
-
+            current_tab = None
+        except Exception:
+            pass
     # 3. Aplicar lógica de pestañas (SOLO si no hay búsqueda ni filtro de categoría activos)
-    if search_query is None and categoria_id is None: 
+    if search_query is None and categoria_id is None:
         if current_tab == 'nuevos':
             treinta_dias_atras = timezone.now() - timedelta(days=30)
             eventos_principales_queryset = eventos_principales_queryset.filter(
                 creado_en__gte=treinta_dias_atras,
-                fecha__gte=timezone.now() 
+                fecha__gte=timezone.now()
             ).order_by('-creado_en')
             section_title = "Nuevos Eventos"
-        else: # 'proximos' es el valor por defecto
+        else:
             eventos_principales_queryset = eventos_principales_queryset.filter(fecha__gte=timezone.now()).order_by('fecha')
             section_title = "Próximos Eventos"
     else:
-        # Si hay búsqueda o filtro de categoría, ordenamos por fecha por defecto para la sección principal
         eventos_principales_queryset = eventos_principales_queryset.order_by('fecha')
 
-
     # Paginación para los eventos principales
-    paginator = Paginator(eventos_principales_queryset, 8) 
+    paginator = Paginator(eventos_principales_queryset, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
-    # ===================================================================
-    # === CONSULTAS PARA SECCIONES ESPECÍFICAS (NO AFECTADAS POR BÚSQUEDA/CATEGORÍA/PESTAÑA) ===
-    # ===================================================================
 
     # Eventos "Cerca de Ocurrir"
     eventos_cerca_de_ocurrir = Evento.objects.filter(
         aprobado=True,
         esta_activo=True,
-        fecha__gt=timezone.now(), 
-        fecha__lte=timezone.now() + timedelta(days=7) 
-    ).order_by('fecha')[:4] 
+        fecha__gt=timezone.now(),
+        fecha__lte=timezone.now() + timedelta(days=7)
+    ).select_related('categoria').order_by('fecha')[:4]
 
     # Eventos Destacados
     eventos_destacados = Evento.objects.filter(
         aprobado=True,
         esta_activo=True,
         es_destacado=True,
-        fecha__gte=timezone.now() 
-    ).order_by('?')[:8] 
-
-    # ===================================================================
-    # === CONTEXTO PARA EL TEMPLATE ===
-    # ===================================================================
+        fecha__gte=timezone.now()
+    ).select_related('categoria').order_by('?')[:8]
 
     favorited_event_ids = []
     if request.user.is_authenticated:
@@ -604,32 +502,23 @@ def inicio(request: HttpRequest):
             favorited_by=request.user
         ).values_list('id', flat=True)
 
-
     context = {
-        'categorias': categorias, 
-        'page_obj': page_obj, 
-        'categoria_filtrada': categoria_filtrada, 
-        'search_query': search_query, 
-        'favorited_event_ids': list(favorited_event_ids), 
-        'eventos_destacados': eventos_destacados, 
-        'eventos_cerca_de_ocurrir': eventos_cerca_de_ocurrir, 
-        'current_tab': current_tab, 
-        'section_title': section_title, 
+        'categorias': categorias,
+        'page_obj': page_obj,
+        'categoria_filtrada': categoria_filtrada,
+        'search_query': search_query,
+        'favorited_event_ids': list(favorited_event_ids),
+        'eventos_destacados': eventos_destacados,
+        'eventos_cerca_de_ocurrir': eventos_cerca_de_ocurrir,
+        'current_tab': current_tab,
+        'section_title': section_title,
     }
 
-    # ===================================================================
-    # === RESPUESTA AJAX O RENDERIZADO COMPLETO ===
-    # ===================================================================
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # Si es una petición AJAX (desde paginación o cambio de pestaña),
-        # solo renderiza el parcial de la lista de eventos.
         html_content = render_to_string(
-            'tickets/event_list_partial.html', # <--- RUTA CORREGIDA AQUÍ
+            'tickets/event_list_partial.html',
             context,
             request=request
         )
         return HttpResponse(html_content)
-    
-    # Si no es AJAX (primera carga, búsqueda, filtro de categoría),
-    # renderiza la página completa.
     return render(request, 'usuarios/inicio.html', context)
