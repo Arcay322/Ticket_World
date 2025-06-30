@@ -6,6 +6,7 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/event_forms.css' %}">
+    <link rel="stylesheet" href="{% static 'css/map_form.css' %}"> {# Nuevo: Enlaza el CSS del mapa #}
 {% endblock %}
 
 {% block content %}
@@ -17,15 +18,67 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
-        {# ... (el resto del formulario no cambia) ... #}
-        {% if form.non_field_errors %} <div class="form-errors">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
+        {% if form.non_field_errors %} 
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div> 
+        {% endif %}
+
         <h2 class="form-section-title">Detalles del Evento</h2>
-        {% for field in form %} <div class="form-field-group"> {{ field.label_tag }} {{ field }} {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %} <div class="form-errors">{{ field.errors }}</div> </div> {% endfor %}
+        {# Renderiza los campos del formulario, excluyendo los campos de mapa ocultos por ahora #}
+        {# Estos campos son gestionados por el JS y se renderizan explícitamente más abajo #}
+        {% for field in form %}
+            {% if field.name not in "latitud longitud mapa_enlace_embed" %}
+                <div class="form-field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+                    <div class="form-errors">{{ field.errors }}</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# --- Sección del mapa --- #}
+        <h2 class="form-section-title">Ubicación en el Mapa</h2>
+        <p>Busca una dirección o arrastra el marcador para fijar la ubicación exacta del evento. Los campos de dirección también serán guardados.</p>
+        
+        <div class="form-field-group">
+            <div class="map-search-controls">
+                <input type="text" id="address-input" placeholder="Buscar dirección...">
+                <button type="button" id="search-map-btn">Buscar</button>
+            </div>
+            <div id="map"></div>
+            <p id="current-coords">Latitud: <span id="lat-display">N/A</span>, Longitud: <span id="lng-display">N/A</span></p>
+
+            {# Campos ocultos que JavaScript rellenará #}
+            {# Asegúrate que los IDs de estos inputs coincidan con los de tu formulario Django (id_nombrecampo) #}
+            {# Django renderiza los campos ocultos automáticamente si están en form.fields #}
+            {{ form.latitud }}
+            {{ form.longitud }}
+            {{ form.mapa_enlace_embed }}
+        </div>
+        {# --- FIN Sección del mapa --- #}
+
         <h2 class="form-section-title">Tipos de Boletos</h2>
-        {% if formset.non_form_errors %} <div class="form-errors">{% for error in formset.non_form_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
+        {% if formset.non_form_errors %} 
+            <div class="form-errors">
+                {% for error in formset.non_form_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div> 
+        {% endif %}
+
         {{ formset.management_form }}
-        <div id="boleto-form-list"> {% for form in formset %} {% include 'tickets/_boleto_form.html' with form=form %} {% endfor %} </div>
-        <div id="empty-form-template" style="display: none;"> {% include 'tickets/_boleto_form.html' with form=formset.empty_form %} </div>
+        <div id="boleto-form-list"> 
+            {% for form in formset %} 
+                {% include 'tickets/_boleto_form.html' with form=form %} 
+            {% endfor %} 
+        </div>
+        <div id="empty-form-template" style="display: none;"> 
+            {% include 'tickets/_boleto_form.html' with form=formset.empty_form %} 
+        </div>
         <button type="button" id="add-boleto-button" class="add-boleto-button">Añadir Otro Tipo de Boleto</button>
         
         {# El texto del botón ahora es dinámico. Por defecto será 'Crear Evento' #}
@@ -37,6 +90,13 @@
 
 {% block extra_js %}
 <script src="{% static 'js/event_form_dynamic.js' %}"></script>
+{# 1. Carga primero tu script personalizado que define initMap y otras funciones #}
+<script src="{% static 'js/event_map.js' %}"></script> 
+{# 2. Luego, carga la API de Google Maps. El atributo 'callback=initMap' buscará initMap en el ámbito global #}
+{#    y la ejecutará una vez que la API se haya cargado completamente. #}
+{#    ¡REEMPLAZA TU_API_KEY CON TU CLAVE REAL! #}
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4i1Hral8K2FIx0YU_QlbxIr4KD8xFEmM&libraries=places&callback=initMap"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         initDynamicFormset(
@@ -45,6 +105,8 @@
             "#boleto-form-list",
             "#empty-form-template"
         );
+        // initMap será llamada automáticamente por la API de Google Maps una vez que se cargue.
+        // No necesitamos llamarla directamente desde aquí.
     });
 </script>
 {% endblock %}

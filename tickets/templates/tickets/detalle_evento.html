@@ -1,6 +1,6 @@
-{# tickets/detalle_evento.html - COMPLETO Y CORREGIDO #}
+{# tickets/detalle_evento.html #}
 
-{% extends "usuarios/base.html" %} {# Asumiendo que extiende de tu base.html #}
+{% extends "usuarios/base.html" %}
 {% load static %}
 {% load tz %}
 
@@ -21,14 +21,16 @@
         </div>
 
         <div class="evento-body">
-            {# Columna de Información del Evento #}
             <div class="columna-info">
                 <h1>
                     {{ evento.nombre }}
-                    {# --- BOTÓN DE FAVORITO EN DETALLE --- #}
+                    {# --- BOTÓN DE FAVORITO EN DETALLE (USANDO EL SPRITE SVG) --- #}
                     {% if request.user.is_authenticated %}
                         <button class="btn-favorito" data-evento-id="{{ evento.id }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="{% if is_favorited %}red{% else %}none{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            {# Usar el ícono del sprite SVG. El 'fill' inicial se basa en 'is_favorited' #}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="{% if is_favorited %}red{% else %}none{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart">
+                                <use href="#icon-heart"></use>
+                            </svg>
                         </button>
                     {% endif %}
                     {# ------------------------------------ #}
@@ -39,22 +41,38 @@
                 <p>{{ evento.descripcion|linebreaksbr }}</p>
                 <hr>
                 <h2>Información Adicional</h2>
-                <p class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>{{ evento.lugar }}</span></p>
+                <p class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>{{ evento.lugar_nombre }} - {{ evento.direccion }}, {{ evento.ciudad }}, {{ evento.pais }}</span></p>
                 <p class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <span>{{ evento.fecha|date:"l, d \d\e F \d\e\l Y" }} - {{ evento.fecha|time:"H:i" }}h</span></p>
+
+                {# --- NUEVO: Sección del Mapa Incrustado --- #}
+                {% if evento.mapa_enlace_embed %}
+                    <h2 style="margin-top: 2rem;">Ubicación en el Mapa</h2>
+                    <div class="map-embed-container">
+                        <iframe
+                            src="{{ evento.mapa_enlace_embed }}"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    {# Enlace para abrir en Google Maps directamente con las coordenadas (usando variables formateadas de la vista) #}
+                    <a href="https://maps.google.com/maps?q={{ latitud_formateada }},{{ longitud_formateada }}" target="_blank" class="map-link">Ver en Google Maps</a>
+                {% else %}
+                    <p class="info-message" style="margin-top: 2rem;">Ubicación del mapa no disponible.</p>
+                {% endif %}
+                {# --- FIN NUEVO: Sección del Mapa Incrustado --- #}
+
             </div>{# Cierre de columna-info #}
 
-            {# Columna de Acción (Detalles y Compra de Boletos) #}
             <div class="columna-accion">
                 <div class="tarjeta-accion">
                     <h3>Detalles de Compra</h3>
-                    {# Aquí se mantienen los detalles de fecha y lugar, puedes usar los mismos que en columna-info o mantener el estilo que tenías #}
                     <div class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <span>Fecha: {{ evento.fecha|date:"D, d M - H:i" }}h</span></div>
-                    <div class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>Lugar: {{ evento.lugar }}</span></div>
+                    <div class="detalle-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>Lugar: {{ evento.lugar_nombre }}</span></div>
 
                     <h3 class="boletos-titulo">Boletos</h3>
                     <form class="form-boletos" method="post" action="{% url 'tickets:agregar_al_carrito' evento.id %}">
                         {% csrf_token %}
-                        {% comment %} Los boletos se mostrarán aquí si evento.boletos.all tiene data {% endcomment %}
                         {% for boleto in evento.boletos.all %}
                             <div class="tipo-boleto {% if boleto.esta_agotado %}agotado{% endif %}">
                                 <div class="info-boleto">
@@ -75,7 +93,6 @@
                         {% empty %}
                             <p class="info-message">No hay tipos de boletos disponibles para este evento en este momento.</p>
                         {% endfor %}
-                        {# Solo muestra el botón si hay al menos un tipo de boleto disponible #}
                         {% if evento.boletos.all %}
                             <button type="submit" class="btn-comprar-grande">Añadir al Carrito</button>
                         {% endif %}
@@ -84,16 +101,10 @@
             </div>{# Cierre de columna-accion #}
         </div>{# Cierre de evento-body #}
 
-        {# SECCIÓN DE OPINIONES Y FORMULARIO #}
         <div class="opiniones-section-wrapper">
             <div class="opiniones-section">
                 <h2>Opiniones de los Asistentes</h2>
 
-                {# Mensajes condicionales que explican por qué no se puede opinar #}
-                {% comment %}
-                Asumo que las variables evento_pasado, ha_comprado, usuario_ya_opino, puede_dejar_opinion
-                son booleanas que tu vista de Django ya está pasando correctamente al contexto.
-                {% endcomment %}
                 {% if not request.user.is_authenticated %}
                     <p class="info-message">Inicia sesión para dejar tu opinión sobre este evento.</p>
                 {% elif not evento_pasado %}
@@ -104,20 +115,16 @@
                     <p class="info-message">Ya has dejado una opinión para este evento. ¡Gracias!</p>
                 {% endif %}
 
-                {# Formulario para dejar opinión - Solo se muestra si puede_dejar_opinion es True #}
                 {% if puede_dejar_opinion %}
                     <div class="formulario-opinion-card">
                         <h3>Deja tu Opinión</h3>
                         <form method="post" class="form-opinion">
                             {% csrf_token %}
-                            {# IMPORTANTE: opinion_form.as_p usará el widget StarRatingWidget personalizado #}
-                            {# Puedes usar loop para controlar el renderizado de cada campo si es necesario #}
                             {% for field in opinion_form %}
                                 {% if field.name == 'calificacion' %}
                                     <p>
                                         <label for="{{ field.id_for_label }}">Tu Calificación (1-5 estrellas):</label>
                                         <div id="id_calificacion">
-                                            {# Este div id="id_calificacion" es donde tu StarRatingWidget genera las estrellas #}
                                             {{ field }} 
                                         </div>
                                     </p>
@@ -151,16 +158,12 @@
                         </form>
                     </div>
                 {% else %}
-                    {# Este mensaje se muestra solo si no se muestra el formulario de opinión Y no se mostró un info-message arriba #}
-                    {# Si se mostró un info-message, este no aparecerá #}
                     {% if not request.user.is_authenticated or not evento_pasado or not ha_comprado or usuario_ya_opino %}
-                        {# No mostrar este empty-message si ya se mostró un info-message #}
                     {% else %}
                         <p class="empty-message">Sé el primero en dejar una opinión para este evento.</p>
                     {% endif %}
                 {% endif %}
 
-                {# Lista de opiniones existentes #}
                 {% if opiniones %}
                     <div class="resumen-opiniones">
                         <div class="calificacion-promedio">
@@ -172,12 +175,11 @@
                                 {% endif %}
                             </span>
                             <div class="estrellas-promedio">
-                                {# Lógica para renderizar estrellas promedio #}
                                 {% for i in "12345" %}
                                     {% if avg_calificacion and forloop.counter <= avg_calificacion|floatformat:"0" %}
-                                        &#9733; {# Estrella rellena #}
+                                        ★ {# Estrella rellena #}
                                     {% else %}
-                                        &#9734; {# Estrella vacía #}
+                                        ☆ {# Estrella vacía #}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -193,12 +195,11 @@
                                     <span>Fecha: {{ opinion.fecha_opinion|date:"d M Y" }}</span>
                                 </div>
                                 <div class="opinion-calificacion">
-                                    {# Estrellas para cada opinión individual #}
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= opinion.calificacion %}
-                                            &#9733;
+                                            ★
                                         {% else %}
-                                            &#9734;
+                                            ☆
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -207,7 +208,6 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {# Este mensaje se muestra solo si NO hay opiniones y no se muestra el formulario de opinión #}
                     {% if not puede_dejar_opinion %}
                         <p class="empty-message">Este evento aún no tiene opiniones. ¡Sé el primero en calificarlo después de asistir!</p>
                     {% endif %}
@@ -218,9 +218,9 @@
     </div>{# Cierre del evento-detalle-container principal #}
 </div>{# Cierre de evento-fondo-global #}
 
-{% endblock %} {# <-- CIERRE DE BLOCK CONTENT #}
+{% endblock content %}
 
 {% block extra_js %}
-    {{ block.super }}
+    {{ block.super }} {# Importa los scripts globales de base.html (messages.js, favorite_logic.js) #}
     <script src="{% static 'js/detalle_evento.js' %}"></script>
 {% endblock extra_js %}

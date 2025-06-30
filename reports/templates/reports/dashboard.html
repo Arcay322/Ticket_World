@@ -1,115 +1,196 @@
 {# reports/templates/reports/dashboard.html #}
-{% extends 'admin/base.html' %} {# <--- Extiende la plantilla base de Jazzmin #}
+{% extends 'admin/base.html' %}
 {% load static %}
 
 {% block title %}{{ panel_title }}{% endblock %}
 
 {% block extra_css %}
-    {# Puedes añadir CSS personalizado aquí si necesitas micro-ajustes #}
     <style>
         /* CSS para asegurar dimensiones y estilos visuales */
         .chart-container-wrapper {
-            position: relative; /* Esencial para que maintainAspectRatio: false funcione bien */
-            height: 250px; /* Altura fija para todos los gráficos */
-            width: 100%; /* Asegura que ocupe todo el ancho disponible del col-lg-6 */
+            position: relative;
+            width: 100%;
         }
         canvas {
-            /* Asegura que el canvas ocupe el 100% de su contenedor wrapper */
             width: 100% !important;
-            height: 100% !important;
-            display: block; /* Elimina espacio extra que algunos navegadores añaden */
+            height: 500px !important;
+            display: block !important;
         }
-        /* Otros estilos para tablas, etc. */
+        /* Estilos generales para tablas */
         .table-responsive .table th,
         .table-responsive .table td {
-            white-space: nowrap; /* Evita que el texto se envuelva en las celdas de la tabla */
-            vertical-align: middle; /* Centra el contenido de la celda verticalmente */
+            white-space: nowrap;
+            vertical-align: middle;
         }
-        .table-responsive .table th:nth-child(6), /* Ajusta ancho de la columna Fecha en Últimas Ventas */
-        .table-responsive .table td:nth-child(6) {
-            min-width: 120px; /* Ancho mínimo para la columna Fecha */
-        }
-        /* Color para la comisión en la tabla de ventas, si no se aplica bien con text-success */
         .table .text-success {
-            color: var(--success) !important; /* Usa la variable CSS de Bootstrap para success */
-            font-weight: 600; /* Un poco de negrita para destacar */
+            color: var(--success) !important;
+            font-weight: 600;
+        }
+
+        /* --- NUEVO: Estilo para los encabezados de las tablas --- */
+        .table thead th {
+            color: #2b8cec !important; /* Gris oscuro para máximo contraste */
+            font-weight: 600 !important; /* Asegura que el texto sea semi-bold */
+            text-transform: uppercase; /* Opcional: Pone los títulos en mayúsculas para más énfasis */
+            font-size: 0.8rem; /* Opcional: Ajusta el tamaño para un look más limpio */
+            letter-spacing: 0.5px; /* Opcional: Añade un poco de espacio entre letras */
+        }
+        
+        /* Estilos para la sección de filtro de fecha */
+        .date-filter-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: .25rem;
+            box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
+            margin-bottom: 20px;
+        }
+        .date-filter-section label {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .date-filter-section .form-control {
+            max-width: 200px;
+        }
+        .date-filter-section .btn {
+            margin-top: 24px;
+        }
+        /* Estilo para el botón de exportar */
+        .card-header .btn-export {
+            float: right;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
         }
     </style>
 {% endblock %}
 
-{% block content %} {# Todo el contenido principal va aquí #}
-<div class="container-fluid"> {# Usamos container-fluid para ancho completo en admin #}
+{% block content %}
+<div class="container-fluid">
     {# Título y subtítulo del panel #}
-    <h1 class="mt-4">{{ panel_title }}</h1> {# mt-4 para margen superior del título #}
-    <p class="text-muted mb-4">{{ panel_subtitle }}</p> {# text-muted y mb-4 para espaciado #}
+    <h1 class="mt-4">{{ panel_title }}</h1>
+    <p class="text-muted mb-4">{{ panel_subtitle }}</p>
 
-    {# --- KPI CARDS (usando small-box de AdminLTE) --- #}
+    {# --- SECCIÓN DE FILTRO DE FECHAS --- #}
     <div class="row">
-        {# Ganancia Plataforma #}
-        <div class="col-lg-3 col-6"> {# col-lg-3 para 4 por fila en grande, col-6 para 2 por fila en móvil #}
-            <div class="small-box bg-info"> {# bg-info es un color estándar de AdminLTE #}
-                <div class="inner">
-                    <h3>${{ ganancia_plataforma_30_dias|floatformat:2 }}</h3>
-                    <p>Ganancia Plataforma (30 días)</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-dollar-sign"></i> {# Icono de Font Awesome #}
-                </div>
-            </div>
-        </div>
-        {# Ingresos Brutos #}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>${{ ingresos_brutos_30_dias|floatformat:2 }}</h3>
-                    <p>Ingresos Brutos (30 días)</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-        </div>
-        {# Nuevos Usuarios #}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning"> {# bg-warning para amarillo, el texto será oscuro #}
-                <div class="inner">
-                    <h3>{{ nuevos_usuarios_30_dias }}</h3>
-                    <p>Nuevos Usuarios (30 días)</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-            </div>
-        </div>
-        {# Total Ventas #}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{ total_ventas }}</h3>
-                    <p>Total Ventas</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
+        <div class="col-lg-12">
+            <div class="date-filter-section">
+                <form id="dateFilterForm" method="GET" action="">
+                    <div class="form-row align-items-end">
+                        <div class="col-auto">
+                            <label for="fecha_inicio">Fecha Inicio:</label>
+                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="{{ fecha_inicio_seleccionada }}">
+                        </div>
+                        <div class="col-auto">
+                            <label for="fecha_fin">Fecha Fin:</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value="{{ fecha_fin_seleccionada }}">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Aplicar Filtro</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-info" id="last30DaysBtn">Últimos 30 días</button>
+                            <button type="button" class="btn btn-success" id="currentMonthBtn">Mes Actual</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-secondary" id="clearDatesBtn">Limpiar Fechas</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    {# --- SECCIÓN DE GRÁFICOS (usando AdminLTE cards) --- #}
-    {# Se inicia una nueva fila con mt-4 para mantener el espaciado #}
+    {# --- KPI CARDS CON ESTADO VISUAL --- #}
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-{{ ganancia_status_color }}">
+                <div class="inner">
+                    <h3>${{ ganancia_plataforma_rango|floatformat:2 }}</h3>
+                    <p>Ganancia Plataforma (Rango)</p>
+                </div>
+                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>${{ ingresos_brutos_rango|floatformat:2 }}</h3>
+                    <p>Ingresos Brutos (Rango)</p>
+                </div>
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-{{ usuarios_status_color }}">
+                <div class="inner">
+                    <h3>{{ nuevos_usuarios_rango }}</h3>
+                    <p>Nuevos Usuarios (Rango)</p>
+                </div>
+                <div class="icon"><i class="fas fa-user-plus"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>{{ total_ventas_rango }}</h3>
+                    <p>Total Ventas (Rango)</p>
+                </div>
+                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# KPIs Totales Históricos #}
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-dark">
+                <div class="inner">
+                    <h3>${{ ganancia_plataforma_total|floatformat:2 }}</h3>
+                    <p>Ganancia Plataforma Total</p>
+                </div>
+                <div class="icon"><i class="fas fa-money-bill-alt"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-secondary">
+                <div class="inner">
+                    <h3>{{ total_usuarios_registrados }}</h3>
+                    <p>Total Usuarios Registrados</p>
+                </div>
+                <div class="icon"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-purple">
+                <div class="inner">
+                    <h3>{{ total_proveedores_activos }}</h3>
+                    <p>Total Proveedores Activos</p>
+                </div>
+                <div class="icon"><i class="fas fa-store"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-teal">
+                <div class="inner">
+                    <h3>{{ total_eventos_aprobados }}</h3>
+                    <p>Total Eventos Aprobados</p>
+                </div>
+                <div class="icon"><i class="fas fa-calendar-check"></i></div>
+            </div>
+        </div>
+    </div>
+
+    {# --- SECCIÓN DE GRÁFICOS --- #}
     <div class="row mt-4">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-line mr-1"></i> Ingresos Brutos en los últimos 30 días
-                    </h3>
+                    <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Ingresos Brutos (Rango Seleccionado)</h3>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container-wrapper"> {# Wrapper para controlar la altura del gráfico #}
-                        <canvas id="ingresosChart"
-                                data-labels='{{ labels_ingresos|safe }}'
-                                data-data='{{ data_ingresos|safe }}'></canvas>
+                    <div class="chart-container-wrapper">
+                        <canvas id="ingresosChart" data-labels='{{ labels_ingresos|safe }}' data-data='{{ data_ingresos|safe }}'></canvas>
                     </div>
                 </div>
             </div>
@@ -117,55 +198,56 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-user-chart mr-1"></i> Nuevos Usuarios en los últimos 30 días
-                    </h3>
+                    <h3 class="card-title"><i class="fas fa-user-chart mr-1"></i> Nuevos Usuarios (Rango Seleccionado)</h3>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container-wrapper"> {# Wrapper #}
-                        <canvas id="usuariosChart"
-                                data-labels='{{ labels_usuarios|safe }}'
-                                data-data='{{ data_usuarios|safe }}'></canvas>
+                    <div class="chart-container-wrapper">
+                        <canvas id="usuariosChart" data-labels='{{ labels_usuarios|safe }}' data-data='{{ data_usuarios|safe }}'></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    {# --- GRÁFICO DE DISTRIBUCIÓN DE EVENTOS POR CATEGORÍA --- #}
-    {# Esta sección se mantiene en una nueva fila si no hay otro elemento al lado #}
-    <div class="row mt-4">
-        <div class="col-lg-6"> {# Ocupa la mitad del ancho si hay otro elemento al lado #}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-pie-chart mr-1"></i> Distribución de Eventos por Categoría
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container-wrapper"> {# Wrapper #}
-                        <canvas id="categoryPieChart"
-                                data-labels='{{ labels_categorias|safe }}'
-                                data-data='{{ data_categorias|safe }}'></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {# Puedes añadir otra tarjeta o elemento aquí para que compartan la fila si lo deseas #}
-    </div>
-
-    {# --- ÚLTIMAS VENTAS Y USUARIOS REGISTRADOS (usando AdminLTE tables) --- #}
     <div class="row mt-4">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-shopping-bag mr-1"></i> Últimas Ventas
-                    </h3>
+                    <h3 class="card-title"><i class="fas fa-dollar-sign mr-1"></i> Ventas por Categoría (Rango Seleccionado)</h3>
                 </div>
-                <div class="card-body p-0"> {# p-0 para quitar padding del body y que la tabla se ajuste #}
+                <div class="card-body">
+                    <div class="chart-container-wrapper">
+                        <canvas id="ventasCategoriaChart" data-labels='{{ labels_ventas_categoria|safe }}' data-data='{{ data_ventas_categoria|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Eventos por Categoría (Cantidad Total)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container-wrapper">
+                        <canvas id="eventosCategoriaChart" data-labels='{{ labels_eventos_categoria|safe }}' data-data='{{ data_eventos_categoria|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- TABLA DE ÚLTIMAS VENTAS Y USUARIOS --- #}
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-shopping-bag mr-1"></i> Últimas 10 Ventas (Rango Seleccionado)</h3>
+                    <a href="{% url 'reports:export_ventas_csv' %}?fecha_inicio={{ fecha_inicio_seleccionada }}&fecha_fin={{ fecha_fin_seleccionada }}" class="btn btn-sm btn-success btn-export">
+                        <i class="fas fa-download mr-1"></i> Exportar CSV
+                    </a>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-striped table-valign-middle"> {# Clases de tabla de AdminLTE #}
+                        <table class="table table-striped table-valign-middle">
                             <thead>
                                 <tr>
                                     <th>ID Venta</th>
@@ -187,7 +269,7 @@
                                     <td>{{ venta.fecha_compra|date:"d M, H:i" }}</td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="6" class="text-center text-muted">No hay ventas recientes.</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">No hay ventas recientes en este rango.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -195,12 +277,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-users mr-1"></i> Últimos Usuarios Registrados
-                    </h3>
+                    <h3 class="card-title"><i class="fas fa-users mr-1"></i> Últimos Usuarios Registrados</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -208,7 +288,6 @@
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
-                                    <th>Email</th>
                                     <th>Rol</th>
                                     <th>Fecha Registro</th>
                                 </tr>
@@ -217,12 +296,121 @@
                                 {% for usuario in ultimos_usuarios %}
                                 <tr>
                                     <td>{{ usuario.username }}</td>
-                                    <td>{{ usuario.email }}</td>
                                     <td>{{ usuario.get_rol_display }}</td>
                                     <td>{{ usuario.date_joined|date:"d M, H:i" }}</td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="4" class="text-center text-muted">No hay usuarios recientes.</td></tr>
+                                <tr><td colspan="3" class="text-center text-muted">No hay usuarios recientes en este rango.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {# --- NUEVA FILA: RENDIMIENTO DE PROVEEDORES Y VENTAS POR TIPO DE BOLETO --- #}
+    <div class="row mt-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-store mr-1"></i> Top 5 Proveedores (por Ingresos en Rango)</h3>
+                     <a href="{% url 'reports:export_proveedores_csv' %}?fecha_inicio={{ fecha_inicio_seleccionada }}&fecha_fin={{ fecha_fin_seleccionada }}" class="btn btn-sm btn-success btn-export">
+                        <i class="fas fa-download mr-1"></i> Exportar CSV
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-valign-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Proveedor</th>
+                                    <th>Ingresos Generados</th>
+                                    <th>Boletos Vendidos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for proveedor in top_proveedores %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ proveedor.detalles__boleto__evento__creado_por__username }}</td>
+                                    <td>${{ proveedor.ingresos_generados|floatformat:2 }}</td>
+                                    <td>{{ proveedor.boletos_vendidos }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No hay datos de proveedores en este rango.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-ticket-alt mr-1"></i> Ventas por Tipo de Boleto (en Rango)</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-valign-middle">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Boleto</th>
+                                    <th>Ingresos Totales</th>
+                                    <th>Cantidad Vendida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tipo in ventas_por_tipo_boleto %}
+                                <tr>
+                                    <td>{{ tipo.boleto__tipo }}</td>
+                                    <td>${{ tipo.ingresos_totales|floatformat:2 }}</td>
+                                    <td>{{ tipo.cantidad_vendida }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="3" class="text-center text-muted">No hay ventas por tipo de boleto en este rango.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- TABLA TOP EVENTOS --- #}
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-award mr-1"></i> Top 5 Eventos Más Vendidos (por Ingresos, Rango Seleccionado)</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-valign-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px;">#</th>
+                                    <th>Evento</th>
+                                    <th>Categoría</th>
+                                    <th>Total Ingresos</th>
+                                    <th>Boletos Vendidos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in top_eventos_vendidos %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.detalles__boleto__evento__nombre }}</td>
+                                    <td>{{ item.detalles__boleto__evento__categoria__nombre }}</td>
+                                    <td>${{ item.ingresos_totales_evento|floatformat:2 }}</td>
+                                    <td>{{ item.boletos_vendidos_evento }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center text-muted">No hay eventos vendidos en este rango para mostrar en el Top.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -233,10 +421,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% comment %}
-    El bloque extra_js se ha eliminado de aquí porque toda la lógica JavaScript (incluida la carga de Chart.js
-    y la inicialización de los gráficos) se ha movido a tu archivo
-    'static/admin_custom/custom_admin.js', que Jazzmin carga a través de JAZZMIN_SETTINGS["custom_js"].
-    Esto asegura que Chart.js esté disponible antes de que tus scripts lo usen.
-{% endcomment %}

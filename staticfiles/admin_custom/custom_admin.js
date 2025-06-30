@@ -12,8 +12,6 @@ console.log("--> custom_admin.js: Archivo cargado y empezando a ejecutar.");
         script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
         script.onload = () => {
             console.log("--> custom_admin.js: Chart.js cargado dinámicamente.");
-            // Una vez que Chart.js esté cargado, podemos inicializar todo lo que depende de él.
-            // Llamamos a la función principal.
             initializeAllJazzminCustomScripts();
         };
         script.onerror = (e) => {
@@ -22,7 +20,6 @@ console.log("--> custom_admin.js: Archivo cargado y empezando a ejecutar.");
         document.head.appendChild(script);
     } else {
         console.log("--> custom_admin.js: Chart.js ya está definido. Procediendo con la inicialización.");
-        // Si Chart.js ya está cargado, inicializamos directamente.
         initializeAllJazzminCustomScripts();
     }
 })();
@@ -33,11 +30,10 @@ console.log("--> custom_admin.js: Archivo cargado y empezando a ejecutar.");
 // Contiene toda la lógica que requiere que el DOM esté listo y Chart.js cargado.
 // ----------------------------------------------------
 function initializeAllJazzminCustomScripts() {
-    // Verificar si el DOM ya está completamente cargado
-    if (document.readyState === 'loading') { // Todavía cargando
+    if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', executeJazzminCustomScripts);
         console.log("--> custom_admin.js: DOM no listo, esperando DOMContentLoaded.");
-    } else { // DOM ya listo
+    } else {
         executeJazzminCustomScripts();
         console.log("--> custom_admin.js: DOM ya listo, ejecutando scripts directamente.");
     }
@@ -48,6 +44,58 @@ function initializeAllJazzminCustomScripts() {
 // ----------------------------------------------------
 function executeJazzminCustomScripts() {
     console.log("--> custom_admin.js: executeJazzminCustomScripts (DOMContentLoaded o ready) disparado.");
+
+    // --- MANEJO DE FILTROS DE FECHA ---
+
+    const dateFilterForm = document.getElementById('dateFilterForm');
+    const fechaInicioInput = document.getElementById('fecha_inicio');
+    const fechaFinInput = document.getElementById('fecha_fin');
+    const clearDatesBtn = document.getElementById('clearDatesBtn');
+    const last30DaysBtn = document.getElementById('last30DaysBtn');
+    const currentMonthBtn = document.getElementById('currentMonthBtn');
+
+    // Función para formatear fechas a YYYY-MM-DD
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    
+    // Botón "Limpiar Fechas"
+    if (clearDatesBtn) {
+        clearDatesBtn.addEventListener('click', function() {
+            fechaInicioInput.value = '';
+            fechaFinInput.value = '';
+            dateFilterForm.submit(); // Envía el formulario sin fechas
+        });
+    }
+
+    // Botón "Últimos 30 días"
+    if (last30DaysBtn) {
+        last30DaysBtn.addEventListener('click', function() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            fechaInicioInput.value = formatDate(thirtyDaysAgo);
+            fechaFinInput.value = formatDate(today);
+            dateFilterForm.submit();
+        });
+    }
+
+    // Botón "Mes Actual"
+    if (currentMonthBtn) {
+        currentMonthBtn.addEventListener('click', function() {
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            fechaInicioInput.value = formatDate(firstDayOfMonth);
+            fechaFinInput.value = formatDate(today);
+            dateFilterForm.submit();
+        });
+    }
+
 
     // ----------------------------------------------------
     // LÓGICA DE GRÁFICOS
@@ -62,7 +110,6 @@ function executeJazzminCustomScripts() {
                 const data = JSON.parse(canvasElement.dataset.data);
                 console.log(`--> custom_admin.js: Datos para ${canvasId}: Labels -`, labels, "Data -", data);
 
-                // Si los datos o etiquetas están vacíos, no dibujes nada
                 if (data.length === 0 || labels.length === 0) {
                     console.warn(`--> custom_admin.js: No hay datos para el gráfico '${canvasId}'.`);
                     const ctx = canvasElement.getContext('2d');
@@ -70,7 +117,7 @@ function executeJazzminCustomScripts() {
                     ctx.fillStyle = '#6c757d'; // Color gris
                     ctx.textAlign = 'center';
                     ctx.fillText('No hay datos disponibles.', canvasElement.width / 2, canvasElement.height / 2);
-                    return; // Sale de la función si no hay datos
+                    return;
                 }
 
                 const datasetConfig = {
@@ -102,7 +149,8 @@ function executeJazzminCustomScripts() {
                     datasetConfig.backgroundColor = [
                         '#007bff', '#28a745', '#ffc107', '#dc3545',
                         '#6c757d', '#17a2b8', '#6610f2', '#fd7e14',
-                        '#20c997', '#e83e8c',
+                        '#20c997', '#e83e8c', 
+                        '#adb5bd', '#6f42c1', '#20c997', '#e83e8c' 
                     ];
                     delete datasetConfig.borderColor;
                     delete datasetConfig.borderWidth;
@@ -133,15 +181,18 @@ function executeJazzminCustomScripts() {
     }
 
     // --- Llamadas a inicializar Gráficos ---
-    initializeChart('ingresosChart', 'line', 'Ingresos por Día ($)', 'rgba(0, 123, 255, 1)', 'rgba(0, 123, 255, 0.1)');
-    initializeChart('usuariosChart', 'bar', 'Nuevos Usuarios por Día', 'rgba(40, 167, 69, 1)', 'rgba(40, 167, 69, 0.7)');
-    initializeChart('categoryPieChart', 'pie', 'Distribución de Eventos por Categoría', null, null, {
+    initializeChart('ingresosChart', 'line', 'Ingresos Brutos (Rango)', 'rgba(0, 123, 255, 1)', 'rgba(0, 123, 255, 0.1)');
+    initializeChart('usuariosChart', 'bar', 'Nuevos Usuarios (Rango)', 'rgba(40, 167, 69, 1)', 'rgba(40, 167, 69, 0.7)');
+    initializeChart('eventosCategoriaChart', 'pie', 'Eventos por Categoría (Cantidad)', null, null, {
+        plugins: { legend: { position: 'top' }, title: { display: false } }, scales: {}
+    });
+    initializeChart('ventasCategoriaChart', 'pie', 'Ventas por Categoría (Ingresos)', null, null, {
         plugins: { legend: { position: 'top' }, title: { display: false } }, scales: {}
     });
 
 
     // ----------------------------------------------------
-    // LÓGICA DE BADGES Y SIDEBAR
+    // LÓGICA DE BADGES Y SIDEBAR (TU CÓDIGO ORIGINAL)
     // ----------------------------------------------------
 
     function setupNavLinkWithBadge(linkElement, countFetchUrl, badgeColorClass) {
@@ -237,8 +288,6 @@ function executeJazzminCustomScripts() {
 
 
     // --- EJECUTAR LAS LLAMADAS DE BADGES Y ESTADO ACTIVO ---
-    // Re-introducimos el setTimeout para asegurar que Jazzmin haya terminado de renderizar
-    // sus propios elementos antes de manipularlos, especialmente para los badges.
     setTimeout(function() {
         console.log("--> custom_admin.js: Iniciando actualizaciones de badges y estado activo después de 100ms.");
 
@@ -254,13 +303,12 @@ function executeJazzminCustomScripts() {
 
     }, 100);
 
-    // Actualización periódica (mantener como opción si la necesitas)
     setInterval(function() {
         console.log("--> custom_admin.js: Iniciando actualización periódica de badges y estado activo.");
         setTimeout(function() {
             allBadgesUpdate();
             updateSidebarActiveState();
         }, 100);
-    }, 10000); // Cada 10 segundos
+    }, 10000);
 
-} // Fin de executeJazzminCustomScripts
+}

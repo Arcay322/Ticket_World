@@ -120,6 +120,7 @@ def detalle_evento_view(request, evento_id):
     estadisticas_opinion = opiniones.aggregate(avg_calificacion=Avg('calificacion'), num_opiniones=Count('id'))
     opinion_form, puede_dejar_opinion, usuario_ya_opino, ha_comprado = None, False, False, False
     evento_pasado = evento.fecha < timezone.now()
+
     if request.user.is_authenticated:
         if evento_pasado:
             ha_comprado = Venta.objects.filter(usuario=request.user, detalles__boleto__evento=evento, estado='completa').exists()
@@ -139,17 +140,39 @@ def detalle_evento_view(request, evento_id):
                             messages.error(request, "Hubo un error con tu opinión.")
                     else:
                         opinion_form = OpinionForm()
+    
     is_favorited = False
     if request.user.is_authenticated:
         is_favorited = evento in request.user.eventos_favoritos.all()
+
+    # --- INICIO DE MODIFICACIÓN PARA LA SOLUCIÓN 2 ---
+    # Formatear latitud y longitud con punto decimal de forma explícita
+    # Usamos f-strings para asegurar el punto como separador decimal.
+    # round() ayuda a controlar la precisión.
+    # Asegúrate de que evento.latitud y evento.longitud existan y sean números.
+    latitud_formateada = f"{round(evento.latitud, 6)}" if evento.latitud is not None else ""
+    longitud_formateada = f"{round(evento.longitud, 6)}" if evento.longitud is not None else ""
+    # --- FIN DE MODIFICACIÓN PARA LA SOLUCIÓN 2 ---
+
     context = {
-        'evento': evento, 'opiniones': opiniones, 'avg_calificacion': estadisticas_opinion['avg_calificacion'],
-        'num_opiniones': estadisticas_opinion['num_opiniones'], 'opinion_form': opinion_form,
-        'puede_dejar_opinion': puede_dejar_opinion, 'usuario_ya_opino': usuario_ya_opino,
-        'evento_pasado': evento_pasado, 'ha_comprado': ha_comprado, 'is_favorited': is_favorited,
+        'evento': evento, 
+        'opiniones': opiniones, 
+        'avg_calificacion': estadisticas_opinion['avg_calificacion'],
+        'num_opiniones': estadisticas_opinion['num_opiniones'], 
+        'opinion_form': opinion_form,
+        'puede_dejar_opinion': puede_dejar_opinion, 
+        'usuario_ya_opino': usuario_ya_opino,
+        'evento_pasado': evento_pasado, 
+        'ha_comprado': ha_comprado, 
+        'is_favorited': is_favorited,
         'favorited_event_ids': _get_common_event_context(request),
+        # --- AGREGAR LAS VARIABLES FORMATEADAS AL CONTEXTO ---
+        'latitud_formateada': latitud_formateada,
+        'longitud_formateada': longitud_formateada,
+        # --- FIN DE AGREGAR LAS VARIABLES FORMATEADAS ---
     }
     return render(request, 'tickets/detalle_evento.html', context)
+
 
 @login_required
 def lista_eventos_pasados(request):

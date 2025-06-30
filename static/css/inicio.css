@@ -1,15 +1,15 @@
-/* static/css/inicio.css (Estilo Minimalista y Moderno) */
+/* static/css/inicio.css util(Estilo Minimalista y Moderno - CONSOLIDADO Y OPTIMIZADO PARA CONTRASTE - V3) */
 
 /* --- Variables de Diseño --- */
 :root {
     --hero-bg-color: #00acc1;
-    --hero-text-color: #ffffff;
+    --hero-text-color: #ffffff; /* Sigue siendo blanco para efectos y referencia, el color del texto lo pondremos más específico */
     --section-bg-color: #f8f9fa; /* Un gris muy claro para el fondo */
     --card-bg-color: #ffffff;
-    --text-primary: #212529;
-    --text-secondary: #6c757d;
-    --accent-color: #ff9800; /* Color de acento original */
-    --accent-dark-color: #e68900; /* Color de acento oscuro */
+    --text-primary: #212529; /* Negro/gris muy oscuro para texto principal */
+    --text-secondary: #6c757d; /* Gris para texto secundario */
+    --accent-color: #ff9800; /* Naranja de acento */
+    --accent-dark-color: #e68900; /* Naranja de acento oscuro */
     --border-color: #e9ecef;
     /* Variables de tu anterior CSS para eventos (ajustadas para consistencia) */
     --color-primario: #00BCD4; /* Turquesa */
@@ -20,6 +20,13 @@
     --color-texto-secundario: #666;
     --borde-radio: 8px;
     --sombra-media: 0 4px 15px rgba(0,0,0,0.08);
+
+    /* --- NUEVAS VARIABLES PARA EL HERO TEXTO Y BUSCADOR (CRÍTICAS PARA LA TRANSPARENCIA) --- */
+    --hero-content-text-color: #e0f2f7; /* Un gris azulado muy claro para el texto principal del hero/buscador */
+    --hero-content-text-color-rgb: 224, 242, 247; /* ¡IMPORTANTE! Componentes RGB para usar con rgba() */
+    --hero-search-border-color: rgba(224, 242, 247, 0.95); /* Borde casi blanco para buscador */
+    --hero-search-button-bg: rgba(224, 242, 247, 0.25); /* Fondo botón de buscador transparente */
+    --hero-search-button-hover-bg: rgba(224, 242, 247, 0.45); /* Fondo botón de buscador transparente al hover */
 }
 
 /* --- Clases para Animación con Scroll --- */
@@ -34,15 +41,33 @@
     transform: translateY(0);
 }
 
-/* --- Sección Principal (Hero) --- */
+/* --- Sección Principal (Hero) - OPTIMIZADO PARA RESALTAR Y COLOR DE TEXTO --- */
 .hero-section {
-    background: linear-gradient(45deg, #007c8a, var(--hero-bg-color));
-    color: var(--hero-text-color);
     padding: 100px 20px;
     text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 500px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.9) 100%); /* Degradado oscuro aún más fuerte */
+    z-index: 0; /* Asegura que el overlay esté debajo del contenido */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1; /* Asegura que el contenido esté sobre el overlay */
+    color: var(--hero-content-text-color) !important; /* Fuerza el color de texto del hero */
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hero-content h1 {
@@ -50,73 +75,94 @@
     font-weight: 700;
     margin-bottom: 0.5em;
     letter-spacing: -1px;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 1), 0 0 30px rgba(0, 172, 193, 0.7); /* Sombra fuerte y glow pronunciado */
 }
 
 .hero-content p {
     font-size: clamp(1rem, 2.5vw, 1.2rem);
     margin-bottom: 2em;
-    opacity: 0.9;
+    opacity: 0.95;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 172, 193, 0.5); /* Sombra más fuerte para mejor contraste */
 }
 
-/* --- Buscador con Efecto Agua Transparente --- */
+/* --- Buscador con Efecto Agua Transparente - OPTIMIZADO PARA RESALTAR Y ANIMACIÓN --- */
 .search-container {
     max-width: 600px;
     margin: 0 auto;
     position: relative;
+    z-index: 1;
 }
 
+/* --- CAMBIO: La animación ahora moverá la 'background-position' --- */
 @keyframes animated-water-border {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% { background-position: -100% 0; } /* El gradiente empieza completamente fuera por la izquierda */
+    100% { background-position: 100% 0; }  /* El gradiente termina completamente fuera por la derecha */
 }
 
 .search-form {
     display: flex;
     align-items: center;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+    background: rgba(var(--hero-content-text-color-rgb), 0.005) !important;
+    border: 2px solid rgba(var(--hero-content-text-color-rgb), 0.15) !important;
+    box-shadow: 
+        inset 0 0 0 1px rgba(223, 214, 214, 0.733),
+        0 0 15px rgba(var(--hero-content-text-color-rgb), 0.3), /* Brillo exterior sutil del borde */
+        0 8px 30px rgba(0, 0, 0, 0.25);
     border-radius: 50px;
     padding: 0;
     position: relative;
-    overflow: hidden;
+    overflow: hidden; /* Muy importante para que el efecto no se desborde */
+    backdrop-filter: blur(10px) saturate(200%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%);
 }
 
 .search-form::after {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: -50%;     /* Permite que el brillo se extienda verticalmente más allá de la barra */
+    left: 0;       /* --- CAMBIO: Alinea el ::after con el borde izquierdo del search-form --- */
+    width: 100%;   /* --- CAMBIO: Hace que el ::after tenga el mismo ancho que el search-form --- */
+    height: 200%;  /* Mantiene la extensión vertical para el efecto de "agua" */
+
+    /* --- CAMBIO: Gradiente de brillo del efecto de agua --- */
     background: linear-gradient(
         to right,
-        transparent 25%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 75%
+        transparent 0%, /* El gradiente comienza completamente transparente */
+        rgba(var(--hero-content-text-color-rgb), 0.4) 15%, /* Parte brillante: empieza un poco antes de la mitad */
+        rgba(var(--hero-content-text-color-rgb), 0.4) 25%, /* Parte brillante: termina un poco después de la mitad */
+        transparent 100% /* El gradiente termina completamente transparente */
     );
-    animation: animated-water-border 5s linear infinite;
+    /* --- CAMBIO: Hace que el fondo del gradiente sea el doble de ancho que el ::after --- */
+    background-size: 200% 100%; 
+    /* --- CAMBIO: Posición inicial del gradiente (fuera de la pantalla a la izquierda) --- */
+    background-position: -100% 0; /* Asegura que el gradiente empiece a la izquierda del ::after */
+
+    animation: animated-water-border 3s linear infinite; /* La animación ya está redefinida arriba */
     z-index: 1;
     pointer-events: none;
+    opacity: 1;
+    mix-blend-mode: screen;
 }
 
 .search-form input[type="text"] {
     flex-grow: 1;
     border: none;
-    background: transparent;
+    background: transparent !important;
     padding: 15px 25px;
-    font-size: 1em;
+    font-size: 1.1em;
     border-radius: 50px 0 0 50px;
     outline: none;
-    color: var(--hero-text-color);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    color: var(--hero-content-text-color) !important;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+    z-index: 2;
+    position: relative;
 }
 
 .search-form input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(var(--hero-content-text-color-rgb), 0.3) !important;
 }
 
 .search-form button {
@@ -125,26 +171,31 @@
     gap: 8px;
     padding: 15px 25px;
     border: none;
-    background-color: transparent;
-    color: white;
+    background-color: rgba(var(--hero-content-text-color-rgb), 0.05) !important;
+    color: var(--hero-content-text-color) !important;
     font-size: 1.1em;
     font-weight: 500;
     border-radius: 0 50px 50px 0;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border-left: 2px solid rgba(var(--hero-content-text-color-rgb), 0.25) !important;
+    z-index: 2;
+    position: relative;
 }
 
 .search-form button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(var(--hero-content-text-color-rgb), 0.15) !important;
+    box-shadow: 0 0 30px rgba(var(--hero-content-text-color-rgb), 0.7) !important;
 }
 
 .search-form button svg {
     width: 20px;
     height: 20px;
+    stroke: currentColor;
+    fill: none;
 }
 
-/* --- Contenido de la Página --- */
+/* --- Contenido de la Página (resto de estilos consolidados) --- */
 .page-content {
     background-color: var(--section-bg-color);
     padding: 80px 20px;
@@ -175,20 +226,25 @@
 
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    gap: 15px;
     justify-content: center;
 }
 
-/* --- Tarjetas de Categoría Rediseñadas --- */
 .category-card {
     background-color: var(--card-bg-color);
     border-radius: 12px;
-    padding: 30px;
+    padding: 15px;
     text-align: center;
     text-decoration: none;
     border: 1px solid var(--border-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    height: auto;
 }
 
 .category-card:hover {
@@ -197,38 +253,45 @@
 }
 
 .category-icon {
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 20px;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
     border-radius: 50%;
     background-color: #e7f5ff;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #007bff;
 }
 
 .category-icon svg {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
     stroke-width: 1.5;
+    stroke: var(--hero-bg-color) !important; /* ¡CAMBIO CLAVE! Forzado a turquesa */
+    fill: none;
+    transition: stroke 0.3s ease; /* Transición suave al color */
 }
 
 .category-name {
-    font-size: 1.2em;
+    font-size: 0.9em;
     font-weight: 600;
     color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* --- Estilos Generales para Tarjetas de Eventos (.event-card) --- */
-/* Estos estilos aplican a las tarjetas de "Próximos Eventos" */
 .event-card {
     background-color: var(--color-superficie);
     border-radius: var(--borde-radio);
     box-shadow: var(--sombra-media);
     overflow: hidden;
     display: flex;
-    flex-direction: column; /* Por defecto vertical */
+    flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid #eee;
     text-decoration: none;
@@ -240,23 +303,20 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-/* Enlace principal de la tarjeta (para Próximos Eventos) */
 .card-image-link {
     display: block;
     position: relative;
     width: 100%;
-    padding-bottom: 75%; /* Relación de aspecto 4:3 */
+    padding-bottom: 75%;
     overflow: hidden;
 }
 
-/* Contenedor de la imagen (para Próximos Eventos y Destacados) */
 .card-imagen-container {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 }
 
 .event-card .evento-img {
@@ -282,19 +342,28 @@
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .btn-favorito-card:hover { transform: scale(1.1); }
-.btn-favorito-card svg { fill: none; stroke: gray; transition: fill 0.2s ease, stroke 0.2s ease; }
-.btn-favorito-card svg.favorited { fill: red; stroke: red; }
 
+.btn-favorito-card svg { 
+    width: 20px;
+    height: 20px;
+    stroke: rgb(102, 97, 97);
+    fill: none;
+    stroke-width: 2px;
+    transition: all 0.2s ease-in-out;
+}
 
-/* Contenido por defecto (visible siempre en tarjetas de Próximos Eventos) */
-.card-content:not(.featured-overlay-content) { /* Aplica a .card-content que NO sean el overlay destacado */
+.btn-favorito-card svg.favorited { 
+    fill: red; 
+    stroke: red;
+}
+
+.card-content:not(.featured-overlay-content) {
     padding: 0.8rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
-/* Títulos y fechas generales (para Próximos Eventos) */
 .card-title {
     font-size: 1.15rem;
     font-weight: 600;
@@ -325,7 +394,6 @@
     color: var(--color-primario);
 }
 
-/* Botón de comprar general (para Próximos Eventos) */
 .btn-vender {
     margin-top: auto;
     width: 100%;
@@ -357,7 +425,6 @@
 
 .events-wrapper {
     display: grid;
-    /* CAMBIO AQUÍ: minmax(240px, 1fr) para que puedan caber 4 columnas */
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.5rem;
     justify-content: center;
@@ -419,37 +486,34 @@
     width: fit-content;
 }
 
-/* Estilos para las tarjetas destacadas (imagen grande + overlay al pasar el mouse) */
 .featured-events-section .featured-event-card {
-    min-width: 350px; /* Ancho un poco más grande para destacar */
-    height: 280px; /* Altura fija para consistencia en el carrusel */
-    position: relative; /* Esencial para posicionar el overlay y la estrella */
-    overflow: hidden; /* Asegura que el overlay no se desborde */
-    cursor: pointer; /* Indica que es interactiva */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2); /* Sombra más pronunciada */
-    border: none; /* Quitamos el borde para un look más limpio */
-    margin-right: 25px; /* Espacio entre tarjetas */
+    min-width: 350px;
+    height: 280px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    border: none;
+    margin-right: 25px;
     flex-shrink: 0;
 }
 
-/* El enlace primario de la tarjeta para que toda la tarjeta sea cliqueable */
 .featured-events-section .featured-event-card .card-primary-link {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Por debajo de la estrella y botón de favorito */
-    text-decoration: none; /* Elimina el subrayado por defecto */
-    color: inherit; /* Hereda el color del texto */
-    padding-bottom: 0; /* Anulamos el padding-bottom del .card-image-link */
+    z-index: 1;
+    text-decoration: none;
+    color: inherit;
+    padding-bottom: 0;
 }
 
-/* Contenedor de la imagen (dentro de la tarjeta destacada) */
 .featured-events-section .featured-event-card .card-imagen-container {
-    height: 100%; /* La imagen ocupa toda la altura de la tarjeta */
+    height: 100%;
     width: 100%;
-    border-radius: var(--borde-radio); /* Redondeo completo */
+    border-radius: var(--borde-radio);
 }
 
 .featured-events-section .featured-event-card .evento-img {
@@ -457,95 +521,85 @@
     height: 100%;
     object-fit: cover;
     border-radius: var(--borde-radio);
-    transition: transform 0.4s ease-out; /* Transición suave para el zoom */
+    transition: transform 0.4s ease-out;
 }
 
 .featured-events-section .featured-event-card:hover .evento-img {
-    transform: scale(1.1); /* Ligeramente más grande al pasar el mouse */
+    transform: scale(1.1);
 }
 
-/* Icono de estrella */
 .featured-star-icon {
     position: absolute;
     top: 10px;
     left: 10px;
-    z-index: 20; /* Asegura que esté por encima de todo */
-    background-color: var(--accent-color); /* Color de fondo para la estrella */
-    color: white; /* Color de la estrella */
+    z-index: 20;
+    background-color: var(--accent-color);
+    color: white;
     border-radius: 50%;
     width: 35px;
     height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2em; /* Tamaño del icono */
+    font-size: 1.2em;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 .featured-star-icon svg {
-    width: 20px; /* Tamaño del SVG dentro del círculo */
+    width: 20px;
     height: 20px;
-    fill: white; /* Rellena la estrella de blanco */
-    stroke: none; /* Sin borde */
+    fill: white;
+    stroke: none;
 }
 
-/* --- NUEVA REGLA --- */
-/* Ocultar el botón de favorito específicamente en las tarjetas destacadas */
 .featured-events-section .featured-event-card .btn-favorito-card {
     display: none;
 }
-/* --- FIN NUEVA REGLA --- */
 
-
-/* Contenido del overlay (información del evento que aparece al pasar el mouse) */
 .featured-overlay-content {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* Cubre toda la tarjeta */
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%, transparent 100%); /* Degradado oscuro */
+    height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
     display: flex;
     flex-direction: column;
-    justify-content: center; /* ¡Centra verticalmente el contenido! */
-    align-items: center; /* ¡Centra horizontalmente el contenido! */
-    text-align: center; /* Centra el texto */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     padding: 1.5rem;
     color: white;
-    box-sizing: border-box; /* Incluye padding en el tamaño */
+    box-sizing: border-box;
 
-    /* Estado inicial: Oculto */
-    transform: translateY(100%); /* Escondido debajo de la tarjeta */
+    transform: translateY(100%);
     opacity: 0;
-    transition: transform 0.4s ease-out, opacity 0.4s ease-out; /* Transición suave */
-    z-index: 15; /* Por encima de la imagen pero debajo de estrella/favorito */
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+    z-index: 15;
 }
 
-/* Efecto al pasar el mouse sobre la tarjeta destacada */
 .featured-events-section .featured-event-card:hover .featured-overlay-content {
-    transform: translateY(0); /* Se desliza hacia arriba */
-    opacity: 1; /* Se vuelve visible */
+    transform: translateY(0);
+    opacity: 1;
 }
 
-/* Estilos de texto dentro del overlay */
 .featured-overlay-content .card-title {
-    font-size: 1.8rem; /* Título más grande en el overlay */
+    font-size: 1.8rem;
     font-weight: 700;
-    color: white; /* Texto blanco */
+    color: white;
     margin-bottom: 0.5rem;
-    min-height: auto; /* Anula el min-height del título general */
+    min-height: auto;
 }
 
 .featured-overlay-content .card-date {
-    font-size: 1.1rem; /* Fecha más grande */
+    font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: 1.5rem;
-    justify-content: center; /* Centrar iconos y texto de fecha */
+    justify-content: center;
 }
 .featured-overlay-content .card-date svg {
-    color: white; /* Iconos blancos */
+    color: white;
 }
 
-/* Ocultar el botón de comprar dentro del overlay destacado */
 .featured-overlay-content .btn-vender {
     display: none;
 }
@@ -585,6 +639,8 @@
     .featured-star-icon svg {
         width: 18px;
         height: 18px;
+        fill: white;
+        stroke: none;
     }
 }
 
@@ -602,7 +658,7 @@
 }
 .tabs-container {
     max-width: 1200px;
-    margin: 80px auto 30px; /* Ajusta los márgenes según la estética de tu página */
+    margin: 80px auto 30px;
     text-align: center;
 }
 
@@ -610,7 +666,7 @@
     display: flex;
     justify-content: center;
     border-bottom: 2px solid var(--border-color);
-    margin-bottom: 30px; /* Espacio entre las pestañas y el contenido */
+    margin-bottom: 30px;
 }
 
 .tab-button {
@@ -623,7 +679,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    outline: none; /* Elimina el contorno de enfoque predeterminado */
+    outline: none;
 }
 
 .tab-button:hover {
@@ -633,45 +689,72 @@
 .tab-button.active {
     color: var(--color-primario);
     border-bottom: 3px solid var(--color-primario);
-    margin-bottom: -2px; /* Eleva ligeramente la pestaña activa para cubrir el borde inferior del contenedor */
+    margin-bottom: -2px;
 }
 
-/* Asegura que el section-title y filter-header dentro de la sección AJAX estén bien espaciados */
 #seccion-eventos .section-title,
 #seccion-eventos .filter-header {
-    margin-top: 0; /* Quita el margen superior extra cuando se carga por AJAX */
-    margin-bottom: 30px; /* Margen inferior estándar para los títulos de sección */
+    margin-top: 0;
+    margin-bottom: 30px;
 }
 .event-countdown {
     font-size: 0.9em;
     font-weight: 700;
-    color: var(--color-texto-principal); /* CAMBIO: Texto general del contador (días, hs, etc.) a negro/gris oscuro */
+    color: var(--color-texto-principal);
     margin-top: 10px;
     margin-bottom: 10px;
     text-align: center;
-    background-color: var(--card-bg-color); /* CAMBIO: Fondo blanco/neutro, como el de las tarjetas */
+    background-color: var(--card-bg-color);
     padding: 5px 10px;
     border-radius: 5px;
-    border: 1px solid #ccc; /* CAMBIO: Borde gris claro para un look neutral */
-    box-shadow: 0 2px 5px rgba(241, 50, 2, 0.932); /* CAMBIO: Sombra más neutra */
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(241, 50, 2, 0.932);
 }
 
 .event-countdown span {
-    font-size: 1.1em; /* Un poco más grande para los números */
+    font-size: 1.1em;
     font-weight: 800;
-    color: #E74C3C; /* CAMBIO: Los números en sí a un rojo vibrante pero no demasiado chillón */
+    color: #E74C3C;
 }
 
-/* Estilo para cuando el evento ya ha pasado o está en curso */
 .event-countdown.event-ended {
     color: var(--text-secondary);
     background-color: #f0f0f0;
     border-color: #ccc;
     font-style: italic;
-    box-shadow: none; /* Quitamos la sombra si el evento ya pasó */
+    box-shadow: none;
 }
 
-/* Asegura que el botón de comprar esté por debajo del contador */
 .card-content .btn-vender {
-    margin-top: auto; /* Mantiene el botón abajo */
+    margin-top: auto;
+}
+.btn-favorito-card .feather-heart {
+    width: 20px;
+    height: 20px;
+    stroke: rgb(102, 97, 97);
+    fill: none;
+    stroke-width: 2px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-favorito-card .feather-heart.favorited {
+    stroke: red;
+    fill: red;
+}
+.card-location {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.card-location svg {
+    width: 15px;
+    height: 15px;
+    color: #6c757d;
+    flex-shrink: 0;
 }

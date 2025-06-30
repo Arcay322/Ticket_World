@@ -4,9 +4,7 @@ from django.contrib import admin
 from django.urls import path, reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import format_html
-# Importa los modelos necesarios
 from .models import Categoria, Evento, Boleto, MetodoPago, Venta, DetalleVenta, Opinion, AdminNotification
-# Importa lo necesario para enviar notificaciones al usuario
 from usuarios.views import create_web_notification 
 from django.contrib.auth import get_user_model 
 
@@ -24,55 +22,68 @@ class MetodoPagoAdmin(admin.ModelAdmin):
 class BoletoInline(admin.TabularInline):
     model = Boleto
     extra = 1
+    readonly_fields = ('cantidad_vendida',) # Buena práctica hacer este campo de solo lectura aquí
 
-# --- ¡INICIO DE LA REORDENACIÓN! ---
-
-# Mover DetalleVentaInline AQUI, antes de VentaAdmin
 class DetalleVentaInline(admin.TabularInline):
     model = DetalleVenta
     extra = 0
     readonly_fields = ('boleto', 'cantidad', 'precio_unitario')
 
-
 @admin.register(Venta)
 class VentaAdmin(admin.ModelAdmin):
     list_display = ('id', 'usuario', 'fecha_compra', 'estado', 'total_bruto', 'comision_plataforma')
-    # --- ¡CAMBIO AQUÍ! AÑADIR 'usuario' al list_filter ---
     list_filter = ('estado', 'fecha_compra', 'usuario') 
     search_fields = ('id', 'usuario__username')
     readonly_fields = ('fecha_compra', 'total_bruto', 'comision_plataforma', 'ganancia_proveedor')
     inlines = [DetalleVentaInline]
 
-# --- ¡FIN DE LA REORDENACIÓN! ---
-
-
+# ==========================================================
+# === CLASE EVENTOADMIN MODIFICADA ===
+# ==========================================================
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'creado_por', 'fecha', 'categoria', 'aprobado', 'esta_activo', 'acciones_en_fila')
-    list_filter = ('aprobado', 'esta_activo', 'categoria', 'creado_por')
-    search_fields = ('nombre', 'lugar', 'creado_por__username')
+    # 1. Añadimos 'ciudad' a la lista para verla rápidamente
+    list_display = ('nombre', 'creado_por', 'fecha', 'ciudad', 'categoria', 'aprobado', 'esta_activo', 'acciones_en_fila')
+    list_filter = ('aprobado', 'esta_activo', 'categoria', 'creado_por', 'ciudad', 'pais')
+    
+    # 2. Actualizamos los campos de búsqueda con los nuevos nombres y campos
+    search_fields = ('nombre', 'lugar_nombre', 'ciudad', 'pais', 'creado_por__username')
+    
     ordering = ('-fecha',)
-    inlines = [BoletoInline] # BoletoInline también debe estar definida antes de EventoAdmin
+    inlines = [BoletoInline]
     actions = ['aprobar_eventos', 'rechazar_eventos', 'publicar_eventos', 'ocultar_eventos']
+
+    # 3. Usamos 'fieldsets' para organizar el formulario de edición
+    fieldsets = (
+        ('Información Principal', {
+            'fields': ('nombre', 'creado_por', 'descripcion', 'categoria', 'imagen_portada')
+        }),
+        ('Fecha y Hora', {
+            'fields': ('fecha',)
+        }),
+        ('Ubicación del Evento', {
+            'classes': ('collapse',), # Lo hacemos colapsable por si no se usa siempre
+            'fields': ('lugar_nombre', 'direccion', 'ciudad', 'pais', ('latitud', 'longitud'))
+        }),
+        ('Estado y Visibilidad', {
+            'fields': ('aprobado', 'esta_activo', 'es_destacado', 'esta_agotado')
+        }),
+    )
+    
+    # Hacemos que los campos automáticos sean de solo lectura
+    readonly_fields = ('esta_agotado',)
 
     @admin.action(description='Aprobar eventos seleccionados')
     def aprobar_eventos(self, request, queryset):
-        updated_count = queryset.update(aprobado=True) # Actualiza el campo 'aprobado' en la DB
-        
-        print(f'DEBUG_ADMIN_ACTION: Iniciando bulk approve. {updated_count} eventos actualizados en DB.') 
-        
+        updated_count = queryset.update(aprobado=True)
         for evento in queryset:
             if evento.creado_por:
-                print(f'DEBUG_ADMIN_ACTION: Llamando create_web_notification para {evento.creado_por.username} (Evento: {evento.nombre}).')
                 create_web_notification(
                     evento.creado_por, 
                     'evento_aprobado', 
                     f'¡Tu evento "{evento.nombre}" ha sido aprobado!', 
                     link=reverse('tickets:detalle_evento', args=[evento.id])
                 )
-            else:
-                print(f'DEBUG_ADMIN_ACTION: Evento "{evento.nombre}" no tiene creador. No se envía notificación a usuario.')
-
         self.message_user(request, f'{updated_count} eventos aprobados correctamente.')
 
     @admin.action(description='Rechazar eventos seleccionados')
@@ -110,8 +121,7 @@ class EventoAdmin(admin.ModelAdmin):
         evento = self.get_object(request, object_id)
         evento.aprobado = True
         evento.save() 
-        self.message_user(request, f'DEBUG_INLINE_APPROVE: Evento "{evento.nombre}" aprobado via botón individual.')
-        print(f'DEBUG_INLINE_APPROVE: Evento "{evento.nombre}" aprobado via botón individual. Enviando notif.') 
+        self.message_user(request, f'Evento "{evento.nombre}" aprobado via botón individual.')
 
         if evento.creado_por:
             create_web_notification(
@@ -120,9 +130,6 @@ class EventoAdmin(admin.ModelAdmin):
                 f'¡Tu evento "{evento.nombre}" ha sido aprobado!',
                 link=reverse('tickets:detalle_evento', args=[evento.id])
             )
-        else:
-            print(f'DEBUG_INLINE_APPROVE: Evento "{evento.nombre}" no tiene creador. No se envía notificación a usuario.')
-
         return HttpResponseRedirect(reverse('admin:tickets_evento_changelist'))
 
     def rechazar_evento_view(self, request, object_id):
@@ -152,11 +159,11 @@ class EventoAdmin(admin.ModelAdmin):
         return "Acción realizada"
         
     acciones_en_fila.short_description = 'Acciones Rápidas'
-    
+
+# El resto de tus clases Admin se quedan exactamente igual
 @admin.register(Opinion)
 class OpinionAdmin(admin.ModelAdmin):
     list_display = ('evento', 'usuario', 'calificacion', 'estado')
-    # --- ¡CAMBIO AQUÍ! AÑADIR 'usuario' al list_filter ---
     list_filter = ('estado', 'calificacion', 'evento', 'usuario')
     search_fields = ('comentario', 'usuario__username', 'evento__nombre')
     actions = ['aprobar_opiniones', 'rechazar_opiniones']
@@ -169,7 +176,6 @@ class OpinionAdmin(admin.ModelAdmin):
     def rechazar_opiniones(self, request, queryset):
         queryset.update(estado='rechazada')
 
-# --- REGISTRO DEL NUEVO MODELO DE NOTIFICACIÓN DEL ADMIN ---
 @admin.register(AdminNotification)
 class AdminNotificationAdmin(admin.ModelAdmin):
     list_display = ('message', 'recipient', 'type', 'read', 'created_at', 'link')
@@ -184,7 +190,6 @@ class AdminNotificationAdmin(admin.ModelAdmin):
             return qs.filter(recipient=request.user)
         return qs.none() 
 
-
     @admin.action(description='Marcar seleccionadas como leídas')
     def mark_as_read(self, request, queryset):
         queryset = queryset.filter(recipient=request.user)
@@ -193,7 +198,6 @@ class AdminNotificationAdmin(admin.ModelAdmin):
 
     @admin.action(description='Marcar seleccionadas como no leídas')
     def mark_as_unread(self, request, queryset):
-        queryset = queryset.filter(recipient=request.user)
         queryset = queryset.filter(recipient=request.user)
         updated = queryset.update(read=False)
         self.message_user(request, f"{updated} notificaciones marcadas como no leídas.")

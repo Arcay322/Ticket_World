@@ -24,6 +24,7 @@ from django.db.models import Prefetch
 from django.http import JsonResponse, HttpResponse
 from django import forms
 from django.shortcuts import render
+from django.http import HttpRequest
 
 # Importamos los formularios de usuarios
 from .forms import RegistroForm, LoginForm, SolicitudProveedorForm, ReenviarActivacionForm, UserProfileUpdateForm
@@ -503,84 +504,132 @@ def get_unread_notifications_count(request):
 # -------------------------------------------------------------------
 # VISTA 'INICIO' (Página principal de eventos con lógica de tabs)
 # -------------------------------------------------------------------
-def inicio(request):
+def inicio(request: HttpRequest):
     """
     Muestra la página de inicio con eventos futuros, destacados y lógica de paginación/búsqueda.
     Maneja la paginación y el cambio de pestañas (tabs) con AJAX.
     """
-    categorias = Categoria.objects.all()
-    categoria_filtrada = None
+    categorias = Categoria.objects.all() 
+    categoria_filtrada = None 
     
-    current_tab = request.GET.get('tab', 'proximos')
+    current_tab = request.GET.get('tab', 'proximos') 
     categoria_id = request.GET.get('categoria')
-    query = request.GET.get('q')
+    search_query = request.GET.get('q') 
 
-    eventos_base_queryset = Evento.objects.filter(aprobado=True)
+    # Queryset base para los eventos principales (paginados)
+    # Siempre empezamos con eventos aprobados y activos
+    eventos_principales_queryset = Evento.objects.filter(aprobado=True, esta_activo=True)
 
-    if categoria_id:
-        eventos_base_queryset = eventos_base_queryset.filter(categoria__id=categoria_id)
-        categoria_filtrada = get_object_or_404(Categoria, id=categoria_id)
+    section_title = "Eventos" 
 
-    if query:
-        eventos_base_queryset = eventos_base_queryset.filter(
-            Q(nombre__icontains=query) |
-            Q(descripcion__icontains=query) |
-            Q(lugar__icontains=query) |
-            Q(categoria__nombre__icontains=query) |
-            Q(creado_por__username__icontains=query)
-        )
+    # ===================================================================
+    # === APLICACIÓN DE FILTROS EN CASCADA (BÚSQUEDA > CATEGORÍA > PESTAÑA) ===
+    # ===================================================================
 
-    if current_tab == 'proximos':
-        eventos_list = eventos_base_queryset.filter(fecha__gte=timezone.now()).order_by('fecha')
-        section_title = "Próximos Eventos"
-    elif current_tab == 'nuevos':
-        treinta_dias_atras = timezone.now() - timedelta(days=30)
-        eventos_list = eventos_base_queryset.filter(
-            creado_en__gte=treinta_dias_atras,
-            fecha__gte=timezone.now()
-        ).order_by('-creado_en')
-        section_title = "Nuevos Eventos"
+    # 1. Aplicar filtro de búsqueda si existe
+    if search_query:
+        eventos_principales_queryset = eventos_principales_queryset.filter(
+            Q(nombre__icontains=search_query) | 
+            Q(descripcion__icontains=search_query) | 
+            Q(lugar_nombre__icontains=search_query) | 
+            Q(direccion__icontains=search_query) | 
+            Q(ciudad__icontains=search_query) | 
+            Q(pais__icontains=search_query) | 
+            Q(categoria__nombre__icontains=search_query) |
+            Q(creado_por__username__icontains=search_query)
+        ).distinct() 
+        
+        section_title = f"Resultados para '{search_query}'"
+        current_tab = None # Desactivar la pestaña si hay búsqueda
+
+    # 2. Aplicar filtro de categoría si existe (SOLO si no hay búsqueda activa)
+    elif categoria_id: 
+        try:
+            categoria_filtrada = get_object_or_404(Categoria, id=categoria_id)
+            eventos_principales_queryset = eventos_principales_queryset.filter(categoria=categoria_filtrada)
+            section_title = f"Eventos en: {categoria_filtrada.nombre}"
+            current_tab = None # Desactivar la pestaña si hay filtro de categoría
+        except Exception: 
+            pass 
+
+    # 3. Aplicar lógica de pestañas (SOLO si no hay búsqueda ni filtro de categoría activos)
+    if search_query is None and categoria_id is None: 
+        if current_tab == 'nuevos':
+            treinta_dias_atras = timezone.now() - timedelta(days=30)
+            eventos_principales_queryset = eventos_principales_queryset.filter(
+                creado_en__gte=treinta_dias_atras,
+                fecha__gte=timezone.now() 
+            ).order_by('-creado_en')
+            section_title = "Nuevos Eventos"
+        else: # 'proximos' es el valor por defecto
+            eventos_principales_queryset = eventos_principales_queryset.filter(fecha__gte=timezone.now()).order_by('fecha')
+            section_title = "Próximos Eventos"
     else:
-        eventos_list = eventos_base_queryset.filter(fecha__gte=timezone.now()).order_by('fecha')
-        section_title = "Próximos Eventos"
+        # Si hay búsqueda o filtro de categoría, ordenamos por fecha por defecto para la sección principal
+        eventos_principales_queryset = eventos_principales_queryset.order_by('fecha')
 
-    siete_dias_desde_ahora = timezone.now() + timedelta(days=7)
-    eventos_cerca_de_ocurrir = Evento.objects.filter(
-        aprobado=True,
-        fecha__gt=timezone.now(),
-        fecha__lte=siete_dias_desde_ahora
-    ).order_by('fecha')[:4]
 
-    eventos_destacados = Evento.objects.filter(
-        aprobado=True,
-        es_destacado=True,
-        fecha__gte=timezone.now()
-    ).order_by('fecha')[:8]
-
-    paginator = Paginator(eventos_list, 8)
+    # Paginación para los eventos principales
+    paginator = Paginator(eventos_principales_queryset, 8) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    favorited_event_ids = _get_common_event_context(request)
+    # ===================================================================
+    # === CONSULTAS PARA SECCIONES ESPECÍFICAS (NO AFECTADAS POR BÚSQUEDA/CATEGORÍA/PESTAÑA) ===
+    # ===================================================================
+
+    # Eventos "Cerca de Ocurrir"
+    eventos_cerca_de_ocurrir = Evento.objects.filter(
+        aprobado=True,
+        esta_activo=True,
+        fecha__gt=timezone.now(), 
+        fecha__lte=timezone.now() + timedelta(days=7) 
+    ).order_by('fecha')[:4] 
+
+    # Eventos Destacados
+    eventos_destacados = Evento.objects.filter(
+        aprobado=True,
+        esta_activo=True,
+        es_destacado=True,
+        fecha__gte=timezone.now() 
+    ).order_by('?')[:8] 
+
+    # ===================================================================
+    # === CONTEXTO PARA EL TEMPLATE ===
+    # ===================================================================
+
+    favorited_event_ids = []
+    if request.user.is_authenticated:
+        favorited_event_ids = Evento.objects.filter(
+            favorited_by=request.user
+        ).values_list('id', flat=True)
+
 
     context = {
-        'categorias': categorias,
-        'page_obj': page_obj,
-        'categoria_filtrada': categoria_filtrada,
-        'search_query': query,
-        'favorited_event_ids': favorited_event_ids,
-        'eventos_destacados': eventos_destacados,
-        'eventos_cerca_de_ocurrir': eventos_cerca_de_ocurrir,
-        'current_tab': current_tab,
-        'section_title': section_title,
+        'categorias': categorias, 
+        'page_obj': page_obj, 
+        'categoria_filtrada': categoria_filtrada, 
+        'search_query': search_query, 
+        'favorited_event_ids': list(favorited_event_ids), 
+        'eventos_destacados': eventos_destacados, 
+        'eventos_cerca_de_ocurrir': eventos_cerca_de_ocurrir, 
+        'current_tab': current_tab, 
+        'section_title': section_title, 
     }
 
+    # ===================================================================
+    # === RESPUESTA AJAX O RENDERIZADO COMPLETO ===
+    # ===================================================================
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Si es una petición AJAX (desde paginación o cambio de pestaña),
+        # solo renderiza el parcial de la lista de eventos.
         html_content = render_to_string(
-            'tickets/event_list_partial.html',
+            'tickets/event_list_partial.html', # <--- RUTA CORREGIDA AQUÍ
             context,
             request=request
         )
         return HttpResponse(html_content)
     
+    # Si no es AJAX (primera carga, búsqueda, filtro de categoría),
+    # renderiza la página completa.
     return render(request, 'usuarios/inicio.html', context)

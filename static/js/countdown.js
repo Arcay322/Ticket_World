@@ -73,7 +73,6 @@ function updateCountdown(element) {
 }
 
 // Llama a la función de inicialización cuando el DOM esté completamente cargado.
-document.addEventListener('DOMContentLoaded', initializeCountdowns);
 
 // *** INTEGRACIÓN CON AJAX (IMPORTANTE) ***
 // Cuando el contenido del DOM cambia debido a AJAX (paginación o cambio de pestaña),

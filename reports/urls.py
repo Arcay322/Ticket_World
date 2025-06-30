@@ -11,4 +11,6 @@ urlpatterns = [
     path('', views.reports_dashboard_view, name='index'), # 'index' es el nombre canónico para la raíz de una app
     # Puedes añadir más URLs de reportes específicos aquí en el futuro
     # path('ventas/', views.sales_report_detail, name='sales_report'),
+    path('export/ventas/', views.export_ventas_csv, name='export_ventas_csv'),
+    path('export/proveedores/', views.export_proveedores_csv, name='export_proveedores_csv'),
 ]

@@ -1,0 +1,39 @@
+/* static/css/map_form.css */
+
+#map {
+    height: 400px; /* Altura del mapa */
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    border-radius: 8px; /* Opcional: bordes redondeados */
+}
+.map-search-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+#address-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#search-map-btn {
+    padding: 10px 15px;
+    background-color: var(--primary-color, #007bff); /* Usa una variable CSS si la tienes */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+#search-map-btn:hover {
+    background-color: var(--primary-dark-color, #0056b3);
+}
+#current-coords {
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-style: italic;
+    color: #555;
+    font-size: 0.9em;
+}

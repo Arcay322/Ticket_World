@@ -26,28 +26,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
-    /* ELIMINA O AJUSTA ESTA LÍNEA CLAVE */
-    /* margin-top: -100px; */ /* Si lo que quieres es que todo el contenido baje, este es el culpable. */
-
-    /* Si quieres que baje y que el efecto de superposición sobre la imagen de fondo
-       (la del estadio, si hay) desaparezca, simplemente pon: */
-    margin-top: 2rem; /* O cualquier valor positivo para un margen normal */
-
-    /* Si quieres que siga superponiéndose a la imagen de fondo, pero que todo el bloque
-       baje más desde el header, podemos aumentar el padding-top del contenedor principal
-       que envuelve todo el 'body' del evento, o darle un margin-top al propio 'body' */
-    
-    /* Opción recomendada para empujar todo el contenido hacia abajo, manteniendo el layout general */
-    /* Calcula: 90px (altura header) + 20px (margen deseado) = 110px.
-       Tu .evento-fondo-global ya tiene padding-top: 90px.
-       Podemos añadir un margin-top al evento-body para que se separe aún más. */
     margin-top: 20px; /* Margen debajo del header, si la imagen de fondo no te importa que se vea */
-
-    /* Si insistes en la superposición de la imagen y que el texto quede muy arriba,
-       pero que baje el contenido, entonces necesitas jugar con el padding-top
-       del propio .evento-body. */
-    /* padding-top: 110px; */ /* Esto empujaría el contenido *dentro* del body hacia abajo */
-
     padding: 0;
     position: relative;
     z-index: 10;
@@ -324,7 +303,7 @@
     font-size: 0.95rem;
 }
 
-/* Estilos para las estrellas mostradas (promedio y por opiniÃ³n) */
+/* Estilos para las estrellas mostradas (promedio y por opinión) */
 .estrellas-promedio, .opinion-calificacion {
     color: var(--color-acento);
     font-size: 1.8rem;
@@ -381,7 +360,7 @@
     line-height: 1.6;
 }
 
-/* --- ESTILOS PARA EL FORMULARIO DE OPINIÃ“N (Estrellas reales con widget personalizado) --- */
+/* --- ESTILOS PARA EL FORMULARIO DE OPINIÓN (Estrellas reales con widget personalizado) --- */
 .formulario-opinion-card {
     background-color: var(--color-superficie);
     padding: 2.5rem;
@@ -405,14 +384,14 @@
     gap: 1.5rem;
 }
 
-/* Estilos para el pÃ¡rrafo que envuelve la etiqueta principal de calificaciÃ³n (si aplica) */
+/* Estilos para el párrafo que envuelve la etiqueta principal de calificación (si aplica) */
 .form-opinion p {
     margin: 0;
     display: flex;
     flex-direction: column;
 }
 
-/* Estilos para la etiqueta principal del campo (ej. "Tu CalificaciÃ³n (1-5 estrellas):") */
+/* Estilos para la etiqueta principal del campo (ej. "Tu Calificación (1-5 estrellas):") */
 .form-opinion label {
     font-size: 1rem;
     font-weight: 600;
@@ -420,18 +399,18 @@
     margin-bottom: 0.5rem;
 }
 
-/* Contenedor general para las opciones de calificaciÃ³n por estrellas */
+/* Contenedor general para las opciones de calificación por estrellas */
 /* Asumimos que el widget genera un div contenedor principal para las opciones de rating (ej. <div id="id_calificacion">) */
 .form-opinion #id_calificacion {
-    display: flex; /* Para que las estrellas estÃ©n en lÃ­nea */
+    display: flex; /* Para que las estrellas estén en línea */
     gap: 0.75rem; /* Espacio entre estrellas */
     justify-content: flex-start; /* Alinea a la izquierda */
     flex-wrap: wrap; /* Permite que se envuelvan */
     margin-top: 0.5rem; /* Espacio con la etiqueta superior */
 }
 
-/* Estilos para cada 'div' individual que envuelve una opciÃ³n de estrella (generado por el widget) */
-/* La clase 'star-rating-option' deberÃ­a ser aÃ±adida por tu widget en star_rating_widget.html */
+/* Estilos para cada 'div' individual que envuelve una opción de estrella (generado por el widget) */
+/* La clase 'star-rating-option' debería ser añadida por tu widget en star_rating_widget.html */
 .form-opinion #id_calificacion > div.star-rating-option {
     position: relative; /* Necesario para posicionar el input radio */
     display: flex; /* Para alinear el radio oculto y la estrella visible */
@@ -450,27 +429,27 @@
     pointer-events: none;
 }
 
-/* Estilos para la LABEL asociada a cada INPUT RADIO (el botÃ³n visual) */
-/* El color y tamaÃ±o de la estrella ahora se aplica al span.star-icon dentro de esta label */
+/* Estilos para la LABEL asociada a cada INPUT RADIO (el botón visual) */
+/* El color y tamaño de la estrella ahora se aplica al span.star-icon dentro de esta label */
 .form-opinion #id_calificacion label {
     cursor: pointer;
     transition: color 0.2s ease, transform 0.1s ease;
-    padding: 0 3px; /* PequeÃ±o padding alrededor de la estrella */
+    padding: 0 3px; /* Pequeño padding alrededor de la estrella */
     line-height: 1; /* Para que la estrella no tenga espacio extra vertical */
 }
 
-/* Estilos para el SPAN que contiene el carÃ¡cter de estrella */
+/* Estilos para el SPAN que contiene el carácter de estrella */
 .form-opinion #id_calificacion label .star-icon {
-    font-size: 2.2rem; /* TamaÃ±o de la estrella */
+    font-size: 2.2rem; /* Tamaño de la estrella */
     color: #ccc; /* Color por defecto (gris) */
-    display: inline-block; /* Asegurar que sea un bloque en lÃ­nea para el tamaÃ±o */
+    display: inline-block; /* Asegurar que sea un bloque en línea para el tamaño */
 }
 
-/* Efecto al pasar el ratÃ³n (hover) y al seleccionar (checked) */
+/* Efecto al pasar el ratón (hover) y al seleccionar (checked) */
 /* Ahora, el hover/checked afecta el color del span.star-icon directamente */
 .form-opinion #id_calificacion label:hover .star-icon,
 .form-opinion #id_calificacion input[type="radio"]:checked + label .star-icon {
-    color: gold !important; /* Usamos !important para depuraciÃ³n de especificidad */
+    color: gold !important; /* Usamos !important para depuración de especificidad */
 }
 
 
@@ -495,7 +474,7 @@
     outline: none;
 }
 
-/* Estilo para el botÃ³n de enviar opiniÃ³n */
+/* Estilo para el botón de enviar opinión */
 .btn-submit-opinion {
     width: auto;
     padding: 1rem 2.5rem;
@@ -518,7 +497,34 @@
     box-shadow: 0 6px 15px rgba(255, 152, 0, 0.5);
 }
 
-/* --- Responsive Adjustments (ContinuaciÃ³n) --- */
+/* --- NUEVOS ESTILOS PARA EL MAPA EN detalle_evento.html --- */
+.map-embed-container {
+    margin-top: 2rem; /* Espacio superior para el mapa */
+    margin-bottom: 2rem; /* Espacio inferior para el mapa */
+    box-shadow: var(--sombra-media); /* Misma sombra que otras tarjetas */
+    border-radius: var(--borde-radio); /* Mismos bordes redondeados */
+    overflow: hidden; /* Asegura que el iframe se ajuste al border-radius */
+    border: 1px solid #eee; /* Borde sutil */
+}
+.map-embed-container iframe {
+    display: block; /* Para eliminar cualquier espacio extra debajo del iframe */
+    width: 100%;
+    height: 450px; /* Altura deseada para el mapa */
+    border: 0; /* Quita el borde por defecto del iframe */
+}
+.map-link {
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: var(--color-primario);
+    text-decoration: none;
+}
+.map-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Adjustments (Continuación) --- */
 
 @media (max-width: 768px) {
     .formulario-opinion-card {
@@ -536,7 +542,7 @@
     .form-opinion p:first-of-type label {
         font-size: 0.95rem;
     }
-    .form-opinion #id_calificacion label .star-icon { /* Ajuste de tamaÃ±o para estrellas en mÃ³vil */
+    .form-opinion #id_calificacion label .star-icon { /* Ajuste de tamaño para estrellas en móvil */
         font-size: 1.8rem;
     }
     .btn-submit-opinion {

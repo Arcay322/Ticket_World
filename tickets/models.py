@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Sum, F
 from decimal import Decimal
-from datetime import timedelta # <-- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
+from datetime import timedelta
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=255, unique=True, verbose_name="Nombre de la Categoría")
@@ -26,9 +26,66 @@ class Evento(models.Model):
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción Detallada")
     fecha = models.DateTimeField(verbose_name="Fecha y Hora del Evento")
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name='eventos', verbose_name="Categoría")
-    lugar = models.CharField(max_length=250, blank=True, null=True, verbose_name="Lugar del Evento")
-    direccion = models.CharField(max_length=500, blank=True, null=True, verbose_name="Dirección Completa")
     imagen_portada = models.ImageField(upload_to='eventos/', blank=True, null=True, verbose_name="Imagen de Portada")
+
+    # ===================================================================
+    # === CAMPOS DE UBICACIÓN PARA INTEGRACIÓN CON MAPAS ===
+    # ===================================================================
+    lugar_nombre = models.CharField(
+        max_length=200,
+        verbose_name="Nombre del Lugar o Recinto",
+        help_text="Ej: Estadio Nacional, Centro de Convenciones",
+        blank=True,
+        null=True
+    )
+    direccion = models.CharField(
+        max_length=255,
+        verbose_name="Dirección Completa",
+        help_text="Ej: Av. José Díaz s/n, Cercado de Lima",
+        blank=True,
+        null=True
+    )
+    ciudad = models.CharField(
+        max_length=100,
+        verbose_name="Ciudad",
+        help_text="Ej: Lima, Arequipa, Bogotá",
+        blank=True,
+        null=True
+    )
+    pais = models.CharField(
+        max_length=100,
+        verbose_name="País",
+        help_text="Ej: Perú, Colombia, Argentina",
+        blank=True,
+        null=True
+    )
+    latitud = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        verbose_name="Latitud",
+        help_text="Coordenada geográfica de latitud para el mapa (ej: -12.0464)."
+    )
+    longitud = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        verbose_name="Longitud",
+        help_text="Coordenada geográfica de longitud para el mapa (ej: -77.0428)."
+    )
+    mapa_enlace_embed = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Enlace de Mapa Incrustado",
+        help_text="URL generada para incrustar el mapa de la ubicación del evento (iframe)."
+    )
+    # ===================================================================
+    # === FIN DE CAMPOS DE UBICACIÓN ===
+    # ===================================================================
+
     aprobado = models.BooleanField(default=False, verbose_name="Aprobado por Admin", help_text="Indica si el evento ha sido revisado y aprobado por un administrador.")
     esta_activo = models.BooleanField(default=True, verbose_name="Activo y Visible", help_text="Controla si el evento está visible en el sitio (aunque esté aprobado).")
     esta_agotado = models.BooleanField(default=False, verbose_name="Boletos Agotados", help_text="Se marca automáticamente si no quedan boletos disponibles.")
@@ -40,22 +97,19 @@ class Evento(models.Model):
         verbose_name = "Evento"
         verbose_name_plural = "Eventos"
         ordering = ['fecha']
-        constraints = [ models.UniqueConstraint(fields=['nombre', 'fecha'], name='evento_unico_por_nombre_y_fecha') ]
+        constraints = [
+            models.UniqueConstraint(fields=['nombre', 'fecha'], name='evento_unico_por_nombre_y_fecha')
+        ]
 
     def __str__(self):
         return f"{self.nombre} ({self.categoria.nombre})"
 
     @property
     def es_futuro(self):
-        """Devuelve True si el evento aún no ha pasado."""
         return self.fecha > timezone.now()
 
     @property
     def show_countdown(self):
-        """
-        Devuelve True si el evento es futuro Y está programado para ocurrir
-        dentro del próximo mes (30 días), para mostrar el contador.
-        """
         now = timezone.now()
         one_month_from_now = now + timedelta(days=30)
         return self.fecha > now and self.fecha <= one_month_from_now
@@ -130,11 +184,9 @@ class Venta(models.Model):
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT, related_name='ventas', verbose_name="Método de Pago")
     fecha_compra = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Compra")
     
-    # --- INICIO DE CAMPOS MODIFICADOS ---
     total_bruto = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Total Bruto de la Venta")
     comision_plataforma = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Comisión de la Plataforma")
     ganancia_proveedor = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Ganancia para el Proveedor")
-    # --- FIN DE CAMPOS MODIFICADOS ---
 
     estado = models.CharField(max_length=20, choices=ESTADO_VENTA_CHOICES, default='pendiente', verbose_name="Estado de la Venta")
     actualizado_en = models.DateTimeField(auto_now=True)
@@ -146,8 +198,6 @@ class Venta(models.Model):
 
     def __str__(self):
         return f"Venta #{self.pk} - {self.usuario.username} - {self.total_bruto} ({self.get_estado_display()})"
-    
-    # El método calcular_total_venta se elimina porque la lógica ahora vive en la vista para mayor seguridad.
 
 class DetalleVenta(models.Model):
     boleto_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -186,17 +236,16 @@ class Opinion(models.Model):
 
     def __str__(self):
         return f"Opinión de {self.usuario.username} sobre {self.evento.nombre} (Calificación: {self.calificacion})"
+
 class AdminNotification(models.Model):
-    # Destinatario: Un superusuario
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='admin_notifications', # Nuevo related_name para no chocar
+        related_name='admin_notifications', 
         verbose_name="Destinatario Admin",
-        limit_choices_to={'is_superuser': True} # Solo superusuarios como destinatarios
+        limit_choices_to={'is_superuser': True}
     )
 
-    # Tipo de notificación
     NOTIFICATION_TYPES = [
         ('aprobacion_evento', 'Aprobación de Evento'),
         ('solicitud_proveedor', 'Solicitud de Proveedor'),
@@ -205,12 +254,8 @@ class AdminNotification(models.Model):
         ('general', 'General Admin'),
     ]
     type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='general', verbose_name="Tipo")
-
     message = models.TextField(verbose_name="Mensaje")
-
-    # Enlace opcional a la página del admin relevante
     link = models.URLField(max_length=500, blank=True, null=True, verbose_name="Enlace Admin")
-
     read = models.BooleanField(default=False, verbose_name="Leída")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
 

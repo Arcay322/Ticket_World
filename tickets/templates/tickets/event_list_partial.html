@@ -1,9 +1,5 @@
 {# tickets/templates/tickets/event_list_partial.html #}
-{# Este archivo contiene el HTML de la lista de eventos y paginación para cargar con AJAX #}
-{% load static %}
-{% load tz %} {# Asegúrate de tener esto cargado si usas el filtro |tz #}
 
-{# Título de la sección de eventos (puede variar según filtros/búsqueda) #}
 {% if categoria_filtrada %}
     <div class="filter-header">
         <h2 class="section-title">Eventos en: {{ categoria_filtrada.nombre }}</h2>
@@ -15,10 +11,9 @@
         <a href="{% url 'usuarios:inicio' %}?scroll_to=events" class="clear-filter-link">Quitar Búsqueda</a>
     </div>
 {% else %}
-    <h2 class="section-title">{{ section_title }}</h2> {# Usamos el título dinámico de la vista #}
+    <h2 class="section-title">{{ section_title }}</h2>
 {% endif %}
 
-{# Contenedor de las tarjetas de eventos #}
 <div class="events-wrapper">
     {% for evento in page_obj %}
         <div class="event-card">
@@ -32,7 +27,7 @@
                     {% if request.user.is_authenticated %}
                         <button class="btn-favorito-card" data-evento-id="{{ evento.id }}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart {% if evento.id in favorited_event_ids %}favorited{% endif %}">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 106-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
                         </button>
                     {% endif %}
@@ -45,7 +40,6 @@
                     <span>{{ evento.fecha|date:"D, d M - H:i" }}h</span>
                 </p>
 
-                {# --- CAMBIO AQUÍ: Usar la nueva propiedad show_countdown --- #}
                 {% if evento.show_countdown %}
                 <div class="event-countdown" data-event-date="{{ evento.fecha|date:'c' }}">
                     <span class="countdown-days"></span> días
@@ -54,7 +48,6 @@
                     <span class="countdown-seconds"></span> seg
                 </div>
                 {% endif %}
-                {# --- FIN CAMBIO --- #}
 
                 <a href="{% url 'tickets:detalle_evento' evento.id %}" class="btn-vender">Comprar</a>
             </div>
