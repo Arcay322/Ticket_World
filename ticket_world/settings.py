@@ -144,6 +144,7 @@ if 'USE_GCS' in os.environ:
     DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
+    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     
     # La URL de los medios se construye a partir del nombre del bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
@@ -324,6 +325,7 @@ if 'USE_GCS' in os.environ:
     DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
+    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     
     # La URL de los medios se construye a partir del nombre del bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
