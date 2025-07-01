@@ -253,7 +253,7 @@ def actualizar_carrito_view(request):
                 if boleto_id_str in boletos:
                     boleto_obj = Boleto.objects.get(id=boleto_id_str)
                     if cantidad > boleto_obj.cantidad_restante:
-                        return JsonResponse({'status', 'error', 'message': f'Stock insuficiente. Solo quedan {boleto_obj.cantidad_restante} boletos.'}, status=400)
+                        return JsonResponse({'status': 'error', 'message': f'Stock insuficiente. Solo quedan {boleto_obj.cantidad_restante} boletos.'}, status=400)
                     if cantidad > 0:
                         boletos[boleto_id_str] = cantidad
                     else:
