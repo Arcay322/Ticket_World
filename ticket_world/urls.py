@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 from usuarios import views as usuarios_views
 
 urlpatterns = [
@@ -20,6 +21,7 @@ urlpatterns = [
     # Your other app URLs
     path('usuarios/', include('usuarios.urls')),
     path('tickets/', include('tickets.urls')),
+    path('', RedirectView.as_view(url='/usuarios/login/', permanent=True)), # Redirige la raíz a la página de login
 ]
 
 # These lines are crucial for serving MEDIA and STATIC files in development mode.
