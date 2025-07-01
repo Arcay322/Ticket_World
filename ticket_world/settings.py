@@ -51,9 +51,7 @@ INSTALLED_APPS = [
     'usuarios', # Tu app de usuarios
     'tickets',  # Tu app de tickets
     'reports', # Removido anteriormente
-
-    # Django Debug Toolbar
-    'debug_toolbar', # Reactivado para diagnóstico
+    
 ]
 
 MIDDLEWARE = [
@@ -64,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware', # Reactivado para diagnóstico
+     # Reactivado para diagnóstico
 ]
 
 ROOT_URLCONF = 'ticket_world.urls'
