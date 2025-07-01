@@ -141,7 +141,7 @@ if 'USE_GCS' in os.environ:
     print(">>> USANDO CONFIGURACIÓN DE GOOGLE CLOUD STORAGE <<<")
     print("-----------------------------------------")
     # Configuración para Google Cloud Storage
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
     
@@ -321,7 +321,7 @@ MAPS_API_KEY = os.getenv('MAPS_API_KEY')
 # --- CONFIGURACIÓN DE ALMACENAMIENTO EN LA NUBE (SOLO PARA PRODUCCIÓN) ---
 if 'USE_GCS' in os.environ:
     # Configuración para Google Cloud Storage
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
     
