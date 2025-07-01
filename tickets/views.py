@@ -377,36 +377,53 @@ def crear_evento(request):
         return redirect('usuarios:inicio')
         
     if request.method == 'POST':
+        print("--- DEBUG: Recibida una solicitud POST para crear evento ---")
         form = EventoForm(request.POST, request.FILES)
         formset = BoletoFormSetCreate(request.POST, request.FILES, prefix='boletos')
         
+        print(f"--- DEBUG: Archivos en la solicitud: {request.FILES} ---")
+
         if form.is_valid() and formset.is_valid():
-            precio_general = None
-            conadis_form = None
+            print("--- DEBUG: Formulario y formset son VÁLIDOS ---")
+            try:
+                precio_general = None
+                conadis_form = None
 
-            for form_individual, cleaned_data in zip(formset.forms, formset.cleaned_data):
-                tipo_boleto = cleaned_data.get('tipo')
-                
-                if tipo_boleto == 'general':
-                    precio_general = cleaned_data.get('precio')
-                
-                if tipo_boleto == 'conadis':
-                    conadis_form = form_individual
+                for form_individual, cleaned_data in zip(formset.forms, formset.cleaned_data):
+                    tipo_boleto = cleaned_data.get('tipo')
+                    
+                    if tipo_boleto == 'general':
+                        precio_general = cleaned_data.get('precio')
+                    
+                    if tipo_boleto == 'conadis':
+                        conadis_form = form_individual
 
-            if precio_general is not None and conadis_form is not None:
-                precio_conadis_calculado = precio_general * Decimal('0.80')
-                conadis_form.instance.precio = precio_conadis_calculado
-            
-            with transaction.atomic():
-                evento = form.save(commit=False)
-                evento.creado_por = request.user
-                evento.save()
+                if precio_general is not None and conadis_form is not None:
+                    precio_conadis_calculado = precio_general * Decimal('0.80')
+                    conadis_form.instance.precio = precio_conadis_calculado
                 
-                formset.instance = evento
-                formset.save()
-                
-            messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
-            return redirect('tickets:panel_proveedor')
+                with transaction.atomic():
+                    evento = form.save(commit=False)
+                    evento.creado_por = request.user
+                    print("--- DEBUG: A punto de ejecutar evento.save() ---")
+                    evento.save()
+                    print("--- DEBUG: evento.save() completado con éxito ---")
+                    
+                    formset.instance = evento
+                    print("--- DEBUG: A punto de ejecutar formset.save() ---")
+                    formset.save()
+                    print("--- DEBUG: formset.save() completado con éxito ---")
+                    
+                messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
+                return redirect('tickets:panel_proveedor')
+            except Exception as e:
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print(f"!!!!!!!!!! ERROR CRÍTICO AL GUARDAR EL EVENTO: {e} !!!!!!!!!!!")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f"Ocurrió un error inesperado al crear el evento. Por favor, contacta a soporte. Error: {e}")
+
     else:
         form = EventoForm()
         formset = BoletoFormSetCreate(prefix='boletos')

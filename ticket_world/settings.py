@@ -318,6 +318,21 @@ INTERNAL_IPS = [
 # settings.py
 MAPS_API_KEY = os.getenv('MAPS_API_KEY')
 
+# --- CONFIGURACIÓN DE ALMACENAMIENTO EN LA NUBE (SOLO PARA PRODUCCIÓN) ---
+if 'USE_GCS' in os.environ:
+    # Configuración para Google Cloud Storage
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
+    GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
+    
+    # La URL de los medios se construye a partir del nombre del bucket
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+else:
+    # Configuración local (la que ya tenías)
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+
 # --- CONFIGURACIÓN DE LOGGING PARA DEPURACIÓN EN PRODUCCIÓN ---
 LOGGING = {
     'version': 1,

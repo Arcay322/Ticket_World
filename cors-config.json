@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://ticket-world.onrender.com"],
+    "method": ["GET", "POST", "HEAD", "PUT"],
+    "responseHeader": ["Content-Type", "Authorization"],
+    "maxAgeSeconds": 3600
+  }
+]
