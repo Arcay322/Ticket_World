@@ -23,7 +23,11 @@ import qrcode
 from email.mime.image import MIMEImage
 import uuid
 import time
-from django.conf import settings # Asegúrate de que este archivo exista y tenga la clave API correcta
+from django.conf import settings
+
+# --- Imports para la subida manual a GCS ---
+from google.cloud import storage
+from django.core.files.base import ContentFile
 
 # --- Imports de nuestras aplicaciones ---
 from usuarios.decorators import admin_required
@@ -249,7 +253,7 @@ def actualizar_carrito_view(request):
                 if boleto_id_str in boletos:
                     boleto_obj = Boleto.objects.get(id=boleto_id_str)
                     if cantidad > boleto_obj.cantidad_restante:
-                        return JsonResponse({'status': 'error', 'message': f'Stock insuficiente. Solo quedan {boleto_obj.cantidad_restante} boletos.'}, status=400)
+                        return JsonResponse({'status', 'error', 'message': f'Stock insuficiente. Solo quedan {boleto_obj.cantidad_restante} boletos.'}, status=400)
                     if cantidad > 0:
                         boletos[boleto_id_str] = cantidad
                     else:
@@ -377,29 +381,39 @@ def crear_evento(request):
         return redirect('usuarios:inicio')
         
     if request.method == 'POST':
-        print("--- DEBUG: Recibida una solicitud POST para crear evento ---")
         form = EventoForm(request.POST, request.FILES)
         formset = BoletoFormSetCreate(request.POST, request.FILES, prefix='boletos')
         
-        print(f"--- DEBUG: Archivos en la solicitud: {request.FILES} ---")
-
         if form.is_valid() and formset.is_valid():
-            print("--- DEBUG: Formulario y formset son VÁLIDOS ---")
             try:
                 evento = form.save(commit=False)
                 evento.creado_por = request.user
 
-                # --- MANEJO MANUAL DEL ARCHIVO ---
+                # --- INICIO: LÓGICA DE SUBIDA MANUAL Y DIRECTA ---
                 if 'imagen_portada' in request.FILES:
-                    print("--- DEBUG: Se encontró 'imagen_portada' en request.FILES. Asignando manualmente. ---")
-                    evento.imagen_portada = request.FILES['imagen_portada']
-                else:
-                    print("--- DEBUG: No se encontró 'imagen_portada' en request.FILES. ---")
-                
-                # Ahora guardamos el evento con el archivo ya asignado
-                print("--- DEBUG: A punto de ejecutar evento.save() con el archivo asignado. ---")
-                evento.save()
-                print("--- DEBUG: evento.save() completado. ---")
+                    image_file = request.FILES['imagen_portada']
+                    
+                    # 1. Subir el archivo directamente a GCS
+                    print("--- SUBIDA MANUAL: Iniciando cliente de GCS. ---")
+                    storage_client = storage.Client()
+                    bucket = storage_client.bucket(settings.GS_BUCKET_NAME)
+                    
+                    # Construir la ruta del archivo en el bucket
+                    file_path = f"eventos/{image_file.name}"
+                    blob = bucket.blob(file_path)
+                    
+                    print(f"--- SUBIDA MANUAL: A punto de subir '{file_path}' al bucket '{settings.GS_BUCKET_NAME}'. ---")
+                    
+                    # Leer el contenido del archivo en memoria y subirlo
+                    image_file.seek(0)
+                    blob.upload_from_file(image_file, content_type=image_file.content_type)
+                    
+                    print("--- SUBIDA MANUAL: Subida completada. ---")
+
+                    # 2. Asignar la ruta del archivo (sin el almacenamiento) al campo del modelo
+                    # Django construirá la URL completa usando MEDIA_URL
+                    evento.imagen_portada.name = file_path
+                # --- FIN: LÓGICA DE SUBIDA MANUAL Y DIRECTA ---
 
                 # El resto de la lógica se mantiene igual
                 precio_general = None
@@ -419,10 +433,12 @@ def crear_evento(request):
                     conadis_form.instance.precio = precio_conadis_calculado
                 
                 with transaction.atomic():
+                    # Guardamos el modelo SIN el archivo, ya que lo subimos manualmente
+                    print("--- SUBIDA MANUAL: Guardando el modelo en la base de datos. ---")
+                    evento.save()
+                    
                     formset.instance = evento
-                    print("--- DEBUG: A punto de ejecutar formset.save() ---")
                     formset.save()
-                    print("--- DEBUG: formset.save() completado con éxito ---")
                     
                 messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
                 return redirect('tickets:panel_proveedor')
