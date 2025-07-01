@@ -136,8 +136,20 @@ STATIC_ROOT = BASE_DIR / 'staticfiles' # Directorio donde se recolectarán los e
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- CONFIGURACIÓN DE ARCHIVOS DE MEDIOS (MEDIA FILES) ---
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if 'USE_GCS' in os.environ:
+    # Configuración para Google Cloud Storage
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
+    GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
+    GS_CREDENTIALS_FILE_PATH = os.environ.get('GS_CREDENTIALS_FILE_PATH') # Ruta al archivo de credenciales JSON
+    
+    # La URL de los medios se construye a partir del nombre del bucket
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Se mantiene por si se usa localmente
+else:
+    # Configuración local (como estaba antes)
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
