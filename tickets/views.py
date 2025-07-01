@@ -389,38 +389,25 @@ def crear_evento(request):
                 evento = form.save(commit=False)
                 evento.creado_por = request.user
 
-                # --- INICIO: LÓGICA DE SUBIDA MANUAL Y EXPLÍCITA ---
+                # --- LÓGICA DE SUBIDA MANUAL Y DIRECTA ---
                 if 'imagen_portada' in request.FILES:
                     image_file = request.FILES['imagen_portada']
                     
-                    # 1. Cargar las credenciales explícitamente
-                    print("--- SUBIDA EXPLÍCITA: Verificando la ruta de las credenciales. ---")
-                    credentials_path = settings.GOOGLE_APPLICATION_CREDENTIALS
-                    if not credentials_path:
-                        raise Exception("La variable de entorno GOOGLE_APPLICATION_CREDENTIALS no está configurada.")
-                    print(f"--- SUBIDA EXPLÍCITA: Usando credenciales de: {credentials_path} ---")
-
-                    # 2. Iniciar el cliente con esas credenciales
-                    storage_client = storage.Client.from_service_account_json(credentials_path)
+                    # Usar las credenciales configuradas globalmente
+                    storage_client = storage.Client()
                     bucket = storage_client.bucket(settings.GS_BUCKET_NAME)
                     
-                    # 3. Subir el archivo
-                    file_path = f"eventos/{uuid.uuid4()}_{image_file.name}" # Añadir UUID para evitar sobreescrituras
+                    # Añadir un UUID para asegurar nombres de archivo únicos
+                    file_path = f"eventos/{uuid.uuid4()}_{image_file.name}"
                     blob = bucket.blob(file_path)
                     
-                    print(f"--- SUBIDA EXPLÍCITA: A punto de subir '{file_path}' al bucket '{settings.GS_BUCKET_NAME}'. ---")
+                    # Subir el archivo
                     image_file.seek(0)
                     blob.upload_from_file(image_file, content_type=image_file.content_type)
                     
-                    # 4. Hacer el archivo público explícitamente
-                    blob.make_public()
-                    
-                    print("--- SUBIDA EXPLÍCITA: Subida completada y archivo hecho público. ---")
-
-                    # 5. Asignar la ruta del archivo al modelo
+                    # Asignar la ruta del archivo al modelo
                     evento.imagen_portada.name = file_path
-                # --- FIN: LÓGICA DE SUBIDA MANUAL Y EXPLÍCITA ---
-
+                
                 # El resto de la lógica se mantiene igual
                 precio_general = None
                 conadis_form = None
@@ -446,11 +433,10 @@ def crear_evento(request):
                 messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
                 return redirect('tickets:panel_proveedor')
             except Exception as e:
-                # En un entorno de producción real, esto debería registrarse en un sistema de logging
                 print(f"ERROR CRÍTICO AL GUARDAR EL EVENTO: {e}")
                 import traceback
                 traceback.print_exc()
-                messages.error(request, f"Ocurrió un error inesperado al crear el evento. Por favor, contacta a soporte. Error: {e}")
+                messages.error(request, f"Ocurrió un error inesperado al crear el evento. Por favor, contacta a soporte.")
 
     else:
         form = EventoForm()
