@@ -141,7 +141,6 @@ if 'USE_GCS' in os.environ:
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
-    GS_CREDENTIALS_FILE_PATH = os.environ.get('GS_CREDENTIALS_FILE_PATH') # Ruta al archivo de credenciales JSON
     
     # La URL de los medios se construye a partir del nombre del bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
