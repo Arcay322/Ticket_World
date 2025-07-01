@@ -137,6 +137,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- CONFIGURACIÓN DE ARCHIVOS DE MEDIOS (MEDIA FILES) ---
 if 'USE_GCS' in os.environ:
+    print("-----------------------------------------")
+    print(">>> USANDO CONFIGURACIÓN DE GOOGLE CLOUD STORAGE <<<")
+    print("-----------------------------------------")
     # Configuración para Google Cloud Storage
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
@@ -146,6 +149,9 @@ if 'USE_GCS' in os.environ:
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Se mantiene por si se usa localmente
 else:
+    print("------------------------------------")
+    print(">>> USANDO CONFIGURACIÓN LOCAL <<<")
+    print("------------------------------------")
     # Configuración local (como estaba antes)
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
