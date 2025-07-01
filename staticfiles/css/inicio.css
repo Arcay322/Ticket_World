@@ -267,7 +267,7 @@
     width: 24px;
     height: 24px;
     stroke-width: 1.5;
-    stroke: var(--hero-bg-color) !important; /* ¡CAMBIO CLAVE! Forzado a turquesa */
+    stroke: var(--color-primario) !important; /* ¡CAMBIO CLAVE! Forzado a turquesa */
     fill: none;
     transition: stroke 0.3s ease; /* Transición suave al color */
 }

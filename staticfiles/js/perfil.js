@@ -3,9 +3,7 @@
 // Añade una variable global para asegurar que el script solo se ejecute una vez
 if (typeof perfilScriptLoaded === 'undefined') {
     var perfilScriptLoaded = true; 
-    console.log('perfil.js: script detectado e inicializado.');
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('perfil.js: DOMContentLoaded disparado.');
 
         // --- Validación de Formulario de Detalles de Cuenta ---
         const updateProfileForm = document.getElementById('update_profile_form');
@@ -95,7 +93,6 @@ if (typeof perfilScriptLoaded === 'undefined') {
                 }
 
                 if (!formIsValid) {
-                    console.log('perfil.js: Validación de perfil falló en frontend.');
                     this.disabled = false;
                     this.textContent = 'Guardar Cambios';
                     this.style.opacity = 1;
@@ -167,7 +164,6 @@ if (typeof perfilScriptLoaded === 'undefined') {
                 }
 
                 if (!formIsValid) {
-                    console.log('perfil.js: Validación de cambio de contraseña falló en frontend.');
                     this.disabled = false;
                     this.textContent = 'Cambiar Contraseña';
                     this.style.opacity = 1;
@@ -185,7 +181,6 @@ if (typeof perfilScriptLoaded === 'undefined') {
 
         // --- Lógica para Mostrar/Ocultar Contraseñas ---
         const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-        console.log(`perfil.js: Se encontraron ${togglePasswordButtons.length} botones de toggle de contraseña.`);
 
         togglePasswordButtons.forEach(button => {
             const targetInputId = button.dataset.target;
@@ -193,13 +188,11 @@ if (typeof perfilScriptLoaded === 'undefined') {
             const eyeIcon = button.querySelector('.feather-eye');
 
             if (passwordInput && eyeIcon) {
-                console.log(`perfil.js: Adjuntando listener al botón de toggle para input: #${targetInputId}`);
 
                 const hidePassword = () => {
                     if (passwordInput.type === 'text') {
                         passwordInput.type = 'password';
                         eyeIcon.setAttribute('stroke', 'currentColor'); 
-                        console.log(`perfil.js: Contraseña #${targetInputId} oculta automáticamente.`);
                     }
                 };
 
@@ -209,7 +202,6 @@ if (typeof perfilScriptLoaded === 'undefined') {
                     if (passwordInput.type === 'password') {
                         passwordInput.type = 'text';
                         eyeIcon.setAttribute('stroke', 'var(--color-primario)'); 
-                        console.log(`perfil.js: Contraseña #${targetInputId} ahora visible.`);
 
                         passwordHideTimeout = setTimeout(hidePassword, 5000); 
 
@@ -218,8 +210,6 @@ if (typeof perfilScriptLoaded === 'undefined') {
                     }
                 });
 
-            } else {
-                console.error(`perfil.js: ERROR: No se encontró el input #${targetInputId} o el icono de ojo dentro del botón.`);
             }
         });
 

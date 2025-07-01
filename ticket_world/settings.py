@@ -8,6 +8,10 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+from decouple import config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -280,3 +284,5 @@ JAZZMIN_UI_TWEAKS = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+# settings.py
+MAPS_API_KEY = os.getenv('MAPS_API_KEY')

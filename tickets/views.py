@@ -23,6 +23,7 @@ import qrcode
 from email.mime.image import MIMEImage
 import uuid
 import time
+from django.conf import settings # Asegúrate de que este archivo exista y tenga la clave API correcta
 
 # --- Imports de nuestras aplicaciones ---
 from usuarios.decorators import admin_required
@@ -117,12 +118,10 @@ def lista_eventos(request):
     return render(request, 'tickets/lista_eventos.html', context)
 
 def detalle_evento_view(request, evento_id):
-    # Optimización: prefetch de boletos y select_related de categoría
     evento = get_object_or_404(
         Evento.objects.select_related('categoria').prefetch_related('boletos'),
         pk=evento_id, aprobado=True
     )
-    # Optimización: select_related de usuario en opiniones
     opiniones = Opinion.objects.filter(evento=evento, estado='aprobada').select_related('usuario').order_by('-fecha_opinion')
     estadisticas_opinion = opiniones.aggregate(avg_calificacion=Avg('calificacion'), num_opiniones=Count('id'))
     opinion_form, puede_dejar_opinion, usuario_ya_opino, ha_comprado = None, False, False, False
@@ -150,7 +149,6 @@ def detalle_evento_view(request, evento_id):
     
     is_favorited = False
     if request.user.is_authenticated:
-        # Optimización: obtener IDs de favoritos una sola vez
         fav_ids = set(request.user.eventos_favoritos.values_list('id', flat=True))
         is_favorited = evento.id in fav_ids
 
@@ -171,9 +169,9 @@ def detalle_evento_view(request, evento_id):
         'favorited_event_ids': _get_common_event_context(request),
         'latitud_formateada': latitud_formateada,
         'longitud_formateada': longitud_formateada,
+        'MAPS_API_KEY': settings.MAPS_API_KEY, 
     }
     return render(request, 'tickets/detalle_evento.html', context)
-
 
 @login_required
 def lista_eventos_pasados(request):
@@ -383,7 +381,6 @@ def crear_evento(request):
         formset = BoletoFormSetCreate(request.POST, request.FILES, prefix='boletos')
         
         if form.is_valid() and formset.is_valid():
-            
             precio_general = None
             conadis_form = None
 
@@ -414,7 +411,13 @@ def crear_evento(request):
         form = EventoForm()
         formset = BoletoFormSetCreate(prefix='boletos')
         
-    context = {'form': form, 'formset': formset, 'panel_title': 'Crear Nuevo Evento', 'button_text': 'Crear Evento'}
+    context = {
+        'form': form,
+        'formset': formset,
+        'panel_title': 'Crear Nuevo Evento',
+        'button_text': 'Crear Evento',
+        'MAPS_API_KEY': settings.MAPS_API_KEY,  # ¡Aquí pasamos la clave!
+    }
     return render(request, 'tickets/crear_evento.html', context)
 
 @login_required
@@ -455,7 +458,14 @@ def editar_evento_view(request, evento_id):
         form = EventoForm(instance=evento)
         formset = BoletoFormSetEdit(instance=evento, prefix='boletos')
         
-    context = {'form': form, 'formset': formset, 'panel_title': 'Editar Evento', 'button_text': 'Guardar Cambios'}
+    context = {
+        'form': form,
+        'formset': formset,
+        'panel_title': 'Editar Evento',
+        'button_text': 'Guardar Cambios',
+        # --- CORRECCIÓN Y MEJORA AQUÍ (Faltaba pasar la API Key) ---
+        'MAPS_API_KEY': settings.MAPS_API_KEY, 
+    }
     return render(request, 'tickets/crear_evento.html', context)
 
 
