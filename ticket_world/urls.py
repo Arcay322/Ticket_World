@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
 from usuarios import views as usuarios_views
 
 urlpatterns = [
@@ -12,16 +11,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
 
-    # Include reports app URLs under the 'admin' namespace
-    # This makes the 'admin:sales_report' URL work as expected
-    # ¡IMPORTANTE!: Esta línea debe ser eliminada o comentada
-    # ya que la aplicación 'reports' fue eliminada de INSTALLED_APPS
-    # path('admin/reports/', include('reports.urls', namespace='admin')), # ELIMINAR O COMENTAR
-
     # Your other app URLs
     path('usuarios/', include('usuarios.urls')),
     path('tickets/', include('tickets.urls')),
-    path('', RedirectView.as_view(url='/inicio/', permanent=True)), # Redirige la raíz a la página de inicio
+    path('', usuarios_views.inicio, name='inicio'), # La raíz del sitio es ahora la página de inicio
 ]
 
 # These lines are crucial for serving MEDIA and STATIC files in development mode.
