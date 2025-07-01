@@ -21,7 +21,7 @@ urlpatterns = [
     # Your other app URLs
     path('usuarios/', include('usuarios.urls')),
     path('tickets/', include('tickets.urls')),
-    path('', RedirectView.as_view(url='/usuarios/login/', permanent=True)), # Redirige la raíz a la página de login
+    path('', RedirectView.as_view(url='/inicio/', permanent=True)), # Redirige la raíz a la página de inicio
 ]
 
 # These lines are crucial for serving MEDIA and STATIC files in development mode.
