@@ -20,12 +20,17 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4o4waal&@#kcb0s&)@f00-e3&t#v7ic-cf)2n57%e95au1@nl+'
+# La SECRET_KEY se leerá desde las variables de entorno. 
+# Se mantiene un valor por defecto solo para desarrollo local si no está en .env.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-4o4waal&@#kcb0s&)@f00-e3&t#v7ic-cf)2n57%e95au1@nl+')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG se lee desde el entorno. Por defecto es False en producción.
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+# ALLOWED_HOSTS se lee desde el entorno.
+# En Render, deberías poner 'tu-dominio.onrender.com'.
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
 # Application definition
