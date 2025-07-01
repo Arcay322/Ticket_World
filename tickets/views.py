@@ -386,6 +386,22 @@ def crear_evento(request):
         if form.is_valid() and formset.is_valid():
             print("--- DEBUG: Formulario y formset son VÁLIDOS ---")
             try:
+                evento = form.save(commit=False)
+                evento.creado_por = request.user
+
+                # --- MANEJO MANUAL DEL ARCHIVO ---
+                if 'imagen_portada' in request.FILES:
+                    print("--- DEBUG: Se encontró 'imagen_portada' en request.FILES. Asignando manualmente. ---")
+                    evento.imagen_portada = request.FILES['imagen_portada']
+                else:
+                    print("--- DEBUG: No se encontró 'imagen_portada' en request.FILES. ---")
+                
+                # Ahora guardamos el evento con el archivo ya asignado
+                print("--- DEBUG: A punto de ejecutar evento.save() con el archivo asignado. ---")
+                evento.save()
+                print("--- DEBUG: evento.save() completado. ---")
+
+                # El resto de la lógica se mantiene igual
                 precio_general = None
                 conadis_form = None
 
@@ -403,12 +419,6 @@ def crear_evento(request):
                     conadis_form.instance.precio = precio_conadis_calculado
                 
                 with transaction.atomic():
-                    evento = form.save(commit=False)
-                    evento.creado_por = request.user
-                    print("--- DEBUG: A punto de ejecutar evento.save() ---")
-                    evento.save()
-                    print("--- DEBUG: evento.save() completado con éxito ---")
-                    
                     formset.instance = evento
                     print("--- DEBUG: A punto de ejecutar formset.save() ---")
                     formset.save()
