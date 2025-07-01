@@ -141,14 +141,12 @@ if 'USE_GCS' in os.environ:
     print(">>> USANDO CONFIGURACIÓN DE GOOGLE CLOUD STORAGE <<<")
     print("-----------------------------------------")
     # Configuración para Google Cloud Storage
-    DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
-    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     
     # La URL de los medios se construye a partir del nombre del bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Se mantiene por si se usa localmente
 else:
     print("------------------------------------")
     print(">>> USANDO CONFIGURACIÓN LOCAL <<<")
@@ -322,10 +320,9 @@ MAPS_API_KEY = os.getenv('MAPS_API_KEY')
 # --- CONFIGURACIÓN DE ALMACENAMIENTO EN LA NUBE (SOLO PARA PRODUCCIÓN) ---
 if 'USE_GCS' in os.environ:
     # Configuración para Google Cloud Storage
-    DEFAULT_FILE_STORAGE = 'tickets.storage_backends.CustomGoogleCloudStorage' # <-- CAMBIO CLAVE
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID')
-    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     
     # La URL de los medios se construye a partir del nombre del bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'

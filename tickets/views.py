@@ -386,53 +386,19 @@ def crear_evento(request):
         
         if form.is_valid() and formset.is_valid():
             try:
-                evento = form.save(commit=False)
-                evento.creado_por = request.user
-
-                # --- LÓGICA DE SUBIDA MANUAL Y DIRECTA ---
-                if 'imagen_portada' in request.FILES:
-                    image_file = request.FILES['imagen_portada']
-                    
-                    # Usar las credenciales configuradas globalmente
-                    storage_client = storage.Client()
-                    bucket = storage_client.bucket(settings.GS_BUCKET_NAME)
-                    
-                    # Añadir un UUID para asegurar nombres de archivo únicos
-                    file_path = f"eventos/{uuid.uuid4()}_{image_file.name}"
-                    blob = bucket.blob(file_path)
-                    
-                    # Subir el archivo
-                    image_file.seek(0)
-                    blob.upload_from_file(image_file, content_type=image_file.content_type)
-                    
-                    # Asignar la ruta del archivo al modelo
-                    evento.imagen_portada.name = file_path
-                
-                # El resto de la lógica se mantiene igual
-                precio_general = None
-                conadis_form = None
-
-                for form_individual, cleaned_data in zip(formset.forms, formset.cleaned_data):
-                    tipo_boleto = cleaned_data.get('tipo')
-                    
-                    if tipo_boleto == 'general':
-                        precio_general = cleaned_data.get('precio')
-                    
-                    if tipo_boleto == 'conadis':
-                        conadis_form = form_individual
-
-                if precio_general is not None and conadis_form is not None:
-                    precio_conadis_calculado = precio_general * Decimal('0.80')
-                    conadis_form.instance.precio = precio_conadis_calculado
-                
+                # La forma estándar y limpia de Django
                 with transaction.atomic():
-                    evento.save()
+                    evento = form.save(commit=False)
+                    evento.creado_por = request.user
+                    evento.save() # Aquí Django y django-storages se encargan de la subida
+                    
                     formset.instance = evento
                     formset.save()
-                    
+                
                 messages.success(request, f'¡Evento "{evento.nombre}" creado con éxito! Está pendiente de aprobación.')
                 return redirect('tickets:panel_proveedor')
             except Exception as e:
+                # Este bloque de error sigue siendo útil para capturar cualquier problema
                 print(f"ERROR CRÍTICO AL GUARDAR EL EVENTO: {e}")
                 import traceback
                 traceback.print_exc()
