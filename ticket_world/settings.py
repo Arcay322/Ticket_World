@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4o4waal&@#kcb0s&)@f00-e3&t#v7ic-cf)2n57%e95au1@nl+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -52,10 +52,13 @@ INSTALLED_APPS = [
     'tickets',  # Tu app de tickets
     'reports', # Removido anteriormente
     
+    'corsheaders',  # Nueva app para manejar CORS
+    
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise para archivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -118,6 +121,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static', # Ruta a una carpeta 'static' en la raíz de tu proyecto
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles' # Directorio donde se recolectarán los estáticos en producción
+
+# WhiteNoise: configuración para servir archivos estáticos en producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- CONFIGURACIÓN DE ARCHIVOS DE MEDIOS (MEDIA FILES) ---
 MEDIA_URL = '/media/'
