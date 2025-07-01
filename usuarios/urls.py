@@ -15,6 +15,7 @@ urlpatterns = [
     path('reenviar-activacion/', views.reenviar_activacion_view, name='reenviar_activacion'),
     path('registro_exitoso/', views.registro_exitoso, name='registro_exitoso'),
     path('despedida/', views.despedida_view, name='despedida'),
+    path('inicio/', views.inicio, name='inicio'),
     path('solicitud_proveedor/', views.solicitud_proveedor, name='solicitud_proveedor'),
     path('perfil/', views.perfil, name='perfil'),
         # --- URLs del Panel de Administración ---

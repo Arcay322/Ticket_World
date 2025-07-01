@@ -26,6 +26,10 @@ from django import forms
 from django.shortcuts import render
 from django.http import HttpRequest
 
+def health_check(request):
+    """Una vista simple que no hace nada, para pruebas de despliegue."""
+    return HttpResponse("OK")
+
 # Importamos los formularios de usuarios
 from .forms import RegistroForm, LoginForm, SolicitudProveedorForm, ReenviarActivacionForm, UserProfileUpdateForm
 

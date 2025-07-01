@@ -14,7 +14,7 @@ urlpatterns = [
     # Your other app URLs
     path('usuarios/', include('usuarios.urls')),
     path('tickets/', include('tickets.urls')),
-    path('', usuarios_views.inicio, name='inicio'), # La raíz del sitio es ahora la página de inicio
+    path('', usuarios_views.health_check, name='health_check'), # Apunta a la vista de prueba
 ]
 
 # These lines are crucial for serving MEDIA and STATIC files in development mode.
