@@ -108,7 +108,7 @@ def activar_cuenta_view(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        return render(request, 'usuarios/activacion_exitoso.html')
+        return render(request, 'usuarios/activacion_exitosa.html')
     else:
         return render(request, 'usuarios/activacion_fallida.html')
 
