@@ -116,13 +116,22 @@ TIME_ZONE = 'America/Lima'
 USE_I18N = True
 USE_TZ = True
 
-# --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS ---
+# --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS Y MEDIOS (DJANGO 4.2+) ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Nueva configuración STORAGES (Reemplaza DEFAULT_FILE_STORAGE y STATICFILES_STORAGE)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # --- CONFIGURACIÓN DE CLOUDINARY (MEDIA FILES) ---
 CLOUDINARY_STORAGE = {
@@ -131,8 +140,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': '_gFRhUFu7eV_HHWKtu521Dmrmik',
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'  # Cloudinary handles the URL generation
+MEDIA_URL = ''  # Empty string to avoid extra path segments in Cloudinary URLs
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
